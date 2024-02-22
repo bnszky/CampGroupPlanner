@@ -41,5 +41,60 @@ namespace CampGroupPlanner.Controllers
                 return View();
             }
         }
-    }
+
+		public IActionResult Edit(int? id)
+		{
+			if(id == null)
+            {
+                return NotFound();
+            }
+
+            User? user = _db.Users.SingleOrDefault(u => u.Id == id);
+
+            if(user == null)
+            {
+                return NotFound();
+            }
+
+            return View(user);
+		}
+
+        [HttpPost]
+        public IActionResult Edit(User user)
+        {
+			if (user.Email == null || !Regex.IsMatch(user.Email, "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$"))
+			{
+				ModelState.AddModelError("Email", "Email is invalid!");
+			}
+			if (ModelState.IsValid)
+			{
+				_db.Users.Update(user);
+				_db.SaveChanges();
+				return RedirectToAction("Index");
+			}
+			else
+			{
+				return View(user.Id);
+			}
+		}
+
+		public IActionResult Delete(int? id)
+		{
+			if (id == null)
+			{
+				return NotFound();
+			}
+
+			User? user = _db.Users.SingleOrDefault(u => u.Id == id);
+
+			if (user == null)
+			{
+				return NotFound();
+			}
+
+            _db.Users.Remove(user);
+            _db.SaveChanges();
+			return RedirectToAction("Index");
+		}
+	}
 }

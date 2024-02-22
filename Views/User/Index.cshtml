@@ -26,10 +26,10 @@
             <td>@user.Email</td>
             <td>
                     <div class="btn-group" role="group">
-                        <a asp-controller="Category" asp-action="Edit" class="btn btn-primary">
+                        <a asp-controller="User" asp-action="Edit" asp-route-id="@user.Id" class="btn btn-primary">
                                  Edit
                         </a>
-                            <a asp-controller="Category" asp-action="Delete" class="btn btn-danger">
+                            <a asp-controller="User" asp-action="Delete" asp-route-id="@user.Id" class="btn btn-danger">
                                 Delete
                             </a>
                     </div>
