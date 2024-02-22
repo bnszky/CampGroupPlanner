@@ -34,7 +34,8 @@ namespace CampGroupPlanner.Controllers
             {
                 _db.Users.Add(user);
                 _db.SaveChanges();
-                return RedirectToAction("Index");
+				TempData["success"] = $"Successfully created {user.FirstName} {user.LastName}!";
+				return RedirectToAction("Index");
             }
             else
             {
@@ -70,6 +71,7 @@ namespace CampGroupPlanner.Controllers
 			{
 				_db.Users.Update(user);
 				_db.SaveChanges();
+				TempData["success"] = $"Successfully updated {user.FirstName} {user.LastName}!";
 				return RedirectToAction("Index");
 			}
 			else
@@ -94,6 +96,7 @@ namespace CampGroupPlanner.Controllers
 
             _db.Users.Remove(user);
             _db.SaveChanges();
+            TempData["success"] = $"Successfully deleted {user.FirstName} {user.LastName}!";
 			return RedirectToAction("Index");
 		}
 	}
