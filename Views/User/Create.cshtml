@@ -1,0 +1,38 @@
+﻿@{
+	ViewData["Title"] = "Create User";
+}
+
+@model User
+
+<form method="post">
+	<div class="mt-4 p-3">
+		<h2>Create User</h2>
+
+		<div class="row mb-2 p-1">
+			<label class="p-0">First Name</label>
+			<input asp-for="FirstName" class="form-control"/>
+		</div>
+		<div class="row mb-2 p-1">
+			<label class="p-0">Last Name</label>
+			<input asp-for="LastName" class="form-control"/>
+		</div>
+		<div class="row mb-2 p-1">
+			<label class="p-0">Nick</label>
+			<input asp-for="Nick" class="form-control"/>
+		</div>
+		<div class="row mb-2 p-1">
+			<label class="p-0">Email</label>
+			<input asp-for="Email" class="form-control"/>
+		</div>
+		<div class="row">
+			<div class="col-6 col-md-3">
+				<button type="submit" class="btn btn-primary form-control" >Create</button>
+			</div>
+			<div class="col-6 col-md-3">
+				<a asp-controller="User" asp-action="Index" class="btn btn-secondary border  form-control">
+					Back to List
+				</a>
+			</div>
+		</div>
+	</div>
+</form>

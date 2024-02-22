@@ -15,5 +15,18 @@ namespace CampGroupPlanner.Controllers
             List<User> users = _db.Users.ToList();
             return View(users);
         }
+
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Create(User user)
+        {
+            _db.Users.Add(user);
+            _db.SaveChanges();
+            return RedirectToAction("Index");
+        }
     }
 }
