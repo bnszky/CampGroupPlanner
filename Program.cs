@@ -1,3 +1,6 @@
+using CampGroupPlanner.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace CampGroupPlanner
 {
     public class Program
@@ -8,6 +11,8 @@ namespace CampGroupPlanner
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddDbContext<AppDbController>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             var app = builder.Build();
 
