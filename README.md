@@ -1,3 +1,4 @@
+![IMAGE](https://cf.bstatic.com/xdata/images/hotel/max1024x768/440079820.jpg?k=2f90bc43ab5620d6aa391955ec0eddefb09866d1fc93e5e243dee7a95bf38418&o=&hp=1)
 # About user interface
 **Camp Group Planner is a web application that allows you to store information about events and the latest news from campus or youth camp.**
 There are 2 types of tiles visible for users: News, Events.
