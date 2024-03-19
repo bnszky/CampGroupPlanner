@@ -16,7 +16,7 @@ Admin is a specific account to handle news, and events (basic CRUD operations), 
 - can modify the order of news and events in user view
 
 # Models
-[Entity Relation Diagram](https://app.diagrams.net/#Hbnszky%2FCampGroupPlanner%2Fmaster%2FEntityRelationDiagram.drawio#%7B%22pageId%22%3A%22R2lEEEUBdFMjLlhIrx00%22%7D)
+[Entity Relation Diagram](https://viewer.diagrams.net/?tags=%7B%7D&highlight=0000ff&layers=1&nav=1&title=EntityRelationDiagram.drawio#Uhttps%3A%2F%2Fraw.githubusercontent.com%2Fbnszky%2FCampGroupPlanner%2Fmaster%2FEntityRelationDiagram.drawio)
 1. User (`id, name, surname, nick, email, password`)
 2. News (`id, title, description, date`)
 3. Event (`id, title, description, date, beginDate, endDate, participants, localization`)
