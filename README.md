@@ -15,6 +15,7 @@ Admin is a specific account to handle news, and events (basic CRUD operations), 
 - can modify the order of news and events in user view
 
 # Models
+[Entity Relation Diagram](EntityRelationDiagram.drawio)
 1. User (`id, name, surname, nick, email, password`)
 2. News (`id, title, description, date`)
 3. Event (`id, title, description, date, beginDate, endDate, participants, localization`)
