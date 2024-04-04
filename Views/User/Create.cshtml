@@ -26,8 +26,13 @@
 		</div>
 		<div class="row mb-2 p-1">
 			<label class="p-0">Email</label>
-			<input asp-for="Email" class="form-control"/>
+			<input asp-for="Email" class="form-control" type="email"/>
 			<span asp-validation-for="Email" class="text-danger"></span>
+		</div>
+		<div class="row mb-2 p-1">
+			<label class="p-0">HashPassword</label>
+			<input asp-for="HashPassword" class="form-control" type="password"/>
+			<span asp-validation-for="HashPassword" class="text-danger"></span>
 		</div>
 		<div class="row">
 			<div class="col-6 col-md-3">

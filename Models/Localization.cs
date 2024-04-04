@@ -2,12 +2,12 @@
 {
     public class Localization
     {
-        public int Id { get; set; }
-        public string? Name { get; set; }
+        public Guid Id { get; set; }
+        public string? PlaceName { get; set; }
+        public string? Country { get; set; }
         public double? Longitude { get; set; }
         public double? Latitude { get; set; }
-        public string? Address { get; set; }
-        public Attraction Attraction { get; set; }
-        public int AttractionId { get; set; }
+        public Article Article { get; set; }
+        public Guid ArticleId { get; set; }
     }
 }

@@ -43,7 +43,7 @@ namespace CampGroupPlanner.Controllers
             }
         }
 
-		public IActionResult Edit(int? id)
+		public IActionResult Edit(Guid? id)
 		{
 			if(id == null)
             {
@@ -76,11 +76,11 @@ namespace CampGroupPlanner.Controllers
 			}
 			else
 			{
-				return View(user.Id);
+				return View(user);
 			}
 		}
 
-		public IActionResult Delete(int? id)
+		public IActionResult Delete(Guid? id)
 		{
 			if (id == null)
 			{
