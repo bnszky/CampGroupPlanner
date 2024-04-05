@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "Articles";
+}
+
+@model List<ArticleModel>
+
+<h2>Articles</h2>
+<a asp-controller="Articles" asp-action="Aggregate" class="btn btn-danger">Aggregate</a>
+
+@if(Model != null){
+    @foreach(var article in Model)
+    {
+        <h2>@article.Title</h2>
+        <p>@article.Description</p>
+        <p>@article.PublishedDate</p>
+        <a class="btn btn-secondary" href="@article.SourceLink">Source</a>
+        <hr />
+    }
+}

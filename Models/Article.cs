@@ -12,5 +12,6 @@
         public DateTime CreatedAt { get; set; }
         public DateTime LastUpdatedAt { get; set; }
         public virtual List<PlaceImage>? PlaceImages { get; set; }
+        public string SourceLink { get; set; }
     }
 }

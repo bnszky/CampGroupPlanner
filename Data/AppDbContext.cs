@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CampGroupPlanner.Data
 {
-    public class AppDbController : DbContext
+    public class AppDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Review> Reviews { get; set; }
@@ -11,7 +11,7 @@ namespace CampGroupPlanner.Data
         public DbSet<Article> Articles { get; set; }
         public DbSet<PlaceImage> PlaceImages { get; set; }
 
-        public AppDbController(DbContextOptions<AppDbController> options) : base(options) {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

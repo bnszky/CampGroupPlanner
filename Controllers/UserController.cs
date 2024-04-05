@@ -8,8 +8,8 @@ namespace CampGroupPlanner.Controllers
 {
     public class UserController : Controller
     {
-        AppDbController _db;
-        public UserController(AppDbController db) {
+        AppDbContext _db;
+        public UserController(AppDbContext db) {
             _db = db;
         }
         public IActionResult Index()

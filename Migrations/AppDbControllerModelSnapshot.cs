@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CampGroupPlanner.Migrations
 {
-    [DbContext(typeof(AppDbController))]
+    [DbContext(typeof(AppDbContext))]
     partial class AppDbControllerModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -46,6 +46,10 @@ namespace CampGroupPlanner.Migrations
 
                     b.Property<int?>("LocalizationId")
                         .HasColumnType("int");
+
+                    b.Property<string>("SourceLink")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()

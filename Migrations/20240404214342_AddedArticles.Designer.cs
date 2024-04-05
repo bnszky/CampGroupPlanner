@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CampGroupPlanner.Migrations
 {
-    [DbContext(typeof(AppDbController))]
+    [DbContext(typeof(AppDbContext))]
     [Migration("20240404214342_AddedArticles")]
     partial class AddedArticles
     {
