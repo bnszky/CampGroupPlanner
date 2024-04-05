@@ -1,25 +1,19 @@
-![IMAGE](https://cf.bstatic.com/xdata/images/hotel/max1024x768/440079820.jpg?k=2f90bc43ab5620d6aa391955ec0eddefb09866d1fc93e5e243dee7a95bf38418&o=&hp=1)
-# About user interface
-**Camp Group Planner is a web application that allows you to store information about events and the latest news from campus or youth camp.**
-There are 2 types of tiles visible for users: News, Events.
-- News are pieces of information about daily activities and interesting things. This tile includes basic fields like `title, description, and disclosure date`.
-- Events are similar to news but additionally provide you a possibility to sign up for specific event. Events have `title, description, date (begin, end), members' capacity, localization`.
+# About
+**This application allows you to fetch travel articles from different sources.**
+- All articles should be linked to the location described in the article.
+- Articles could have images that could be liked or not by users to monitor how images affect users' attention
+- The user will be able to prepare a review for every article in the database
 
 > [!WARNING]
-> It'll be possible to add comments and reactions to the news by the user.
-> There are plans to add teams, and team activities in the future (like volleyball, tug of war, paintball, and other unusual sports)
+> The user could choose an article by image. There will be a displayed gallery of images without any text that furthers to articles (interesting experiment)
+> The user could also choose an article on a map (pin on the map or near you (radius 100km)) thanks to the location.
 
-# Admin panel and positioning
-Admin is a specific account to handle news, and events (basic CRUD operations), and: 
-- import news from other web sources.
-- access to view a list of people enrolled for the event
-- can modify the order of news and events in user view
+# Admin
+Admin is a specific account to handle news, (basic CRUD operations), and: 
+- import and aggregate articles from other web resources.
+- verify the location and images of articles
+- change the position of articles by altering the "position ratio" yet not defined
 
-# Models
-[Entity Relation Diagram](https://viewer.diagrams.net/?tags=%7B%7D&highlight=0000ff&layers=1&nav=1&title=EntityRelationDiagram.drawio#Uhttps%3A%2F%2Fraw.githubusercontent.com%2Fbnszky%2FCampGroupPlanner%2Fmaster%2FEntityRelationDiagram.drawio)
-1. User (`id, name, surname, nick, email, password`)
-2. News (`id, title, description, date`)
-3. Event (`id, title, description, date, beginDate, endDate, participants, localization`)
+# Entity Diagram (In progress)
+![image](https://github.com/bnszky/CampGroupPlanner/assets/76440830/59c52660-7ac2-439f-8ae3-9b8b7a6685e4)
 
-# Changelog
-- (22.02.24) Basic project setup: added simple views, user model and form, connected with DB using EF
