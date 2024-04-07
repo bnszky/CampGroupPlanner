@@ -15,5 +15,15 @@ Admin is a specific account to handle news, (basic CRUD operations), and:
 - change the position of articles by altering the "position ratio" yet not defined
 
 # Entity Diagram (In progress)
-![image](https://github.com/bnszky/CampGroupPlanner/assets/76440830/59c52660-7ac2-439f-8ae3-9b8b7a6685e4)
+![image](https://github.com/bnszky/CampGroupPlanner/assets/76440830/17c4d562-a9ec-45f3-8cac-c6c59145e985)
+
+# Azure AI-Language Tool
+To use entities detection system in text you must set your key and endpoint:
+```
+dotnet user-secrets init
+dotnet user-secrets set "AzureKeyCredential" "YOUR_KEY"
+dotnet user-secrets set "AzureLanguageEndpoint" "YOUR_REGION"
+```
+> [!CAUTION]
+> LocationDetectionService isn't fully implemented so now it isn't working!
 
