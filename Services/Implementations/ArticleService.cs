@@ -70,7 +70,32 @@ namespace CampGroupPlanner.Services.Implementations
 
 		public Task<List<Article>> GetArticlesAsync()
 		{
-			return _dbContext.Articles.ToListAsync();
-		}
-	}
+			return _dbContext.Articles.Include(a => a.Localizations).ToListAsync();
+        }
+
+        public async Task Create(Article article)
+        {
+
+			if(article.Localizations != null)
+			{
+				foreach(var localization in article.Localizations)
+				{
+					localization.Article = article;
+				}
+			}
+
+            _dbContext.Articles.Add(article);
+			await _dbContext.SaveChangesAsync();
+        }
+
+        public void Update(Article article)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Delete(Article article)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

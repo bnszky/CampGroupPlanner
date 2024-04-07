@@ -6,5 +6,8 @@ namespace CampGroupPlanner.Services.Abstractions
 	{
 		public Task<List<Article>> GetArticlesAsync();
 		public Task AggregateFromRSS(string link);
+		public Task Create(Article article);
+		public void Update(Article article);
+		public void Delete(Article article);
 	}
 }

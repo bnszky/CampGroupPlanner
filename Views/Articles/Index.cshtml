@@ -1,27 +1,56 @@
 ﻿@{
     ViewData["Title"] = "Articles";
+    var locationString = "";
 }
 
-@model List<ArticleModel>
+@model List<Article>
 
 <h2>Articles</h2>
 <a asp-controller="Articles" asp-action="Aggregate" class="btn btn-danger">Aggregate</a>
+<a asp-controller="Articles" asp-action="Create" class="btn btn-success">Create</a>
 
-@if(Model != null){
+@if(Model != null && Model.Count > 0){
     @foreach(var article in Model)
     {
         <h2>
             @Html.Raw(article.Title)
         </h2>
-        @if (article.ImageUrl != null)
+        @if(article.Author != null)
         {
-            <img src="@article.ImageUrl" height="300" />
+            <h5>Author: @article.Author</h5>
+        }
+        @if (article.ImageLink != null)
+        {
+            <img src="@article.ImageLink" height="300" />
         }
         <p>
             @Html.Raw(article.Description)
         </p>
-        <p>@article.PublishedDate</p>
-        <a class="btn btn-secondary" href="@article.SourceLink">Source</a>
+        <p>Published: @article.CreatedAt.ToString("MM/dd/yyyy")</p>
+
+        {
+            if (article.Localizations != null)
+            {
+                List<string> localizationsToString = new List<string>();
+
+                foreach (var localization in article.Localizations)
+                {
+                    if (localization != null && localization.PlaceName != null) localizationsToString.Add(localization.PlaceName);
+                }
+
+                locationString = string.Join(", ", localizationsToString);
+            }
+        }
+
+        @if (article.Localizations != null){
+            <p id="localizations">Locations: @locationString</p>
+        }
+
+        <a class="btn btn-secondary" href="@article.SourceLink" target="_blank">Source</a>
+
         <hr />
     }
+} else
+{
+    <h2>There is no any article</h2>
 }

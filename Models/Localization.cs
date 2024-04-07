@@ -9,7 +9,7 @@
         public string? City { get; set; }
         public double? Longitude { get; set; }
         public double? Latitude { get; set; }
-        public Article Article { get; set; }
+        public Article? Article { get; set; }
         public Guid ArticleId { get; set; }
     }
 }

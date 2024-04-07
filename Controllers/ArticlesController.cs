@@ -13,17 +13,9 @@ namespace CampGroupPlanner.Controllers
 		}
 		public async Task<IActionResult> Index()
 		{
-			List<ArticleModel> model = (await _articleService.GetArticlesAsync()).Select(article => new ArticleModel
-			{
-				Id = article.Id,
-				Title = article.Title,
-                Description = article.Description,
-                PublishedDate = article.CreatedAt,
-				SourceLink = article.SourceLink,
-				ImageUrl = article.ImageLink
-			}).ToList();
+			List<Article> articles = await _articleService.GetArticlesAsync();
 
-			return View(model);
+			return View(articles);
 		}
 
         public async Task<IActionResult> AggregateAsync(string? rssLink)
@@ -33,5 +25,23 @@ namespace CampGroupPlanner.Controllers
 
             return RedirectToAction("Index");
         }
+
+		public IActionResult Create()
+		{
+			return View();
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> Create(Article article)
+		{
+			if(ModelState.IsValid)
+			{
+				await _articleService.Create(article);
+				return RedirectToAction("Index");
+			} else
+			{
+				return View();
+			}
+		}
     }
 }

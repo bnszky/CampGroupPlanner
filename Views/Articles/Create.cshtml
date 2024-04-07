@@ -1,0 +1,95 @@
+﻿@{
+	ViewData["Title"] = "Create";
+}
+
+@model CampGroupPlanner.Models.Article
+
+<h2>Create Article</h2>
+
+<form asp-action="Create">
+    <div class="form-group">
+        <label asp-for="Title" class="control-label"></label>
+        <input asp-for="Title" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Description" class="control-label"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+    <div class="form-group">
+        <label asp-for="Author" class="control-label"></label>
+        <input asp-for="Author" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="ImageLink" class="control-label"></label>
+        <input asp-for="ImageLink" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="SourceLink" class="control-label"></label>
+        <input asp-for="SourceLink" class="form-control" />
+    </div>
+    <div id="locations">
+
+    </div>
+    <div class="addLocation">
+        <div class="form-group">
+            <label class="control-label" for="PlaceName">Place Name</label>
+            <input class="form-control" name="PlaceName" id="PlaceName"/>
+        </div>
+        <button id="addLocationBtn" class="btn btn-secondary" onclick="addLocation()" type="button">Add Location</button>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Create" class="btn btn-primary" />
+    </div>
+</form>
+
+@section Scripts{
+    <script>
+        var container = document.getElementById("locations");
+        var locations = [];
+
+        displayLocations();
+
+        function addLocation() {
+            console.log("S");
+            locations.push({
+                "PlaceName": document.getElementById("PlaceName").value
+            });
+            document.getElementById("PlaceName").value = "";
+
+            displayLocations();
+        }
+
+        function deleteLocation(index) {
+            locations.splice(index, 1);
+            displayLocations();
+        }
+
+        function displayLocations(){
+            container.innerHTML = "<h2>Locations: </h2>";
+            var index = 0;
+            if (locations.length <= 0) {
+
+                container.innerHTML += "<h5>No location for this article </h5>"
+
+            } else {
+
+                for (var location of locations) {
+                    console.log(location);
+                    container.innerHTML += `
+                    <div class="location-item">
+                        <h5>Location ${index + 1}</h5>
+                        <div class="form-group">
+                            <label class="control-label" for="Localizations[${index}].PlaceName"></label>
+                            <input class="form-control" name="Localizations[${index}].PlaceName" value="${location.PlaceName}"/>
+                        </div>
+                        <button type="button" class="btn btn-danger" onclick="deleteLocation(${index})">Delete</button>
+                    </div>
+                `;
+                    index++;
+                }
+
+            }
+        }
+        
+    </script>
+}
