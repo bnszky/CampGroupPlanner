@@ -9,8 +9,6 @@ namespace CampGroupPlanner.Data
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Localization> Localizations { get; set; }
         public DbSet<Article> Articles { get; set; }
-        public DbSet<PlaceImage> PlaceImages { get; set; }
-
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {
         }
 

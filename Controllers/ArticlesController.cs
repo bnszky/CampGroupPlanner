@@ -17,9 +17,10 @@ namespace CampGroupPlanner.Controllers
 			{
 				Id = article.Id,
 				Title = article.Title,
-				Description = article.Description,
-				PublishedDate = article.CreatedAt,
-				SourceLink = article.SourceLink
+                Description = article.Description,
+                PublishedDate = article.CreatedAt,
+				SourceLink = article.SourceLink,
+				ImageUrl = article.ImageLink
 			}).ToList();
 
 			return View(model);
@@ -27,11 +28,6 @@ namespace CampGroupPlanner.Controllers
 
         public async Task<IActionResult> AggregateAsync(string? rssLink)
         {
-            //split our aggregation to 3 steps 
-            //rss get some common data to take source url 
-            //take article 'body' and copy to our storage 
-            // after having an article twxt try to rate it
-
             if(rssLink == null) rssLink = @"https://feeds.feedburner.com/breakingtravelnews/news/tourism";
             await _articleService.AggregateFromRSS(rssLink);
 

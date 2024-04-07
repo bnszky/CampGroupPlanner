@@ -17,6 +17,7 @@ namespace CampGroupPlanner
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddScoped<IArticleService, ArticleService>();
+            builder.Services.AddScoped<ILocationDetectionService, LocationDetectionService>();
 
             var app = builder.Build();
 

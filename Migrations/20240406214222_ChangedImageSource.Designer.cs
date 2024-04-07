@@ -4,6 +4,7 @@ using CampGroupPlanner.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CampGroupPlanner.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbControllerModelSnapshot : ModelSnapshot
+    [Migration("20240406214222_ChangedImageSource")]
+    partial class ChangedImageSource
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,6 +34,9 @@ namespace CampGroupPlanner.Migrations
                     b.Property<string>("Author")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -43,6 +49,9 @@ namespace CampGroupPlanner.Migrations
 
                     b.Property<DateTime>("LastUpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<int?>("LocalizationId")
+                        .HasColumnType("int");
 
                     b.Property<string>("SourceLink")
                         .IsRequired()
@@ -66,9 +75,6 @@ namespace CampGroupPlanner.Migrations
                     b.Property<Guid>("ArticleId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Country")
                         .HasColumnType("nvarchar(max)");
 
@@ -81,12 +87,10 @@ namespace CampGroupPlanner.Migrations
                     b.Property<string>("PlaceName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Region")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("ArticleId");
+                    b.HasIndex("ArticleId")
+                        .IsUnique();
 
                     b.ToTable("Localizations");
                 });
@@ -153,8 +157,8 @@ namespace CampGroupPlanner.Migrations
             modelBuilder.Entity("CampGroupPlanner.Models.Localization", b =>
                 {
                     b.HasOne("CampGroupPlanner.Models.Article", "Article")
-                        .WithMany("Localizations")
-                        .HasForeignKey("ArticleId")
+                        .WithOne("Localization")
+                        .HasForeignKey("CampGroupPlanner.Models.Localization", "ArticleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -174,7 +178,7 @@ namespace CampGroupPlanner.Migrations
 
             modelBuilder.Entity("CampGroupPlanner.Models.Article", b =>
                 {
-                    b.Navigation("Localizations");
+                    b.Navigation("Localization");
                 });
 
             modelBuilder.Entity("CampGroupPlanner.Models.User", b =>

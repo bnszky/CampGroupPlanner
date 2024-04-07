@@ -10,8 +10,16 @@
 @if(Model != null){
     @foreach(var article in Model)
     {
-        <h2>@article.Title</h2>
-        <p>@article.Description</p>
+        <h2>
+            @Html.Raw(article.Title)
+        </h2>
+        @if (article.ImageUrl != null)
+        {
+            <img src="@article.ImageUrl" height="300" />
+        }
+        <p>
+            @Html.Raw(article.Description)
+        </p>
         <p>@article.PublishedDate</p>
         <a class="btn btn-secondary" href="@article.SourceLink">Source</a>
         <hr />

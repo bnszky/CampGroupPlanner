@@ -10,11 +10,27 @@ namespace CampGroupPlanner.Services.Implementations
 	public class ArticleService : IArticleService
 	{
 		private AppDbContext _dbContext;
+		private ILocationDetectionService _locationDetectionService;
 
-		public ArticleService(AppDbContext dbContext)
+		public ArticleService(AppDbContext dbContext, ILocationDetectionService locationDetectionService)
 		{
 			_dbContext = dbContext;
+			_locationDetectionService = locationDetectionService;
 		}
+
+		private string? GetImageFromXML(SyndicationItem? item)
+		{
+            var mediaContent = item.ElementExtensions.ReadElementExtensions<XmlElement>("content", "http://search.yahoo.com/mrss/").FirstOrDefault();
+            if (mediaContent != null)
+            {
+                var imageUrl = mediaContent.GetAttribute("url");
+                if (!string.IsNullOrEmpty(imageUrl))
+                {
+                    return imageUrl;
+                }
+            }
+			return null;
+        }
 		public async Task AggregateFromRSS(string link)
 		{
 			try
@@ -29,13 +45,16 @@ namespace CampGroupPlanner.Services.Implementations
 						Id = Guid.NewGuid(),
 						Title = item.Title.Text,
 						Description = item.Summary?.Text,
-						Content = item.Content?.ToString(),
 						CreatedAt = item.PublishDate.DateTime,
 						Author = item.Authors.FirstOrDefault()?.Name,
-						SourceLink = item.Links.FirstOrDefault()?.Uri?.AbsoluteUri
+						SourceLink = item.Links.FirstOrDefault()?.Uri?.AbsoluteUri,
+						ImageLink = GetImageFromXML(item)
 					};
+					// only for testing Azure
+					// _locationDetectionService.GetLocalizationsFromTextAsync(article.Title + "\n" + article.Description);
 
-					if(article != null && !_dbContext.Articles.Any(e => e.SourceLink == article.SourceLink))
+
+                    if (article != null && !_dbContext.Articles.Any(e => e.SourceLink == article.SourceLink))
 					{
                         await _dbContext.AddAsync(article);
                     }
@@ -45,7 +64,6 @@ namespace CampGroupPlanner.Services.Implementations
 			}
 			catch (Exception ex)
 			{
-				// Handle any exceptions (e.g., invalid feed URL, parsing errors)
 				Console.WriteLine($"Error fetching RSS feed: {ex.Message}");
 			}
 		}
