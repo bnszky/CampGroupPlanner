@@ -1,0 +1,39 @@
+.card{
+    display: flex;
+    justify-content: space-around;
+    border: 3px solid #101010;
+    border-radius: 20px;
+    padding: 100px;
+    margin: 15px;
+    box-shadow: 1px 1px 1px 1px grey;
+}
+
+img{
+    width: 40%;
+    border-radius: 25px;
+}
+
+.article-info{
+    margin-top: 60px;
+}
+
+.date{
+    margin: 0;
+    font-style: italic;
+    text-align: end;
+}
+
+.author{
+    margin: 5px;
+    font-weight: bold;
+}
+
+.title-section{
+    display: flex;
+    justify-content: space-between;
+    padding-left: 25px;
+}
+
+.article-content{
+    padding: 25px;
+}
