@@ -2,10 +2,12 @@ import HumanDate from "../HumanDate/HumanDate";
 import "./ArticleItem.css" 
 import PropTypes from 'prop-types';
 
+import { Button } from "react-bootstrap";
+
 function ArticleItem({article}) {
-    return <div className="card">
-        <img src={article.imgUrl} alt="Image"/>
-        <div className="article-content">
+    return <div className="cart row">
+        <img src={article.imgUrl} className="col-md-6" alt="Image"/>
+        <div className="article-content col-md-6">
             <div className="title-section">
                 <h1 className="title">{article.title}</h1>
                 <div className="article-info">
@@ -14,7 +16,7 @@ function ArticleItem({article}) {
                 </div>
             </div>
             <p className="description">{article.description}</p>
-            <a className="link-btn" href={article.sourceLink} target="_blank">Read more</a>
+            <Button as="a" variant="primary">Read more...</Button>
         </div>
     </div>
 }

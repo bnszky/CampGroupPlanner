@@ -1,15 +1,15 @@
-.card{
+.cart{
     display: flex;
-    justify-content: space-around;
+    flex-wrap: wrap;
+    justify-content: space-between;
     border: 3px solid #101010;
     border-radius: 20px;
-    padding: 100px;
-    margin: 15px;
+    padding: 2rem;
+    margin-top: 1rem;
     box-shadow: 1px 1px 1px 1px grey;
 }
 
 img{
-    width: 40%;
     border-radius: 25px;
 }
 
