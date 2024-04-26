@@ -16,7 +16,7 @@ function ArticleItem({article}) {
                 </div>
             </div>
             <p className="description">{article.description}</p>
-            <Button as="a" variant="primary">Read more...</Button>
+            <Button as="a" variant="primary" href={article.sourceLink} target="_blank">Read more...</Button>
         </div>
     </div>
 }
