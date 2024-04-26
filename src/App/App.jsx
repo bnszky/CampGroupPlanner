@@ -1,4 +1,5 @@
 import ArticlesFeed from '../pages/ArticlesFeed/ArticlesFeed'
+import Example from '../pages/Examples/Examples'
 import './App.css'
 
 function App() {
@@ -37,11 +38,7 @@ function App() {
     name: "Catalonia",
     country: "Spain",
     cities: ["Barcelona", "Girona", "Tarragona"],
-    description: ```
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam nec mollis ipsum, ut commodo velit. Curabitur eget ornare justo. Nullam blandit erat vehicula enim porttitor facilisis. Nulla facilisi. Quisque iaculis mattis ligula et lobortis. Praesent tincidunt leo cursus neque interdum, eget facilisis erat hendrerit. Maecenas varius tellus diam, in laoreet mauris ultrices id. Integer sagittis turpis at sapien rhoncus mollis. Ut sed condimentum neque, non vulputate elit. Nam ut sem feugiat, sollicitudin justo id, auctor erat. Fusce eros eros, bibendum eu odio a, sollicitudin lobortis magna. Quisque commodo feugiat massa, sed varius nunc fringilla non. Donec dui quam, interdum a aliquet at, vehicula ut nisl. Ut lobortis felis non magna aliquam, et imperdiet leo finibus.
-
-    Sed in odio sit amet ligula ornare tincidunt. Nunc turpis nisl, aliquam sit amet mollis commodo, ullamcorper ac lectus. Mauris dui ipsum, cursus eget nisi id, mollis tristique tortor. Curabitur nunc diam, vulputate et sapien in, suscipit lobortis turpis. Nunc nec libero nunc. Ut placerat enim non ex bibendum, eget ultrices eros gravida. Vivamus at purus quis neque posuere molestie. In ac placerat neque. Ut quam sapien, pharetra nec dui ac, porta scelerisque tellus. Fusce lobortis non libero eget rhoncus. Suspendisse varius lorem eu risus.
-    ```,
+    description: "Boasting a reputation as one of the most attractive cities in Europe, Barcelona celebrates its role as the capital of Catalonia. The city’s cosmopolitan and international vibe makes it a favorite city for many people around the world. The city is especially known for its architecture and art—travelers flock from around the world to see the iconic Sagrada Família church and other modernist landmarks designed by Gaudí. These Barcelona travel tips just scrape the surface of what can be found in the vibrant city!",
     images: [
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnwf8dsSKIsCsVbwXlpQEuvEP6q70MdNVjdQ&s",
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRaRfTP8AW7Od72m4IRi4LPRt9xNqPYfYlPrg&s",
@@ -54,7 +51,7 @@ function App() {
     {
       id: 1,
       name: "Basílica de la Sagrada Familia",
-      description: "Basilica de la Sagrada Familia is a church devoted to the Holy Family. One of Antoni Gaudi’s most famous works, the church is perhaps best known for still being under construction since 1882—with works funded purely by donations. Take a lift to the top of the towers for a panoramic view of the city",
+      description: "Basilica de la Sagrada Familia is a church devoted to the Holy Family. One of Antoni Gaudis most famous works, the church is perhaps best known for still being under construction since 1882—with works funded purely by donations. Take a lift to the top of the towers for a panoramic view of the city",
       image: "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/08/10/a7/d6/basilica-de-la-sagrada.jpg?w=1200&h=-1&s=1",
       longitude: 41.40377892106611,
       latitude: 2.174366495306742,
@@ -62,7 +59,7 @@ function App() {
     {
       id: 2,
       name: "Parc Guell",
-      description: "Basilica de la Sagrada Familia is a church devoted to the Holy Family. One of Antoni Gaudi’s most famous works, the church is perhaps best known for still being under construction since 1882—with works funded purely by donations. Take a lift to the top of the towers for a panoramic view of the city",
+      description: "Basilica de la Sagrada Familia is a church devoted to the Holy Family. One of Antoni Gaudis most famous works, the church is perhaps best known for still being under construction since 1882—with works funded purely by donations. Take a lift to the top of the towers for a panoramic view of the city",
       image: "https://lh5.googleusercontent.com/p/AF1QipNgwQHFyIjmdNz9RYHLND4_2hXzrBmqObHjBIfR=w408-h305-k-no",
       longitude: 41.4146798295698,
       latitude: 2.152780327073272,

@@ -2,7 +2,7 @@ import HumanDate from "../HumanDate/HumanDate";
 import "./ArticleItem.css" 
 import PropTypes from 'prop-types';
 
-import { Button } from "react-bootstrap";
+import Button from "@mui/material/Button";
 
 function ArticleItem({article}) {
     return <div className="cart row">
@@ -16,7 +16,7 @@ function ArticleItem({article}) {
                 </div>
             </div>
             <p className="description">{article.description}</p>
-            <Button as="a" variant="primary" href={article.sourceLink} target="_blank">Read more...</Button>
+            <Button variant="contained" href={article.sourceLink} target="_blank">Read more...</Button>
         </div>
     </div>
 }
