@@ -1,5 +1,6 @@
 import ArticlesFeed from '../pages/ArticlesFeed/ArticlesFeed'
-import Example from '../pages/Examples/Examples'
+import RegionPage from '../pages/RegionPage/RegionPage'
+import Example from '../pages/RegionPage/RegionPage'
 import './App.css'
 
 function App() {
@@ -112,7 +113,7 @@ function App() {
 
   return (
     <>
-      <ArticlesFeed articles={articles}/>
+      <RegionPage region={regionCatalonia}/>
     </>
   )
 }
