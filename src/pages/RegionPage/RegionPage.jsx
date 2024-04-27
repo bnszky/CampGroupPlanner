@@ -4,12 +4,13 @@ import { Divider } from '@mui/material';
 import AttractionsInfo from '../../components/AttractionsInfo/AttractionsInfo';
 import ArticlesList from '../../components/ArticlesList/ArticlesList';
 
-export default function RegionPage({region, attractions}) {
+export default function RegionPage({region, attractions, articles}) {
   return <>
     <RegionInfo region={region}/>
     <Divider sx={{margin: 10, backgroundColor: 'black'}}/>
     <AttractionsInfo attractions={attractions}/>
     <Divider sx={{margin: 10, backgroundColor: 'black'}}/>
-    <ArticlesList/>
+    <ArticlesList articles={articles} regionName={region.name}/>
+    <Divider sx={{margin: 10, backgroundColor: 'black'}}/>
   </>
 }

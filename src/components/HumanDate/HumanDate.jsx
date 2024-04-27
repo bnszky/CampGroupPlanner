@@ -1,12 +1,11 @@
 import moment from "moment";
 
-function HumanDate({date}) {
-
+function humanizeDate(date){
     const now = moment();
     const publishedDate = moment(date);
     const diff = now.diff(publishedDate);
 
-    return <p className="date">Written {moment.duration(diff).humanize()} ago</p>;
+    return `Written ${moment.duration(diff).humanize()} ago`
 }
 
-export default HumanDate;
+export default humanizeDate;

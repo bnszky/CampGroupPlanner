@@ -113,7 +113,7 @@ function App() {
 
   return (
     <>
-      <RegionPage region={regionCatalonia} attractions={attractions}/>
+      <RegionPage region={regionCatalonia} attractions={attractions} articles={articles}/>
     </>
   )
 }

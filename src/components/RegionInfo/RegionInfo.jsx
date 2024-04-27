@@ -1,5 +1,4 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Carousel from 'react-material-ui-carousel';
 import { Typography } from '@mui/material';
@@ -21,14 +20,14 @@ function RegionInfo({region}) {
 
     return   <Grid container spacing={10} alignItems="center">
         <Grid item xs={12} md={7}>
-            <Grid container direction="row" justifyContent="space-around" allignItem="flex-start" p={2}>
+            <Grid container direction="row" justifyContent="space-around" p={2}>
                 <Grid item>
                     <Typography variant="h2">
                         {region.name}
                     </Typography>
                 </Grid>
                 <Grid item>
-                    <Grid container direction="column" justifyContent="center" allignItem="flex-end">
+                    <Grid container direction="column" justifyContent="center">
                         <Typography variant="h5">Country: {region.country}</Typography>
                         <Typography variant="subtitle">Cities: {cities}</Typography>
                     </Grid>
