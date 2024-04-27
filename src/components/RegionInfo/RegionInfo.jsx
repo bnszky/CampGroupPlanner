@@ -11,7 +11,7 @@ function RegionInfo({region}) {
         return <Image 
         key={key} 
         width="auto"
-        height="800px"
+        height="500px"
         duration={0}
         src={srcLink} 
         alt='images for region ${region.name}'/>
@@ -19,8 +19,7 @@ function RegionInfo({region}) {
 
     const cities = region.cities.join(", ");
 
-    return <Box sx={{ flexGrow: 1 }}>
-        <Grid container spacing={10} alignItems="center">
+    return   <Grid container spacing={10} alignItems="center">
         <Grid item xs={12} md={7}>
             <Grid container direction="row" justifyContent="space-around" allignItem="flex-start" p={2}>
                 <Grid item>
@@ -44,8 +43,7 @@ function RegionInfo({region}) {
                 {imageComponents}
             </Carousel>
         </Grid>
-        </Grid>
-  </Box>;
+        </Grid>;
 }
 
 export default RegionInfo;

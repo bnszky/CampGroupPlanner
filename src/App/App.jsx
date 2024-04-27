@@ -72,7 +72,7 @@ function App() {
       image: "https://dynamic-media-cdn.tripadvisor.com/media/daodao/photo-o/19/ac/b2/a5/caption.jpg?w=1200&h=-1&s=1",
       longitude: 41.39187830789514,
       latitude: 2.164871022478367,
-    }
+    },
   ]
 
   const comments = [
@@ -113,7 +113,7 @@ function App() {
 
   return (
     <>
-      <RegionPage region={regionCatalonia}/>
+      <RegionPage region={regionCatalonia} attractions={attractions}/>
     </>
   )
 }
