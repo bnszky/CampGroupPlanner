@@ -75,16 +75,17 @@ function App() {
     },
   ]
 
-  const comments = [
+  const reviews = [
     {
       id: 1,
       author: {
         nick: "michali",
         email: "michal@gmail.com",
-        profileImage: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
+        profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGDohX4qAelLzi3t8vCfqccDFxifY-huxkmRrgnSRoig&s"
       },
       createdAt: new Date("04-14-2024 15:41:00"), 
       rate: 4.5,
+      title: "Opinion 1",
       text: "Beautiful place! I would like to be there again"
     },
     {
@@ -92,10 +93,11 @@ function App() {
       author: {
         nick: "gombalo",
         email: "gombalo@gmail.com",
-        profileImage: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
+        profileImage: "https://static.vecteezy.com/system/resources/thumbnails/002/002/403/small/man-with-beard-avatar-character-isolated-icon-free-vector.jpg"
       },
       createdAt: new Date("07-18-2023 15:41:00"), 
       rate: 2,
+      title: "Opinion 2",
       text: "I don't like spanish people, Ughh..."
     },
     {
@@ -103,17 +105,18 @@ function App() {
       author: {
         nick: "wealthyGuy",
         email: "wealthyGuy@gmail.com",
-        profileImage: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
+        profileImage: "https://cdn1.vectorstock.com/i/1000x1000/73/15/female-avatar-profile-icon-round-woman-face-vector-18307315.jpg"
       },
       createdAt: new Date("07-18-2023 15:41:00"), 
       rate: 5,
+      title: "Opinion 3",
       text: "Very cheap region, I really recommend you to eat out"
     }
   ]
 
   return (
     <>
-      <RegionPage region={regionCatalonia} attractions={attractions} articles={articles}/>
+      <RegionPage region={regionCatalonia} attractions={attractions} articles={articles} reviews={reviews}/>
     </>
   )
 }
