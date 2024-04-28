@@ -14,7 +14,7 @@ function ReviewContainer({review}) {
             </Typography>}
             action={
                 <Grid container direction='column' sx={{display: 'flex'}}>
-                <Rating name="read-only" value={review.rate} readOnly/>
+                <Rating name="read-only" value={review.rate} precision={0.5} readOnly/>
                 <Typography variant="body2">{humanizeDate(review.createdAt)}</Typography>
                 </Grid>    
             }

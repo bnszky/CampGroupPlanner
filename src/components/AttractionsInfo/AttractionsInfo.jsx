@@ -1,6 +1,5 @@
 import { Typography, Grid } from "@mui/material";
 import * as React from "react";
-import { Container } from "react-bootstrap";
 import AttractionsList from "../AttractionsList/AttractionsList";
 import AttractionsMap from "../AttractionsMap/AttractionsMap";
 
