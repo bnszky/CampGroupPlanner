@@ -7,8 +7,7 @@ import { Grid, Card, CardActions, CardContent, CardHeader, CardMedia, Typography
 
 function ArticleItem({article}) {
 
-    return <Grid item xs={12} sm={6} md={4}>
-        <Card sx={{maxWidth: 350, padding: 2, height: 500}}>
+    return <Card sx={{maxWidth: 350, padding: 2, height: 500}}>
         <CardHeader
         title={article.title} 
         subheader={humanizeDate(article.createdAt)}/>
@@ -30,8 +29,7 @@ function ArticleItem({article}) {
             <Button size="small" variant="contained" color="secondary" href="#Edit">Edit</Button>
             <Button size="small" variant="contained" color="error" href="#Delete">Delete</Button>
         </CardActions>
-    </Card>
-    </Grid>
+    </Card>;
 }
 
 ArticleItem.propTypes = {
@@ -39,7 +37,6 @@ ArticleItem.propTypes = {
         id: PropTypes.number,
         title: PropTypes.string,
         description: PropTypes.string,
-        author: PropTypes.string,
         createdAt: PropTypes.object,
         imgUrl: PropTypes.string,
         sourceLink: PropTypes.string

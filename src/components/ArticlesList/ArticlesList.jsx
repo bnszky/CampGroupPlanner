@@ -12,7 +12,11 @@ function ArticlesList({articles, regionName}) {
     return <>
     <Typography variant='h3' mb={5}>Latest news from {regionName}</Typography>
     <Grid container alignItems='center' justifyContent='center' spacing={15}>
-        {articlesToShow.map(article => <ArticleItem key={article.id} article={article}/>)}
+        {articlesToShow.map(article => (
+            <Grid item xs={12} sm={6} md={4}>
+                <ArticleItem key={article.id} article={article}/>
+            </Grid>
+        ))}
     </Grid>
     {(articlesToShow.length < articles.length) &&
         <Grid container my={5} alignItems='center' justifyContent='center'>    
