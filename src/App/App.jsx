@@ -1,7 +1,10 @@
+import Footer from '../components/Footer/Footer'
+import Navbar from '../components/Navbar/Navbar'
 import ArticlesFeed from '../pages/ArticlesFeed/ArticlesFeed'
 import RegionPage from '../pages/RegionPage/RegionPage'
 import Example from '../pages/RegionPage/RegionPage'
 import './App.css'
+import { Box } from '@mui/material'
 
 function App() {
 
@@ -146,7 +149,15 @@ function App() {
 
   return (
     <>
+      <Navbar/>
+      <Box sx={{
+        padding: '2rem',
+      }}>
+
       <RegionPage region={regionCatalonia} attractions={attractions} articles={articles} reviews={reviews}/>
+
+      </Box>
+      <Footer/>
     </>
   )
 }
