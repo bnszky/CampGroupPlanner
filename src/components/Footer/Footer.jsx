@@ -10,6 +10,8 @@ function Footer(){
     return <Box sx={{
         width: "100%",
         backgroundColor: "primary.main",
+        position: 'absolute',
+        bottom: 0
     }}>
         <Typography variant='body1' p={2} sx={{color: 'white'}}>&copy; {getCurrentYear()} <Link href="https://github.com/bnszky" target="_blank" sx={{textDecoration: 'none', color: 'white'}}>Bnszky</Link></Typography>
     </Box>;

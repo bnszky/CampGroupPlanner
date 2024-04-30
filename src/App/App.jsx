@@ -1,6 +1,7 @@
 import Footer from '../components/Footer/Footer'
 import Navbar from '../components/Navbar/Navbar'
 import ArticlesFeed from '../pages/ArticlesFeed/ArticlesFeed'
+import CreateArticle from '../pages/CreateArticle/CreateArticle'
 import RegionPage from '../pages/RegionPage/RegionPage'
 import Example from '../pages/RegionPage/RegionPage'
 import './App.css'
@@ -154,7 +155,7 @@ function App() {
         padding: '2rem',
       }}>
 
-      <RegionPage region={regionCatalonia} attractions={attractions} articles={articles} reviews={reviews}/>
+      <CreateArticle/>
 
       </Box>
       <Footer/>
