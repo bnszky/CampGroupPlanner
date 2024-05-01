@@ -146,7 +146,7 @@ function App() {
     }
   ]
 
-  const regions = ['Catalonia', 'Lombardia', 'Venezia', 'Bavaria'];
+  const regions = ['None', 'Catalonia', 'Lombardia', 'Venezia', 'Bavaria'];
 
   return (
     <>

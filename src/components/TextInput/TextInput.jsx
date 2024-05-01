@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Box, Typography, TextField } from '@mui/material';
 import toCamelCase from '../../functions/toCamelCase';
 
-function TextInput({fieldName, onValueChange, required, multiline}) {
+function TextInput({fieldName, onValueChange, required, multiline, error, errorMessage}) {
 
     const handleValueChange = (event) => {
         onValueChange(event.target.value);
@@ -11,6 +11,8 @@ function TextInput({fieldName, onValueChange, required, multiline}) {
     return <Box>
         <Typography variant='body1'>{toCamelCase(fieldName)}</Typography>
         <TextField
+            error={error}
+            helperText={errorMessage}
             sx={{width: 400}}
             required={required}
             multiline={multiline}
