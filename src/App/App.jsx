@@ -2,6 +2,7 @@ import Footer from '../components/Footer/Footer'
 import Navbar from '../components/Navbar/Navbar'
 import ArticlesFeed from '../pages/ArticlesFeed/ArticlesFeed'
 import CreateArticle from '../pages/CreateArticle/CreateArticle'
+import CreateAttraction from '../pages/CreateAttraction/CreateAttraction'
 import RegionPage from '../pages/RegionPage/RegionPage'
 import Example from '../pages/RegionPage/RegionPage'
 import './App.css'
@@ -145,6 +146,8 @@ function App() {
     }
   ]
 
+  const regions = ['Catalonia', 'Lombardia', 'Venezia', 'Bavaria'];
+
   return (
     <>
       <Navbar/>
@@ -154,7 +157,8 @@ function App() {
       }}>
 
       {/*<RegionPage attractions={attractions} articles={articles} reviews={reviews} region={regionCatalonia}/>*/}
-      {<CreateArticle regions={['Catalonia', 'Lombardia', 'Venezia', 'Bavaria']}/>}
+      {/*<CreateArticle regions={regions}/>*/}
+      {<CreateAttraction regions={regions}/>}
 
       </Box>
       <Footer/>
