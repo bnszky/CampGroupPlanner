@@ -4,6 +4,7 @@ import ArticlesFeed from '../pages/ArticlesFeed/ArticlesFeed'
 import CreateArticle from '../pages/CreateArticle/CreateArticle'
 import CreateAttraction from '../pages/CreateAttraction/CreateAttraction'
 import CreateRegion from '../pages/CreateRegion/CreateRegion'
+import CreateReview from '../pages/CreateReview/CreateReview'
 import RegionPage from '../pages/RegionPage/RegionPage'
 import Example from '../pages/RegionPage/RegionPage'
 import './App.css'
@@ -160,7 +161,8 @@ function App() {
       {/*<RegionPage attractions={attractions} articles={articles} reviews={reviews} region={regionCatalonia}/>*/}
       {/*<CreateArticle regions={regions}/>*/}
       {/*<CreateAttraction regions={regions}/>*/}
-      {<CreateRegion regionCatalonia={regionCatalonia}/>}
+      {/*<CreateRegion regionCatalonia={regionCatalonia}/>*/}
+      {<CreateReview region={regionCatalonia}/>}
 
       </Box>
       <Footer/>
