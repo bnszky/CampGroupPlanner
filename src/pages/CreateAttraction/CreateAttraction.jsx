@@ -2,7 +2,6 @@ import * as React from 'react'
 import { Grid, Box, Typography, Divider, Button } from '@mui/material';
 import TextInput from '../../components/TextInput/TextInput';
 import ImageInput from '../../components/ImageInput/ImageInput';
-import AttractionsMap from '../../components/AttractionsMap/AttractionsMap';
 import LocationInput from '../../components/LocationInput/LocationInput';
 import InteractiveAttractionMap from '../../components/InteractiveAttractionMap/InteractiveAttractionMap';
 import SelectInput from '../../components/SelectInput/SelectInput';
@@ -60,7 +59,7 @@ function CreateAttraction({regions}) {
                     <LocationInput latitude={attraction.latitude} longitude={attraction.longitude}/>
 
                     <SelectInput fieldName='region' onValueChange={a => a} items={regions}/>
-            </Grid>
+                </Grid>
             </Grid>
             <Grid item xs={12} md={6}>
                 <Grid container display='flex' justifyContent='center' alignItems='center' sx={{height: 700}}>
