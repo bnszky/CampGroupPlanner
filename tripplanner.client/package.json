@@ -1,5 +1,5 @@
 {
-  "name": "travel-news-aggregator",
+  "name": "tripplanner.client",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,19 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.4",
-    "@emotion/styled": "^11.11.5",
-    "@fontsource/roboto": "^5.0.13",
-    "@mui/icons-material": "^5.15.15",
-    "@mui/material": "^5.15.15",
-    "bootstrap": "^5.3.3",
-    "leaflet": "^1.9.4",
-    "moment": "^2.30.1",
-    "mui-image": "^1.0.7",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-leaflet": "^4.2.1",
-    "react-material-ui-carousel": "^3.4.2"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
