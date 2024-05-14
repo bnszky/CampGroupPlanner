@@ -46,7 +46,12 @@ function CreateArticle({regions}) {
                 const errorData = await response.json();
                 console.log(errorData);
                 setErrors(errorData.errors);
-                setErrorMsg(`Couldn't create article: ${errorData.title}`);
+                if(errorData?.title){
+                    setErrorMsg(`Couldn't create article: ${errorData.title}`);
+                }
+                else {
+                    setErrorMsg(`Couldn't create article: ${errorData[0]}`)
+                }
             } else {
                 console.error('Failed to create article', response);
                 setErrorMsg(`Couldn't create article: ${response}`)
@@ -114,7 +119,7 @@ function CreateArticle({regions}) {
             </Grid>
             <Grid item xs={12} md={6}>
                 <Grid container display='flex' justifyContent='center' alignItems='center' sx={{height: 700}}>
-                    <ArticleItem article={article}/>
+                    <ArticleItem article={article} handleDelete={() => a} handleEdit={() => a}/>
                 </Grid>
             </Grid>
             <Divider color="black" width="100%" sx={{margin: 5}}/>

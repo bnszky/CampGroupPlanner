@@ -3,7 +3,7 @@ import * as React from 'react'
 import { useState } from 'react';
 import ArticleItem from '../ArticleItem/ArticleItem';
 
-function ArticlesList({articles, regionName}) {
+function ArticlesList({articles, regionName, handleDelete, handleEdit}) {
 
     const nextItemsNumber = 3; 
 
@@ -17,7 +17,7 @@ function ArticlesList({articles, regionName}) {
     <Grid container alignItems='center' justifyContent='center' spacing={15}>
         {articlesToShow.map(article => (
             <Grid item xs={12} sm={6} md={4} key={article.id}>
-                <ArticleItem key={article.id} article={article}/>
+                <ArticleItem key={article.id} article={article} handleDelete={() => handleDelete(article.id)} handleEdit={() => handleEdit(article.id)}/>
             </Grid>
         ))}
     </Grid>

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import Button from "@mui/material/Button";
 import { Grid, Card, CardActions, CardContent, CardHeader, CardMedia, Typography } from "@mui/material";
 
-function ArticleItem({article}) {
+function ArticleItem({article, handleDelete, handleEdit}) {
 
     return <Card sx={{maxWidth: 350, padding: 2, height: 500}}>
         <CardHeader
@@ -26,8 +26,8 @@ function ArticleItem({article}) {
 
         <CardActions>
             <Button size="small" href={article.sourceLink} target="_blank">Read more</Button>
-            <Button size="small" variant="contained" color="secondary" href="#Edit">Edit</Button>
-            <Button size="small" variant="contained" color="error" href="#Delete">Delete</Button>
+            <Button size="small" variant="contained" color="secondary" onClick={handleEdit}>Edit</Button>
+            <Button size="small" variant="contained" color="error" onClick={handleDelete}>Delete</Button>
         </CardActions>
     </Card>;
 }
