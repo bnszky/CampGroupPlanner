@@ -15,7 +15,7 @@ function ArticleItem({article}) {
         <CardMedia
         component='img'
         height={200}
-        image={article.imgUrl}
+        image={article.imageURL}
         alt={`image ${article.title}`}/>
 
         <CardContent>

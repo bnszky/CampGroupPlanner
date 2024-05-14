@@ -3,11 +3,10 @@ import * as React from 'react'
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState } from 'react';
 
-const pages = ['Home', 'Articles']
 const profileOptions = ['Account', 'Favourite Posts']
 const isLoggedIn = true;
 
-function Navbar() {
+function Navbar({pages}) {
 
     const [anchorElNav, setAnchorElNav] = useState(null);
     const [anchorElUser, setAnchorElUser] = useState(null);
@@ -65,8 +64,8 @@ function Navbar() {
               }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
+                <MenuItem key={page.name} onClick={handleCloseNavMenu} href={page.link}>
+                  <Typography textAlign="center">{page.name}</Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -76,7 +75,7 @@ function Navbar() {
 
             <Box ml={5} sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex'}}}>
                 {pages.map(page => (
-                    <Button key={page} color="inherit">{page}</Button>
+                    <Button key={page.name} color="inherit" href={page.link}>{page.name}</Button>
                 ))}
             </Box>
 

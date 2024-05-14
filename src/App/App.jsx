@@ -1,5 +1,6 @@
 import Footer from '../components/Footer/Footer'
 import Navbar from '../components/Navbar/Navbar'
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import ArticlesFeed from '../pages/ArticlesFeed/ArticlesFeed'
 import CreateArticle from '../pages/CreateArticle/CreateArticle'
 import CreateAttraction from '../pages/CreateAttraction/CreateAttraction'
@@ -150,19 +151,34 @@ function App() {
 
   const regions = ['None', 'Catalonia', 'Lombardia', 'Venezia', 'Bavaria'];
 
+  const pages = [
+    { name: 'Articles', link: '/articles' },
+    { name: 'Create Article', link: '/articles/create' }
+  ]
+
   return (
     <>
-      <Navbar/>
+      {/*<Navbar/>*/}
+      
       <Box sx={{
         padding: '2rem',
         paddingBottom: '5rem'
       }}>
 
+      <BrowserRouter>
+      <Navbar pages={pages}/>
+      <Routes>
+        <Route index element={<ArticlesFeed articles={articles}/>} />
+        <Route path="/articles" element={<ArticlesFeed articles={articles}/>} />
+        <Route path="/articles/create" element={<CreateArticle regions={regions}/>} />
+      </Routes>
+      </BrowserRouter>
+
       {/*<RegionPage attractions={attractions} articles={articles} reviews={reviews} region={regionCatalonia}/>*/}
       {/*<CreateArticle regions={regions}/>*/}
       {/*<CreateAttraction regions={regions}/>*/}
       {/*<CreateRegion regionCatalonia={regionCatalonia}/>*/}
-      {<CreateReview region={regionCatalonia}/>}
+      {/*<CreateReview region={regionCatalonia}/>*/}
 
       </Box>
       <Footer/>
