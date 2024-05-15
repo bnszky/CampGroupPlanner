@@ -10,6 +10,7 @@ import RegionPage from '../pages/RegionPage/RegionPage'
 import Example from '../pages/RegionPage/RegionPage'
 import './App.css'
 import { Box } from '@mui/material'
+import EditArticle from '../pages/EditArticle/EditArticle';
 
 function App() {
 
@@ -171,6 +172,7 @@ function App() {
         <Route index element={<ArticlesFeed articles={articles}/>} />
         <Route path="/articles" element={<ArticlesFeed articles={articles}/>} />
         <Route path="/articles/create" element={<CreateArticle regions={regions}/>} />
+        <Route path="/articles/edit/:id" element={<EditArticle regions={regions}/>}/>
       </Routes>
       </BrowserRouter>
 

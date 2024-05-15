@@ -14,7 +14,7 @@ export default function ArticlesFeed(){
     const [articles, setArticles] = useState(null);
 
     const handleEdit = (id) => {
-        return id;
+        navigate(`/articles/edit/${id}`);
     }
 
     const handleDelete = async (id) => {
