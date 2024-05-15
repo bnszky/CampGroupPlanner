@@ -3,18 +3,21 @@ import * as React from 'react'
 import { useState } from 'react';
 import ArticleItem from '../ArticleItem/ArticleItem';
 
-function ArticlesList({articles, regionName}) {
+function ArticlesList({articles, regionName, handleDelete, handleEdit}) {
 
     const nextItemsNumber = 3; 
 
     const [articlesToShow, setArticlesToShow] = useState(articles.slice(0, nextItemsNumber))
 
     return <>
-    <Typography variant='h3' mb={5}>Latest news from {regionName}</Typography>
+    {regionName != null 
+    ? <Typography variant='h3' mb={5}>Latest news from {regionName}</Typography> 
+    : <Typography variant='h3' mb={5}>Latest news</Typography> 
+    }
     <Grid container alignItems='center' justifyContent='center' spacing={15}>
         {articlesToShow.map(article => (
-            <Grid item xs={12} sm={6} md={4}>
-                <ArticleItem key={article.id} article={article}/>
+            <Grid item xs={12} sm={6} md={4} key={article.id}>
+                <ArticleItem key={article.id} article={article} handleDelete={() => handleDelete(article.id)} handleEdit={() => handleEdit(article.id)}/>
             </Grid>
         ))}
     </Grid>

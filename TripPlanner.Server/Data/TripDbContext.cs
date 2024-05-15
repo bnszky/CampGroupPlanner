@@ -6,7 +6,7 @@ namespace TripPlanner.Server.Data
     public class TripDbContext : DbContext
     {
         DbSet<Attraction> Attractions { get; set; }
-        DbSet<Article> Articles { get; set; }
+        public DbSet<Article> Articles { get; set; }
         DbSet<Image> ImageURLs { get; set; }
         DbSet<City> Cities { get; set; }
         DbSet<User> Users { get; set; }

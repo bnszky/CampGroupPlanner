@@ -1,6 +1,6 @@
 @TripPlanner.Server_HostAddress = http://localhost:5084
 
-GET {{TripPlanner.Server_HostAddress}}/weatherforecast/
+GET {{TripPlanner.Server_HostAddress}}/articles/
 Accept: application/json
 
 ###
