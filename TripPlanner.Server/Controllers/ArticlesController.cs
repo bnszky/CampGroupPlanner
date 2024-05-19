@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using TripPlanner.Server.Data;
 using TripPlanner.Server.Models;
+using TripPlanner.Server.Services.Abstractions;
+using TripPlanner.Server.Services.Implementations;
 
 namespace TripPlanner.Server.Controllers
 {
@@ -11,10 +13,12 @@ namespace TripPlanner.Server.Controllers
     public class ArticlesController : ControllerBase
     {
         private readonly TripDbContext _dbContext;
+        private readonly IImageService _imageService;
 
-        public ArticlesController(TripDbContext dbContext)
+        public ArticlesController(TripDbContext dbContext, IImageService imageService)
         {
             _dbContext = dbContext;
+            _imageService = imageService;
         }
 
         [HttpGet]
@@ -49,7 +53,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody]Article article)
+        public async Task<IActionResult> Create([FromForm]ArticleCreate articleFromBody)
         {
             try
             {
@@ -62,6 +66,27 @@ namespace TripPlanner.Server.Controllers
                     }
                     return BadRequest(errors);
                 }
+
+                Article article = new Article();
+                if (articleFromBody.ImageFile != null)
+                {
+                    try
+                    {
+                        article.ImageURL = await _imageService.UploadImage(articleFromBody.ImageFile);
+                    }
+                    catch (Exception ex)
+                    {
+                        var uploadError = new List<string> { "Couldn't upload image" };
+                        return BadRequest(uploadError);
+                    }
+                }
+
+                article.Title = articleFromBody.Title;
+                article.Description = articleFromBody.Description;
+                article.CreatedAt = DateTime.Now;
+                article.SourceLink = articleFromBody.SourceLink;
+                article.RegionId = articleFromBody.RegionId;
+                article.Region = articleFromBody.Region;
 
                 // Check if an article with the same SourceLink already exists in the database
                 if (_dbContext.Articles.Any(a => a.SourceLink == article.SourceLink))
@@ -97,6 +122,8 @@ namespace TripPlanner.Server.Controllers
                     return NotFound();
                 }
 
+                if(article.ImageURL != null) await _imageService.DeleteImage(article.ImageURL);
+
                 _dbContext.Articles.Remove(article);
                 await _dbContext.SaveChangesAsync();
 
@@ -110,7 +137,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Edit(int id, [FromBody] Article editedArticle)
+        public async Task<IActionResult> Edit(int id, [FromForm] ArticleCreate editedArticle)
         {
             try
             {
@@ -121,10 +148,22 @@ namespace TripPlanner.Server.Controllers
                     return NotFound();
                 }
 
+                if (editedArticle.ImageFile != null)
+                {
+                    try
+                    {
+                        article.ImageURL = await _imageService.UploadImage(editedArticle.ImageFile);
+                    }
+                    catch (Exception ex)
+                    {
+                        var uploadError = new List<string> { "Couldn't upload image" };
+                        return BadRequest(uploadError);
+                    }
+                }
+
                 // Update the properties of the existing article
                 article.Title = editedArticle.Title;
                 article.Description = editedArticle.Description;
-                article.ImageURL = editedArticle.ImageURL;
                 article.SourceLink = editedArticle.SourceLink;
                 article.Region = editedArticle.Region;
 

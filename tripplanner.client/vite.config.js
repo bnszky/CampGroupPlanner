@@ -46,12 +46,19 @@ export default defineConfig({
             '^/api': {
                 target,
                 secure: false
+            },
+            '^/images': {
+                target,
+                secure: false
             }
         },
         port: 5173,
         https: {
             key: fs.readFileSync(keyFilePath),
             cert: fs.readFileSync(certFilePath),
-        }
+        },
+        serveStatic: {
+            directory: 'wwwroot',
+        },
     }
 })

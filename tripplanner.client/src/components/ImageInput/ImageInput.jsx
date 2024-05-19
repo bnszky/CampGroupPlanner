@@ -5,7 +5,7 @@ import toCamelCase from '../../functions/toCamelCase';
 function ImageInput({fieldName, onImageChange, error, errorMessage}) {
 
     const handleFileChange = (event) => {
-        onImageChange(URL.createObjectURL(event.target.files[0]));
+        onImageChange(event.target.files[0]);
     };
 
     return <Box>

@@ -1,6 +1,8 @@
 
 using TripPlanner.Server.Data;
 using Microsoft.EntityFrameworkCore;
+using TripPlanner.Server.Services.Abstractions;
+using TripPlanner.Server.Services.Implementations;
 
 namespace TripPlanner.Server
 {
@@ -16,6 +18,7 @@ namespace TripPlanner.Server
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddScoped<IImageService, ImageService>();
 
             builder.Services.AddDbContext<TripDbContext>(options => options.UseSqlServer("Data Source=DESKTOP-FQ3UJS6;Initial Catalog=TripAppDatabase;Integrated Security=True;Trust Server Certificate=True"));
 

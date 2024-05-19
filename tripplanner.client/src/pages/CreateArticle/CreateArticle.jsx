@@ -16,7 +16,7 @@ function CreateArticle({regions}) {
             title: '',
             description: "",
             createdAt: new Date(),
-            imageURL: "",
+            imageFile: null,
             sourceLink: ''
         }
     )
@@ -31,12 +31,17 @@ function CreateArticle({regions}) {
 
         console.log(article);
 
+        const formData = new FormData();
+        formData.append('title', article.title);
+        formData.append('description', article.description);
+        formData.append('sourceLink', article.sourceLink);
+        if (article.imageFile) {
+            formData.append('imageFile', article.imageFile);
+        }
+
         const response = await fetch('/api/articles', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(article)
+            body: formData
         });
 
         setErrors({});
@@ -86,7 +91,7 @@ function CreateArticle({regions}) {
 
     function updateImageURL(value){
         setArticle(article => ({
-            ...article, ...{'imageURL': value}
+            ...article, ...{'imageFile': value, 'imageURL': URL.createObjectURL(value)}
         }))
     }
 
