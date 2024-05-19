@@ -13,6 +13,7 @@ function EditArticle({regions}) {
         title: '',
         description: '',
         imageURL: '',
+        imageFile: null,
         sourceLink: ''
     });
     const [errors, setErrors] = React.useState({});
@@ -43,12 +44,17 @@ function EditArticle({regions}) {
     async function handleSubmit(event) {
         event.preventDefault();
 
+        const formData = new FormData();
+        formData.append('title', article.title);
+        formData.append('description', article.description);
+        formData.append('sourceLink', article.sourceLink);
+        if (article.imageFile) {
+            formData.append('imageFile', article.imageFile);
+        }
+
         const response = await fetch(`/api/articles/${id}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(article)
+            body: formData
         });
 
         setErrors({});
@@ -84,6 +90,12 @@ function EditArticle({regions}) {
         }));
     }
 
+    function handleChangeImage(value){
+        setArticle(article => ({
+            ...article, ...{'imageFile': value, 'imageURL': URL.createObjectURL(value)}
+        }))
+    }
+
     return (
         <Box
             alignItems='center'
@@ -99,7 +111,7 @@ function EditArticle({regions}) {
                         <TextInput fieldName='title' onValueChange={value => handleChange('title', value)} value={article.title} error={errors?.title} errorMessage={errors?.title} required />
                         <TextInput fieldName='description' onValueChange={value => handleChange('description', value)} value={article.description} error={errors?.description} errorMessage={errors?.description} multiline />
                         <TextInput fieldName='source' onValueChange={value => handleChange('sourceLink', value)} value={article.sourceLink} error={errors?.sourceLink} errorMessage={errors?.sourceLink} required disabled/>
-                        <ImageInput fieldName='image' onImageChange={value => handleChange('imageURL', value)} value={article.imageURL} error={errors?.imageURL} errorMessage={errors?.imageURL} />
+                        <ImageInput fieldName='image' onImageChange={value => handleChangeImage(value)} value={article.imageURL} error={errors?.imageURL} errorMessage={errors?.imageURL} />
                         <SelectInput fieldName='region' onValueChange={value => handleChange('region', value)} value={article.region} items={regions} error={errors?.region} errorMessage={errors?.region} />
 
                         {errorMsg && <Alert variant="outlined" severity="error" sx={{ width: 350, mt: 3 }}>

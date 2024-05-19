@@ -7,6 +7,8 @@ import { Grid, Card, CardActions, CardContent, CardHeader, CardMedia, Typography
 
 function ArticleItem({article, handleDelete, handleEdit}) {
 
+    console.log(article.imageURL)
+
     return <Card sx={{maxWidth: 350, padding: 2, height: 500}}>
         <CardHeader
         title={article.title} 
@@ -32,7 +34,7 @@ function ArticleItem({article, handleDelete, handleEdit}) {
     </Card>;
 }
 
-ArticleItem.propTypes = {
+/*ArticleItem.propTypes = {
     article: PropTypes.shape({
         id: PropTypes.number,
         title: PropTypes.string,
@@ -41,6 +43,6 @@ ArticleItem.propTypes = {
         imgUrl: PropTypes.string,
         sourceLink: PropTypes.string
     })
-}
+}*/
 
 export default ArticleItem;
