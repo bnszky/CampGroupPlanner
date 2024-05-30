@@ -1,10 +1,18 @@
 import { Stack, Chip, Typography, Fab, Box, TextField, IconButton} from '@mui/material';
+import InputFetchText from '../InputFetchText/InputFetchText';
 import * as React from 'react'
 
-function InputItemList({name, onItemListChange, children}) {
+function InputItemList({name, onItemListChange, children, getInitialItems}) {
+
+    React.useEffect(() => {
+        handleFetchData(getInitialItems());
+    }, []);
 
     const childrenWithProps = React.Children.map(children, child => {
         if (React.isValidElement(child)) {
+            if(child.type === InputFetchText){
+                return React.cloneElement(child, { handleFetchData });
+            }
             return React.cloneElement(child, { handleAdd: handleAdd });
         }
         return child;
@@ -29,17 +37,24 @@ function InputItemList({name, onItemListChange, children}) {
     };
 
     function handleAdd(item){
-        let _itemList = new Set([...itemList]);
+        console.log(item);
+        setItemList(prevItemList => {
+            const _itemList = new Set([...prevItemList]);
+            _itemList.add(item);
+            onItemListChange(_itemList);
+            return _itemList;
+        });
 
-        _itemList.add(item);
+        setColorsDict(prevColorsDict => {
+            const _colorsDict = {...prevColorsDict};
+            _colorsDict[item] = getRandomColor();
+            return _colorsDict;
+        });
+    }
 
-        let _colorsDict = {...colorsDict}
-
-        _colorsDict[item] = getRandomColor();
-        setColorsDict(_colorsDict);
-        
-        setItemList(_itemList);
-        onItemListChange(_itemList);
+    function handleFetchData(items){
+        console.log(items);
+        for(var item of items) handleAdd(item);
     }
 
     return <Box>

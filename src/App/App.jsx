@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import ArticlesFeed from '../pages/ArticlesFeed/ArticlesFeed'
 import CreateArticle from '../pages/CreateArticle/CreateArticle'
 import CreateAttraction from '../pages/CreateAttraction/CreateAttraction'
+import RegionsFeed from '../pages/RegionsFeed/RegionsFeed';
 import CreateRegion from '../pages/CreateRegion/CreateRegion'
 import CreateReview from '../pages/CreateReview/CreateReview'
 import RegionPage from '../pages/RegionPage/RegionPage'
@@ -11,6 +12,7 @@ import Example from '../pages/RegionPage/RegionPage'
 import './App.css'
 import { Box } from '@mui/material'
 import EditArticle from '../pages/EditArticle/EditArticle';
+import EditRegion from '../pages/EditRegion/EditRegion';
 
 function App() {
 
@@ -154,7 +156,9 @@ function App() {
 
   const pages = [
     { name: 'Articles', link: '/articles' },
-    { name: 'Create Article', link: '/articles/create' }
+    { name: 'Create Article', link: '/articles/create' },
+    { name: 'Regions', link: '/region' },
+    { name: 'Create Region', link: '/region/create' }
   ]
 
   return (
@@ -166,20 +170,24 @@ function App() {
         paddingBottom: '5rem'
       }}>
 
-      <BrowserRouter>
+      {<BrowserRouter>
       <Navbar pages={pages}/>
       <Routes>
-        <Route index element={<ArticlesFeed articles={articles}/>} />
-        <Route path="/articles" element={<ArticlesFeed articles={articles}/>} />
+        <Route index element={<ArticlesFeed/>} />
+        <Route path="/articles" element={<ArticlesFeed/>} />
         <Route path="/articles/create" element={<CreateArticle regions={regions}/>} />
         <Route path="/articles/edit/:id" element={<EditArticle regions={regions}/>}/>
+        <Route path="/region" element={<RegionsFeed/>} />
+        <Route path="/region/create" element={<CreateRegion/>}/>
+        <Route path="/region/edit/:regionName" element={<EditRegion/>}/>
+        <Route path="/region/:regionName" element={<RegionPage attractions={attractions} articles={articles} reviews={reviews}/>}/>
       </Routes>
-      </BrowserRouter>
+    </BrowserRouter>}
 
       {/*<RegionPage attractions={attractions} articles={articles} reviews={reviews} region={regionCatalonia}/>*/}
       {/*<CreateArticle regions={regions}/>*/}
       {/*<CreateAttraction regions={regions}/>*/}
-      {/*<CreateRegion regionCatalonia={regionCatalonia}/>*/}
+      {/*<CreateRegion/>*/}
       {/*<CreateReview region={regionCatalonia}/>*/}
 
       </Box>
