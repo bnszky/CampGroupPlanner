@@ -2,9 +2,9 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import { Typography } from '@mui/material';
+import { Alert, Typography } from '@mui/material';
 
-function CountrySelect() {
+function CountrySelect({updateCountry, value, error, errorMessage}) {
   return (<Box>
     <Typography variant='body1'>Country</Typography>
     <Autocomplete
@@ -13,6 +13,11 @@ function CountrySelect() {
       options={countries}
       autoHighlight
       getOptionLabel={(option) => option.label}
+      onChange={(event, newValue) => {
+        value = newValue
+        updateCountry(newValue.label);
+      }}
+      value={countries.find(country => country.label === value)}
       renderOption={(props, option) => (
         <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
           <img
@@ -27,7 +32,7 @@ function CountrySelect() {
       )}
       renderInput={(params) => (
         <TextField
-          required  
+          required
           {...params}
           label="Choose a country"
           inputProps={{
@@ -37,6 +42,7 @@ function CountrySelect() {
         />
       )}
     />
+    {error && <Alert variant='outlined' severity='error' sx={{my: 2}}>{errorMessage}</Alert>}
   </Box>);
 }
 

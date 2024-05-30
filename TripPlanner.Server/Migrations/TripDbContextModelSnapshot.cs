@@ -164,14 +164,27 @@ namespace TripPlanner.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Country")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("RegionId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.HasIndex("RegionId");
 
@@ -181,18 +194,27 @@ namespace TripPlanner.Server.Migrations
                         new
                         {
                             Id = 1,
+                            Country = "Spain",
+                            Latitude = 0.0,
+                            Longitude = 0.0,
                             Name = "Barcelona",
                             RegionId = 1
                         },
                         new
                         {
                             Id = 2,
+                            Country = "Spain",
+                            Latitude = 0.0,
+                            Longitude = 0.0,
                             Name = "Tarragona",
                             RegionId = 1
                         },
                         new
                         {
                             Id = 3,
+                            Country = "Spain",
+                            Latitude = 0.0,
+                            Longitude = 0.0,
                             Name = "Girona",
                             RegionId = 1
                         });
@@ -210,10 +232,6 @@ namespace TripPlanner.Server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("RegionId")
                         .HasColumnType("int");
 
@@ -228,14 +246,12 @@ namespace TripPlanner.Server.Migrations
                         {
                             Id = 1,
                             Link = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnwf8dsSKIsCsVbwXlpQEuvEP6q70MdNVjdQ&s",
-                            Name = "image1",
                             RegionId = 1
                         },
                         new
                         {
                             Id = 2,
                             Link = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRaRfTP8AW7Od72m4IRi4LPRt9xNqPYfYlPrg&s",
-                            Name = "image2",
                             RegionId = 1
                         });
                 });
@@ -257,9 +273,12 @@ namespace TripPlanner.Server.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Regions");
 

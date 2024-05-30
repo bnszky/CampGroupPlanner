@@ -19,6 +19,8 @@ namespace TripPlanner.Server
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<IImageService, ImageService>();
+            builder.Services.AddScoped<IRegionCreateService, RegionCreateService>();
+            builder.Services.AddScoped<ICitiesService, CitiesService>();
 
             builder.Services.AddDbContext<TripDbContext>(options => options.UseSqlServer("Data Source=DESKTOP-FQ3UJS6;Initial Catalog=TripAppDatabase;Integrated Security=True;Trust Server Certificate=True"));
 

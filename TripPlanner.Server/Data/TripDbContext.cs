@@ -5,13 +5,13 @@ namespace TripPlanner.Server.Data
 {
     public class TripDbContext : DbContext
     {
-        DbSet<Attraction> Attractions { get; set; }
+        public DbSet<Attraction> Attractions { get; set; }
         public DbSet<Article> Articles { get; set; }
-        DbSet<Image> ImageURLs { get; set; }
-        DbSet<City> Cities { get; set; }
-        DbSet<User> Users { get; set; }
-        DbSet<Review> Reviews { get; set; }
-        DbSet<Region> Regions { get; set; }
+        public DbSet<Image> ImageURLs { get; set; }
+        public DbSet<City> Cities { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+        public DbSet<Region> Regions { get; set; }
 
         public TripDbContext(DbContextOptions<TripDbContext> options) : base(options) {
             
@@ -19,6 +19,16 @@ namespace TripPlanner.Server.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Region>()
+                .HasIndex(r => r.Name)
+                .IsUnique();
+
+            modelBuilder.Entity<City>()
+                .HasIndex(r => r.Name)
+                .IsUnique();
+
             modelBuilder.Entity<Region>().HasData(
                 new Region
                 {
@@ -30,21 +40,20 @@ namespace TripPlanner.Server.Data
             );
 
             modelBuilder.Entity<Image>().HasData(
-                new Image { Id = 1, Name = "image1", RegionId = 1,
+                new Image { Id = 1, RegionId = 1,
                     Link = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnwf8dsSKIsCsVbwXlpQEuvEP6q70MdNVjdQ&s" },
                 new Image
                 {
                     Id = 2,
-                    Name = "image2",
                     RegionId = 1,
                     Link = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRaRfTP8AW7Od72m4IRi4LPRt9xNqPYfYlPrg&s"
                 }
             );
 
             modelBuilder.Entity<City>().HasData(
-                new City { Id = 1, Name = "Barcelona", RegionId = 1},
-                new City { Id = 2, Name = "Tarragona", RegionId = 1 },
-                new City { Id = 3, Name = "Girona", RegionId = 1 }
+                new City { Id = 1, Name = "Barcelona", Country="Spain", RegionId = 1},
+                new City { Id = 2, Name = "Tarragona", Country = "Spain", RegionId = 1 },
+                new City { Id = 3, Name = "Girona", Country = "Spain", RegionId = 1 }
             );
 
             modelBuilder.Entity<Attraction>().HasData(

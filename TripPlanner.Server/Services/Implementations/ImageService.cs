@@ -24,7 +24,7 @@ namespace TripPlanner.Server.Services.Implementations
             imagePath = DecodeUrl(imagePath);
             if (!File.Exists(imagePath))
             {
-                throw new FileNotFoundException("The file does not exist.");
+                return;
             }
 
             try
@@ -72,6 +72,41 @@ namespace TripPlanner.Server.Services.Implementations
             using (var fileStream = new FileStream(imagePath, FileMode.Create))
             {
                 await image.CopyToAsync(fileStream);
+            }
+
+            return EncodeUrl(imagePath);
+        }
+
+        public async Task<string> UploadImage(string imageUrl)
+        {
+            string uniqueFilename = Guid.NewGuid().ToString() + Path.GetExtension(new Uri(imageUrl).LocalPath);
+            string imagePath = Path.Combine(DIRECTORY_PATH, uniqueFilename);
+
+            while (File.Exists(imagePath))
+            {
+                uniqueFilename = Guid.NewGuid().ToString() + Path.GetExtension(new Uri(imageUrl).LocalPath);
+                imagePath = Path.Combine(DIRECTORY_PATH, uniqueFilename);
+            }
+
+            using (HttpClient client = new HttpClient())
+            {
+                using (HttpResponseMessage response = await client.GetAsync(imageUrl))
+                {
+                    if (response.IsSuccessStatusCode)
+                    {
+                        using (Stream imageStream = await response.Content.ReadAsStreamAsync())
+                        {
+                            using (FileStream fileStream = new FileStream(imagePath, FileMode.Create))
+                            {
+                                await imageStream.CopyToAsync(fileStream);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception($"Failed to download image. Status code: {response.StatusCode}");
+                    }
+                }
             }
 
             return EncodeUrl(imagePath);

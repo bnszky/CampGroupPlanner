@@ -7,6 +7,7 @@ namespace TripPlanner.Server.Models
 
         [Required(ErrorMessage = "Title is required")]
         public string Title { get; set; }
+        [MaxLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
         public string? Description { get; set; }
         public IFormFile? ImageFile { get; set; }
         [Required(ErrorMessage = "Source link is required")]

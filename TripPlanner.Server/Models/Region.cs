@@ -1,8 +1,11 @@
-﻿namespace TripPlanner.Server.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TripPlanner.Server.Models
 {
     public class Region
     {
         public int Id { get; set; }
+        [Required]
         public string Name { get; set; }
         public string? Description { get; set; }
         public string Country { get; set; }
