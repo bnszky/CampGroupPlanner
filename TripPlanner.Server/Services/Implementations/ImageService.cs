@@ -19,6 +19,29 @@ namespace TripPlanner.Server.Services.Implementations
             url = url.Substring(7);
             return url;
         }
+        public bool IsJpgOrPng(IFormFile file)
+        {
+            if (file == null)
+            {
+                return false;
+            }
+
+            // Check the content type
+            var contentType = file.ContentType.ToLower();
+            if (contentType == "image/jpeg" || contentType == "image/png")
+            {
+                return true;
+            }
+
+            // Alternatively, check the file extension
+            var extension = Path.GetExtension(file.FileName).ToLower();
+            if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
+            {
+                return true;
+            }
+
+            return false;
+        }
         public async Task DeleteImage(string imagePath)
         {
             imagePath = DecodeUrl(imagePath);
