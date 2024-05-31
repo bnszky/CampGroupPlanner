@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Box, Typography, TextField } from '@mui/material';
 
-function LocationInput({longitude, latitude}) {
+function LocationInput({longitude, latitude, error, errorMessage}) {
 
     return <Box>
         <Typography variant='body1'>Location</Typography>
@@ -18,6 +18,8 @@ function LocationInput({longitude, latitude}) {
                 id='latitude'
                 label="Latitude"
                 value={latitude}
+                error={error}
+                helperText={errorMessage}
                 disabled
             />
         </Box>

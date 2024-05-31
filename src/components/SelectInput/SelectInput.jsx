@@ -4,7 +4,7 @@ import toCamelCase from '../../functions/toCamelCase';
 
 function SelectInput({fieldName, onValueChange, items}) {
 
-    const [val, setVal] = React.useState(items[0]);
+    const [val, setVal] = React.useState('');
 
     const handleChange = (event) => {
         setVal(event.target.value);
