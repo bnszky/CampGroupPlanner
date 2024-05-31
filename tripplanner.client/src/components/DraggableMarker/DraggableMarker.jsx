@@ -33,7 +33,7 @@ function DraggableMarker({attraction, onChangePosition}) {
         <Popup minWidth={90}>
           <span>
             <Grid align="center">
-                <img src={attraction.image} alt={`image ${attraction.name}`} style={{width: 150, height: 100, margin: 0}}/>
+                <img src={attraction.imageURL} alt={`image ${attraction.name}`} style={{width: 150, height: 100, margin: 0}}/>
                 <Typography variant='body1' align='center'>{attraction.name}</Typography>
             </Grid>
           </span>

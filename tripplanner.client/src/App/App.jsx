@@ -13,6 +13,7 @@ import './App.css'
 import { Box } from '@mui/material'
 import EditArticle from '../pages/EditArticle/EditArticle';
 import EditRegion from '../pages/EditRegion/EditRegion';
+import EditAttraction from '../pages/EditAttraction/EditAttraction';
 
 function App() {
 
@@ -158,7 +159,8 @@ function App() {
     { name: 'Articles', link: '/articles' },
     { name: 'Create Article', link: '/articles/create' },
     { name: 'Regions', link: '/region' },
-    { name: 'Create Region', link: '/region/create' }
+    { name: 'Create Region', link: '/region/create' },
+    { name: 'Create Attraction', link: '/attraction/create' }
   ]
 
   return (
@@ -181,6 +183,8 @@ function App() {
         <Route path="/region/create" element={<CreateRegion/>}/>
         <Route path="/region/edit/:regionName" element={<EditRegion/>}/>
         <Route path="/region/:regionName" element={<RegionPage attractions={attractions} articles={articles} reviews={reviews}/>}/>
+        <Route path="/attraction/create" element={<CreateAttraction/>}/>
+        <Route path="/attraction/edit/:id" element={<EditAttraction/>}/>
       </Routes>
     </BrowserRouter>}
 

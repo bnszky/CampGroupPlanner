@@ -42,6 +42,19 @@ namespace TripPlanner.Server.Controllers
             return await _regionCreateService.GetImagesForRegion(region, 10);
         }
 
+        [HttpGet("names")]
+        public async Task<ActionResult<List<string>>> GetAllNames()
+        {
+            try
+            {
+                return await _dbContext.Regions.Select(r => r.Name).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet]
         public async Task<ActionResult<List<RegionMini>>> GetAllMini()
         {

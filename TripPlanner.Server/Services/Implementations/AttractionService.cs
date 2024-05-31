@@ -21,7 +21,7 @@ namespace TripPlanner.Server.Services.Implementations
         public async Task<ErrorResponse?> ValidateAndSetRegionAsync(AttractionCreate attractionCreate, Attraction attraction)
         {
             var region = await _dbContext.Regions
-                .Where(r => r.Name.Equals(attractionCreate.RegionName, StringComparison.OrdinalIgnoreCase))
+                .Where(r => r.Name.ToLower().Equals(attractionCreate.RegionName.ToLower()))
                 .FirstOrDefaultAsync();
 
             if (region == null)
@@ -62,7 +62,7 @@ namespace TripPlanner.Server.Services.Implementations
             return null;
         }
 
-        public async Task<Attraction> CreateOrUpdateAttractionAsync(AttractionCreate attractionCreate, Region region, Attraction existingAttraction = null)
+        public async Task<Attraction> CreateOrUpdateAttractionAsync(AttractionCreate attractionCreate, Region region, string? ImageURL = null, Attraction existingAttraction = null)
         {
             var attraction = existingAttraction ?? new Attraction();
 
@@ -71,6 +71,7 @@ namespace TripPlanner.Server.Services.Implementations
             attraction.Latitude = attractionCreate.Latitude;
             attraction.Longitude = attractionCreate.Longitude;
             attraction.Region = region;
+            attraction.ImageURL = ImageURL;
 
             if (existingAttraction == null)
             {

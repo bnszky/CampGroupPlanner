@@ -71,7 +71,7 @@ namespace TripPlanner.Server.Controllers
                 return BadRequest(imageError);
             }
 
-            await _attractionService.CreateOrUpdateAttractionAsync(attractionCreate, attraction.Region);
+            await _attractionService.CreateOrUpdateAttractionAsync(attractionCreate, attraction.Region, attraction.ImageURL);
 
             return Ok();
         }
@@ -104,7 +104,7 @@ namespace TripPlanner.Server.Controllers
                 return BadRequest(imageError);
             }
 
-            await _attractionService.CreateOrUpdateAttractionAsync(attractionCreate, existingAttraction.Region, existingAttraction);
+            await _attractionService.CreateOrUpdateAttractionAsync(attractionCreate, existingAttraction.Region, existingAttraction.ImageURL, existingAttraction);
 
             return Ok();
         }
