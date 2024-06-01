@@ -121,6 +121,13 @@ namespace TripPlanner.Server.Services.Implementations
 
             return null;
         }
+
+        public async Task<List<Attraction>> GetAllByRegionAsync(string regionName)
+        {
+            return await _dbContext.Attractions
+            .Where(a => a.Region.Name.ToLower().Equals(regionName.ToLower()))
+            .ToListAsync();
+        }
     }
 
 }

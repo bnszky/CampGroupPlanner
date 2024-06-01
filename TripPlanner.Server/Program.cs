@@ -19,8 +19,10 @@ namespace TripPlanner.Server
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<IImageService, ImageService>();
-            builder.Services.AddScoped<IRegionCreateService, RegionCreateService>();
-            builder.Services.AddScoped<ICitiesService, CitiesService>();
+            builder.Services.AddScoped<IRegionFetchService, RegionFetchService>();
+            builder.Services.AddScoped<IArticleService, ArticleService>();
+            builder.Services.AddScoped<IRegionService, RegionService>();
+            builder.Services.AddScoped<ICityService, CityService>();
             builder.Services.AddScoped<IErrorService, ErrorService>();
             builder.Services.AddScoped<IAttractionService, AttractionService>();
 

@@ -12,6 +12,6 @@ namespace TripPlanner.Server.Models
         public string Country { get; set; }
         [Required(ErrorMessage = "You must add some cities")]
         public List<string> Cities { get; set; }
-        public List<IFormFile>? Images { get; set; }
+        public List<IFormFile> Images { get; set; }
     }
 }

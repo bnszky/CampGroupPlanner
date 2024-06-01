@@ -33,6 +33,25 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        [HttpGet("region/{regionName}")]
+        public async Task<ActionResult<List<Attraction>>> GetByRegion(string regionName)
+        {
+            try
+            {
+                var articles = await _attractionService.GetAllByRegionAsync(regionName);
+                if (articles == null)
+                {
+                    return NotFound(_errorService.CreateError("Region with this name doesn't exist", 404));
+                }
+                return Ok(articles);
+            }
+            catch
+            {
+                var errorResponse = _errorService.CreateError("Couldn't fetch attractions from database");
+                return BadRequest(errorResponse);
+            }
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Attraction>> Get(int id)
         {

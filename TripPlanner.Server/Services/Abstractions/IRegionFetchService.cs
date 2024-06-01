@@ -2,7 +2,7 @@
 
 namespace TripPlanner.Server.Services.Abstractions
 {
-    public interface IRegionCreateService
+    public interface IRegionFetchService
     {
         public Task<List<string>> FindCitiesByRegion(string regionName, int maxNumber);
         public Task<string> GetDescriptionForRegion(string regionName, int characterLimit);

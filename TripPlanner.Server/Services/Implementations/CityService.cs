@@ -4,10 +4,10 @@ using TripPlanner.Server.Services.Abstractions;
 
 namespace TripPlanner.Server.Services.Implementations
 {
-    public class CitiesService : ICitiesService
+    public class CityService : ICityService
     {
         private HttpClient _httpClient;
-        public CitiesService() {
+        public CityService() {
             _httpClient = new HttpClient();
         }
         public async Task<City> FetchInformationAboutCityFromName(string cityName)

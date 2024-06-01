@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TripPlanner.Server.Data;
 
@@ -11,9 +12,11 @@ using TripPlanner.Server.Data;
 namespace TripPlanner.Server.Migrations
 {
     [DbContext(typeof(TripDbContext))]
-    partial class TripDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240601130126_changedArticles")]
+    partial class changedArticles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -68,7 +71,7 @@ namespace TripPlanner.Server.Migrations
 
                     b.HasIndex("RegionId");
 
-                    b.ToTable("Articles", (string)null);
+                    b.ToTable("Articles");
 
                     b.HasData(
                         new
@@ -147,7 +150,7 @@ namespace TripPlanner.Server.Migrations
 
                     b.HasIndex("RegionId");
 
-                    b.ToTable("Attractions", (string)null);
+                    b.ToTable("Attractions");
 
                     b.HasData(
                         new
@@ -214,7 +217,7 @@ namespace TripPlanner.Server.Migrations
 
                     b.HasIndex("RegionId");
 
-                    b.ToTable("Cities", (string)null);
+                    b.ToTable("Cities");
 
                     b.HasData(
                         new
@@ -265,7 +268,7 @@ namespace TripPlanner.Server.Migrations
 
                     b.HasIndex("RegionId");
 
-                    b.ToTable("ImageURLs", (string)null);
+                    b.ToTable("ImageURLs");
 
                     b.HasData(
                         new
@@ -306,7 +309,7 @@ namespace TripPlanner.Server.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Regions", (string)null);
+                    b.ToTable("Regions");
 
                     b.HasData(
                         new
@@ -351,7 +354,7 @@ namespace TripPlanner.Server.Migrations
 
                     b.HasIndex("RegionId");
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
 
                     b.HasData(
                         new
@@ -405,7 +408,7 @@ namespace TripPlanner.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
 
                     b.HasData(
                         new

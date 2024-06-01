@@ -9,6 +9,7 @@ namespace TripPlanner.Server.Services.Abstractions
         Task<Attraction> CreateOrUpdateAttractionAsync(AttractionCreate attractionCreate, Region region, string? ImageURL = null, Attraction existingAttraction = null);
         Task<Attraction?> GetAsync(int id);
         Task<List<Attraction>> GetAllAsync();
+        Task<List<Attraction>> GetAllByRegionAsync(string regionName);
         Task<ErrorResponse?> DeleteAsync(int id);
     }
 

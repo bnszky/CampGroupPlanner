@@ -14,32 +14,36 @@ namespace TripPlanner.Server.Controllers
     public class RegionController : ControllerBase
     {
         private readonly TripDbContext _dbContext;
-        private IRegionCreateService _regionCreateService;
-        private ICitiesService _cityService;
+        private IRegionFetchService _regionFetchService;
+        private ICityService _cityService;
         private IImageService _imageService;
-        public RegionController(TripDbContext dbContext, IRegionCreateService regionCreateService, ICitiesService citiesService, IImageService imageService) { 
-            _regionCreateService = regionCreateService;
+        private IErrorService _errorService;
+        private IRegionService _regionService;
+        public RegionController(TripDbContext dbContext, IRegionFetchService regionFetchService, ICityService citiesService, IImageService imageService, IErrorService errorService, IRegionService regionService) { 
+            _regionFetchService = regionFetchService;
             _cityService = citiesService;
             _dbContext = dbContext;
             _imageService = imageService;
+            _errorService = errorService;
+            _regionService = regionService;
         }
 
         [HttpGet("description/{region}")]
         public async Task<ActionResult<string>> FetchDescription(string region)
         {
-            return await _regionCreateService.GetDescriptionForRegion(region, 1000);
+            return await _regionFetchService.GetDescriptionForRegion(region, 1000);
         }
 
         [HttpGet("cities/{region}")]
         public async Task<ActionResult<List<string>>> FetchCities(string region)
         {
-            return await _regionCreateService.FindCitiesByRegion(region, 5);
+            return await _regionFetchService.FindCitiesByRegion(region, 5);
         }
 
         [HttpGet("images/{region}")]
         public async Task<ActionResult<List<string>>> FetchImages(string region)
         {
-            return await _regionCreateService.GetImagesForRegion(region, 10);
+            return await _regionFetchService.GetImagesForRegion(region, 10);
         }
 
         [HttpGet("names")]
@@ -47,11 +51,11 @@ namespace TripPlanner.Server.Controllers
         {
             try
             {
-                return await _dbContext.Regions.Select(r => r.Name).ToListAsync();
+                return await _regionService.GetAllRegionNamesAsync();
             }
-            catch (Exception ex)
+            catch
             {
-                return BadRequest(ex.Message);
+                return BadRequest(_errorService.CreateError("Unexpected error"));
             }
         }
 
@@ -60,22 +64,11 @@ namespace TripPlanner.Server.Controllers
         {
             try
             {
-                var regions = await _dbContext.Regions
-                    .Include(r => r.Images)
-                    .Select(r => new RegionMini
-                    {
-                        Id = r.Id,
-                        Name = r.Name,
-                        Description = r.Description,
-                        Image = r.Images.FirstOrDefault().Link
-                    })
-                    .ToListAsync();
-
-                return regions;
+                return await _regionService.GetAllRegionMinisAsync();
             }
-            catch (Exception ex)
+            catch
             {
-                return BadRequest(ex.Message);
+                return BadRequest(_errorService.CreateError("Unexpected error"));
             }
         }
 
@@ -84,28 +77,16 @@ namespace TripPlanner.Server.Controllers
         {
             try
             {
-                var region = await _dbContext.Regions
-                .Include(r => r.Images)
-                .FirstOrDefaultAsync(r => r.Name.ToLower() == regionName.ToLower());
-
-                if (region == null)
+                var region = await _regionService.GetRegionMiniByNameAsync(regionName);
+                if(region == null)
                 {
-                    return NotFound();
+                    return BadRequest(_errorService.CreateError("Region with this name doesn't exist"));
                 }
-
-                var regionMini = new RegionMini
-                {
-                    Id = region.Id,
-                    Name = region.Name,
-                    Description = region.Description,
-                    Image = region.Images.FirstOrDefault()?.Link
-                };
-
-                return regionMini;
+                return region;
             }
-            catch (Exception ex)
+            catch
             {
-                return BadRequest(ex.Message);
+                return BadRequest(_errorService.CreateError("Unexpected error"));
             }
         }
 
@@ -114,35 +95,22 @@ namespace TripPlanner.Server.Controllers
         {
             try
             {
-                var region = await _dbContext.Regions
-                .Include(r => r.Cities)
-                .Include(r => r.Images)
-                .FirstOrDefaultAsync(r => r.Name.ToLower() == regionName.ToLower());
-
+                var region = await _regionService.GetRegionByNameAsync(regionName);
                 if (region == null)
                 {
-                    return NotFound();
+                    return NotFound(_errorService.CreateError("Region not found"));
                 }
 
-                var regionGet = new RegionGet
-                {
-                    Name = region.Name,
-                    Description = region.Description,
-                    Country = region.Country,
-                    Cities = region.Cities.Select(c => c.Name).ToList(),
-                    Images = region.Images.Select(i => i.Link).ToList()
-                };
-
-                return regionGet;
+                return Ok(region);
             }
-            catch (Exception ex)
+            catch
             {
-                return BadRequest(ex.Message);
+                return BadRequest(_errorService.CreateError("Region not found"));
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm] RegionCreate regionFromBody)
+        public async Task<IActionResult> Create([FromForm] RegionCreate regionCreate)
         {
             try
             {
@@ -151,78 +119,22 @@ namespace TripPlanner.Server.Controllers
                     return BadRequest(ModelState);
                 }
 
-                if (_dbContext.Regions.Any(r => r.Name.ToLower().Equals(regionFromBody.Name.ToLower())))
+                var errorResponse = await _regionService.CreateRegionAsync(regionCreate);
+                if (errorResponse != null)
                 {
-                    return BadRequest("Region exist in the database");
+                    return BadRequest(errorResponse);
                 }
 
-                var newRegion = new Region
-                {
-                    Name = regionFromBody.Name,
-                    Description = regionFromBody.Description,
-                    Country = regionFromBody.Country
-                };
-
-                // Validate cities
-                if (regionFromBody.Cities == null || !regionFromBody.Cities.Any())
-                {
-                    ModelState.AddModelError(nameof(regionFromBody.Cities), "You must add some cities");
-                    return BadRequest(ModelState);
-                }
-
-                // Validate images
-                if (regionFromBody.Images == null || !regionFromBody.Images.Any())
-                {
-                    ModelState.AddModelError(nameof(regionFromBody.Images), "You must add some images");
-                    return BadRequest(ModelState);
-                }
-
-                // Validate number of images
-                if (regionFromBody.Images != null && regionFromBody.Images.Count() >= 10)
-                {
-                    ModelState.AddModelError(nameof(regionFromBody.Images), "Number of images has exceeded limit");
-                    return BadRequest(ModelState);
-                }
-
-                foreach (var cityName in regionFromBody.Cities)
-                {
-                    City city = await _cityService.FetchInformationAboutCityFromName(cityName);
-                    city.Region = newRegion;
-
-                    if (city.Country == regionFromBody.Country &&
-                        !_dbContext.Cities.Any(c => c.Name.Equals(cityName)))
-                    {
-                        _dbContext.Cities.Add(city);
-                    }
-                }
-
-                foreach (var imageFile in regionFromBody.Images)
-                {
-                    try
-                    {
-                        var image = new Image { Link = await _imageService.UploadImage(imageFile), Region = newRegion };
-                        _dbContext.ImageURLs.Add(image);
-                    }
-                    catch
-                    {
-                        ModelState.AddModelError(nameof(regionFromBody.Images), "Couldn't load image");
-                        return BadRequest(ModelState);
-                    }
-                }
-
-                _dbContext.Regions.Add(newRegion);
-                await _dbContext.SaveChangesAsync();
-                
                 return Ok();
             }
             catch
             {
-                return BadRequest("Unknown error");
+                return BadRequest(_errorService.CreateError("Unexpected error"));
             }
         }
 
         [HttpPut("{regionName}")]
-        public async Task<IActionResult> Edit(string regionName, [FromForm] RegionCreate regionFromBody)
+        public async Task<IActionResult> Edit(string regionName, [FromForm] RegionCreate regionCreate)
         {
             try
             {
@@ -231,82 +143,17 @@ namespace TripPlanner.Server.Controllers
                     return BadRequest(ModelState);
                 }
 
-                // Validate cities
-                if (regionFromBody.Cities == null || !regionFromBody.Cities.Any())
+                var errorResponse = await _regionService.UpdateRegionAsync(regionName, regionCreate);
+                if (errorResponse != null)
                 {
-                    ModelState.AddModelError(nameof(regionFromBody.Cities), "You must add some cities");
-                    return BadRequest(ModelState);
+                    return BadRequest(errorResponse);
                 }
-
-                // Validate images
-                if (regionFromBody.Images == null || !regionFromBody.Images.Any())
-                {
-                    ModelState.AddModelError(nameof(regionFromBody.Images), "You must add some images");
-                    return BadRequest(ModelState);
-                }
-
-                // Validate number of images
-                if (regionFromBody.Images != null && regionFromBody.Images.Count() >= 10)
-                {
-                    ModelState.AddModelError(nameof(regionFromBody.Images), "Number of images has exceeded limit");
-                    return BadRequest(ModelState);
-                }
-
-                var region = await _dbContext.Regions
-                .Include(r => r.Cities)
-                .Include(r => r.Images)
-                .FirstOrDefaultAsync(r => r.Name.ToLower() == regionName.ToLower());
-
-                if (region == null)
-                {
-                    return NotFound();
-                }
-
-                foreach (var image in region.Images)
-                {
-                    await _imageService.DeleteImage(image.Link);
-                }
-
-                _dbContext.Cities.RemoveRange(region.Cities);
-                _dbContext.ImageURLs.RemoveRange(region.Images);
-
-                region.Name = regionFromBody.Name;
-                region.Description = regionFromBody.Description;
-                region.Country = regionFromBody.Country;
-
-                foreach (var cityName in regionFromBody.Cities)
-                {
-                    City city = await _cityService.FetchInformationAboutCityFromName(cityName);
-                    city.Region = region;
-
-                    if (city.Country == regionFromBody.Country &&
-                        !_dbContext.Cities.Any(c => c.Name.Equals(cityName)))
-                    {
-                        _dbContext.Cities.Add(city);
-                    }
-                }
-
-                foreach (var imageFile in regionFromBody.Images)
-                {
-                    try
-                    {
-                        var image = new Image { Link = await _imageService.UploadImage(imageFile), Region = region };
-                        _dbContext.ImageURLs.Add(image);
-                    }
-                    catch
-                    {
-                        ModelState.AddModelError(nameof(regionFromBody.Images), "Couldn't load image");
-                        return BadRequest(ModelState);
-                    }
-                }
-
-                await _dbContext.SaveChangesAsync();
 
                 return Ok();
             }
-            catch (Exception ex)
+            catch
             {
-                return BadRequest(ex.Message);
+                return BadRequest(_errorService.CreateError("Unexpected error"));
             }
         }
 
@@ -315,44 +162,17 @@ namespace TripPlanner.Server.Controllers
         {
             try
             {
-                var region = await _dbContext.Regions
-                .Include(r => r.Cities)
-                .Include(r => r.Images)
-                .Include(r => r.Attractions)
-                .Include(r => r.Reviews)
-                .Include(r => r.Articles)
-                .FirstOrDefaultAsync(r => r.Name.ToLower() == regionName.ToLower());
-
-                if (region == null)
+                var errorResponse = await _regionService.DeleteRegionAsync(regionName);
+                if (errorResponse != null)
                 {
-                    return NotFound();
+                    return BadRequest(errorResponse);
                 }
-
-                foreach (var image in region.Images)
-                {
-                    await _imageService.DeleteImage(image.Link);
-                }
-
-                _dbContext.Cities.RemoveRange(region.Cities);
-                _dbContext.ImageURLs.RemoveRange(region.Images);
-                _dbContext.Attractions.RemoveRange(region.Attractions);
-                _dbContext.Reviews.RemoveRange(region.Reviews);
-                
-                foreach(var article in region.Articles)
-                {
-                    article.Region = null;
-                    article.RegionId = null;
-                }
-
-                _dbContext.Remove(region);
-
-                await _dbContext.SaveChangesAsync();
 
                 return Ok();
             }
-            catch (Exception ex)
+            catch
             {
-                return BadRequest(ex.Message);
+                return BadRequest(_errorService.CreateError("Unexpected error"));
             }
         }
 

@@ -102,7 +102,10 @@ namespace TripPlanner.Server.Data
                 CreatedAt = new DateTime(2020, 5, 4),
                 RegionId = 1,
                 ImageURL = "https://rodzinanomadow.pl/wp-content/uploads/2018/06/image-10-1024x683.jpeg",
-                SourceLink = "https://www.niagarafallsstatepark.com/"
+                SourceLink = "https://www.niagarafallsstatepark.com/",
+                RegionName="Catalonia",
+                IsVisible= true,
+                PositioningRate=4
             },
             new Article
             {
@@ -112,7 +115,10 @@ namespace TripPlanner.Server.Data
                 CreatedAt = new DateTime(2022, 11, 25),
                 RegionId = 1,
                 ImageURL = "https://www.theblondeabroad.com/wp-content/uploads/2022/02/theodor-vasile-LSscVPEyQpI-unsplash.jpg",
-                SourceLink = "https://www.theblondeabroad.com/ultimate-barcelona-travel-guide/"
+                SourceLink = "https://www.theblondeabroad.com/ultimate-barcelona-travel-guide/",
+                RegionName = "Catalonia",
+                IsVisible = true,
+                PositioningRate = 1
             },
             new Article
             {
@@ -122,7 +128,10 @@ namespace TripPlanner.Server.Data
                 CreatedAt = new DateTime(2024, 4, 14, 15, 41, 0),
                 RegionId = 1,
                 ImageURL = "https://www.theblondeabroad.com/wp-content/uploads/2022/02/david-edkins-grlIoctRp1o-unsplash.jpg",
-                SourceLink = "https://www.theblondeabroad.com/ultimate-rome-travel-guide/"
+                SourceLink = "https://www.theblondeabroad.com/ultimate-rome-travel-guide/",
+                RegionName = "Catalonia",
+                IsVisible = true,
+                PositioningRate = 3
             }
             );
 

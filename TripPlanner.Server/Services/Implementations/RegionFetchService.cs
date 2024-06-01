@@ -9,7 +9,7 @@ using HtmlAgilityPack;
 
 namespace TripPlanner.Server.Services.Implementations
 {
-    public class RegionCreateService : IRegionCreateService
+    public class RegionFetchService : IRegionFetchService
     {
         private readonly HttpClient _httpClient;
 
@@ -30,7 +30,7 @@ namespace TripPlanner.Server.Services.Implementations
             return text;
         }
 
-        public RegionCreateService()
+        public RegionFetchService()
         {
             _httpClient = new HttpClient();
         }

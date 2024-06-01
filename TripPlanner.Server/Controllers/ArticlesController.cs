@@ -12,23 +12,46 @@ namespace TripPlanner.Server.Controllers
     [Route("api/[controller]")]
     public class ArticlesController : ControllerBase
     {
-        private readonly TripDbContext _dbContext;
-        private readonly IImageService _imageService;
+        private readonly IArticleService _articleService;
+        private readonly IErrorService _errorService;
 
-        public ArticlesController(TripDbContext dbContext, IImageService imageService)
+        public ArticlesController(IArticleService articleService, IErrorService errorService)
         {
-            _dbContext = dbContext;
-            _imageService = imageService;
+            _articleService = articleService;
+            _errorService = errorService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Article>>> Index()
         {
-            var articles = await _dbContext.Articles.ToListAsync();
+            try
+            {
+                return await _articleService.GetAllAsync();
+            }
+            catch
+            {
+                var errorResponse = _errorService.CreateError("Couldn't fetch articles from database");
+                return BadRequest(errorResponse);
+            }
+        }
 
-            if (articles == null) return new List<Article>();
-
-            return articles;
+        [HttpGet("region/{regionName}")]
+        public async Task<ActionResult<List<Article>>> GetByRegion(string regionName)
+        {
+            try
+            {
+                var articles = await _articleService.GetAllByRegionAsync(regionName);
+                if(articles == null)
+                {
+                    return NotFound(_errorService.CreateError("Region with this name doesn't exist", 404));
+                }
+                return Ok(articles);
+            }
+            catch
+            {
+                var errorResponse = _errorService.CreateError("Couldn't fetch articles from database");
+                return BadRequest(errorResponse);
+            }
         }
 
         [HttpGet("{id}")]
@@ -36,147 +59,96 @@ namespace TripPlanner.Server.Controllers
         {
             try
             {
-                var article = await _dbContext.Articles.FindAsync(id);
-
+                var article = await _articleService.GetAsync(id);
                 if (article == null)
                 {
-                    return NotFound();
+                    throw new Exception("Couldn't find attraction with this id");
                 }
-
-                return article;
+                return Ok(article);
             }
-            catch (Exception ex)
+            catch
             {
-                var error = new List<string> { "Couldn't find the article in the database" };
-                return BadRequest(error);
+                var errorResponse = _errorService.CreateError("Couldn't find article with this id");
+                return BadRequest(errorResponse);
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm]ArticleCreate articleFromBody)
+        public async Task<IActionResult> Create([FromForm] ArticleCreate articleCreate)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                if (!ModelState.IsValid)
-                {
-                    var errors = new List<string>();
-                    foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-                    {
-                        errors.Add(error.ErrorMessage);
-                    }
-                    return BadRequest(errors);
-                }
-
-                Article article = new Article();
-                if (articleFromBody.ImageFile != null)
-                {
-                    try
-                    {
-                        article.ImageURL = await _imageService.UploadImage(articleFromBody.ImageFile);
-                    }
-                    catch (Exception ex)
-                    {
-                        var uploadError = new List<string> { "Couldn't upload image" };
-                        return BadRequest(uploadError);
-                    }
-                }
-
-                article.Title = articleFromBody.Title;
-                article.Description = articleFromBody.Description;
-                article.CreatedAt = DateTime.Now;
-                article.SourceLink = articleFromBody.SourceLink;
-                article.RegionId = articleFromBody.RegionId;
-                article.Region = articleFromBody.Region;
-
-                // Check if an article with the same SourceLink already exists in the database
-                if (_dbContext.Articles.Any(a => a.SourceLink == article.SourceLink))
-                {
-                    var error = new List<string> { "Link to this article exists in the database" };
-                    return BadRequest(error);
-                }
-
-                article.CreatedAt = DateTime.Now;
-
-                // Add the article to the database
-                _dbContext.Articles.Add(article);
-                await _dbContext.SaveChangesAsync();
-
-                return Ok(article);
+                return BadRequest(ModelState);
             }
-            catch (Exception ex)
+
+            Article article = new Article();
+
+            var regionError = await _articleService.ValidateAndSetRegionAsync(articleCreate, article);
+            if (regionError != null)
             {
-                var error = new List<string> { "Couldn't add to the database" };
-                return BadRequest(error);
+                return BadRequest(regionError);
             }
+
+            var imageError = await _articleService.HandleImageUploadAsync(articleCreate, article);
+            if (imageError != null)
+            {
+                return BadRequest(imageError);
+            }
+
+            var articleExistsError = _articleService.CheckArticleExists(articleCreate);
+            if (articleExistsError != null)
+            {
+                return BadRequest(articleExistsError);
+            }
+
+            await _articleService.CreateOrUpdateArticleAsync(articleCreate, article, true);
+
+            return Ok();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            try
+            var errorMessage = await _articleService.DeleteAsync(id);
+            if (errorMessage != null)
             {
-                var article = await _dbContext.Articles.FindAsync(id);
-
-                if (article == null)
-                {
-                    return NotFound();
-                }
-
-                if(article.ImageURL != null) await _imageService.DeleteImage(article.ImageURL);
-
-                _dbContext.Articles.Remove(article);
-                await _dbContext.SaveChangesAsync();
-
-                return Ok();
+                return BadRequest(errorMessage);
             }
-            catch (Exception ex)
-            {
-                var error = new List<string> { "Couldn't delete from the database" };
-                return BadRequest(error);
-            }
+
+            return Ok();
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Edit(int id, [FromForm] ArticleCreate editedArticle)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                var article = await _dbContext.Articles.FindAsync(id);
-
-                if (article == null)
-                {
-                    return NotFound();
-                }
-
-                if (editedArticle.ImageFile != null)
-                {
-                    try
-                    {
-                        article.ImageURL = await _imageService.UploadImage(editedArticle.ImageFile);
-                    }
-                    catch (Exception ex)
-                    {
-                        var uploadError = new List<string> { "Couldn't upload image" };
-                        return BadRequest(uploadError);
-                    }
-                }
-
-                // Update the properties of the existing article
-                article.Title = editedArticle.Title;
-                article.Description = editedArticle.Description;
-                article.SourceLink = editedArticle.SourceLink;
-                article.Region = editedArticle.Region;
-
-                // Save changes to the database
-                await _dbContext.SaveChangesAsync();
-
-                return Ok(article);
+                return BadRequest(ModelState);
             }
-            catch (Exception ex)
+
+            var existingArticle = await _articleService.GetAsync(id);
+            if (existingArticle == null)
             {
-                var error = new List<string> { "Couldn't edit the article in the database" };
-                return BadRequest(error);
+                var errorResponse = _errorService.CreateError("Article not found", 404);
+                _errorService.AddNewErrorMessageFor(errorResponse, "ArticleId", "Couldn't find article with this id");
+                return NotFound(errorResponse);
             }
+
+            var regionError = await _articleService.ValidateAndSetRegionAsync(editedArticle, existingArticle);
+            if (regionError != null)
+            {
+                return BadRequest(regionError);
+            }
+
+            var imageError = await _articleService.HandleImageUploadAsync(editedArticle, existingArticle);
+            if (imageError != null)
+            {
+                return BadRequest(imageError);
+            }
+
+            await _articleService.CreateOrUpdateArticleAsync(editedArticle, existingArticle, false);
+
+            return Ok();
         }
     }
 }

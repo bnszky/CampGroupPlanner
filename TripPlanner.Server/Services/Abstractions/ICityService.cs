@@ -2,7 +2,7 @@
 
 namespace TripPlanner.Server.Services.Abstractions
 {
-    public interface ICitiesService
+    public interface ICityService
     {
         public Task<City> FetchInformationAboutCityFromName(string cityName);
     }
