@@ -96,7 +96,7 @@ namespace TripPlanner.Server.Services.Implementations
             {
                 article.PositioningRate = GeneratePositioningRate(article);
             }
-            article.IsVisible = true;
+            article.IsVisible = articleCreate.IsVisible;
 
             if (isAdded)
             {

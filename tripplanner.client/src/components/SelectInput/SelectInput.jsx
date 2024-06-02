@@ -23,6 +23,7 @@ function SelectInput({fieldName, onValueChange, items}) {
         label={fieldName}
         onChange={handleChange}
       >
+        <MenuItem value={null}>None</MenuItem>
         {items.map(item => <MenuItem key={item} value={item}>{item}</MenuItem>)}
       </Select>
     </FormControl>

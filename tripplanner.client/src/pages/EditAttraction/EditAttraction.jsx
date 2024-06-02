@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Alert, Box } from '@mui/material';
 import CreateAttraction from '../CreateAttraction/CreateAttraction';
@@ -9,6 +9,7 @@ const EditAttraction = () => {
     const [attractionData, setAttractionData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate()
 
     useEffect(() => {
         const fetchAttractionData = async () => {
@@ -36,6 +37,10 @@ const EditAttraction = () => {
     }
 
     if (error) {
+        navigate(
+            '/attraction',
+            {state: { infoMsg: {type: 'error', msg: error}} }
+        );
         return <Alert variant='outlined' severity='error'>Error: {error}</Alert>
     }
 

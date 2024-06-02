@@ -32,6 +32,8 @@ export default function RegionsFeed(){
             window.location.reload();
         } catch (error) {
             console.log(error.message);
+            navigate('/region', {state: {infoMsg: {type: 'errror', msg: `Region ${id} couldn't be deleted`}}});
+            window.location.reload();
         }
     };
 
@@ -40,9 +42,15 @@ export default function RegionsFeed(){
     }
 
     async function getData(){
-        const response = await fetch('api/region');
-        const data = await response.json();
-        setRegions(data);
+        try{
+            const response = await fetch('api/region');
+            const data = await response.json();
+            setRegions(data);
+        }
+        catch (error){
+            console.error(error.message);
+            setRegions([]);
+        }
     }
 
     useEffect(() => {getData();}, []);

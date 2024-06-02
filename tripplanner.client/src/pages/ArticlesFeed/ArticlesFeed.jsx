@@ -1,4 +1,3 @@
-import "./ArticlesFeed.css"
 import { useEffect, useState } from "react"
 import ArticlesList from "../../components/ArticlesList/ArticlesList.jsx"
 import { Alert, Typography, Box } from "@mui/material";
@@ -33,13 +32,21 @@ export default function ArticlesFeed(){
             window.location.reload();
         } catch (error) {
             console.log(error.message);
+            navigate('/articles', {state: {infoMsg: {type: 'errror', msg: `Article ${id} couldn't be deleted`}}});
+            window.location.reload();
         }
     };
 
     async function getData(){
-        const response = await fetch('api/articles');
-        const data = await response.json();
-        setArticles(data);
+        try{
+            const response = await fetch('api/articles');
+            const data = await response.json();
+            setArticles(data);
+        }
+        catch (error){
+            console.error(error.message);
+            setArticles([]);
+        }
     }
 
     useEffect(() => {getData();}, []);
