@@ -14,6 +14,7 @@ import { Box } from '@mui/material'
 import EditArticle from '../pages/EditArticle/EditArticle';
 import EditRegion from '../pages/EditRegion/EditRegion';
 import EditAttraction from '../pages/EditAttraction/EditAttraction';
+import AttractionsFeed from '../pages/AttractionsFeed/AttractionsFeed';
 
 function App() {
 
@@ -160,6 +161,7 @@ function App() {
     { name: 'Create Article', link: '/articles/create' },
     { name: 'Regions', link: '/region' },
     { name: 'Create Region', link: '/region/create' },
+    { name: 'Attractions', link: '/attraction' },
     { name: 'Create Attraction', link: '/attraction/create' }
   ]
 
@@ -168,10 +170,14 @@ function App() {
       {/*<Navbar/>*/}
       
       <Box sx={{
-        padding: '2rem',
-        paddingBottom: '5rem'
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
       }}>
 
+      <Box sx={{flex: 1,
+        padding: '2rem',
+        paddingBottom: '5rem'}}>
       {<BrowserRouter>
       <Navbar pages={pages}/>
       <Routes>
@@ -183,10 +189,12 @@ function App() {
         <Route path="/region/create" element={<CreateRegion/>}/>
         <Route path="/region/edit/:regionName" element={<EditRegion/>}/>
         <Route path="/region/:regionName" element={<RegionPage attractions={attractions} articles={articles} reviews={reviews}/>}/>
+        <Route path="/attraction" element={<AttractionsFeed/>} />
         <Route path="/attraction/create" element={<CreateAttraction/>}/>
         <Route path="/attraction/edit/:id" element={<EditAttraction/>}/>
       </Routes>
     </BrowserRouter>}
+    </Box>
 
       {/*<RegionPage attractions={attractions} articles={articles} reviews={reviews} region={regionCatalonia}/>*/}
       {/*<CreateArticle regions={regions}/>*/}
@@ -194,8 +202,8 @@ function App() {
       {/*<CreateRegion/>*/}
       {/*<CreateReview region={regionCatalonia}/>*/}
 
-      </Box>
       <Footer/>
+      </Box>
     </>
   )
 }

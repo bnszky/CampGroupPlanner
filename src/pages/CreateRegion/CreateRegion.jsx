@@ -8,7 +8,8 @@ import InputItemList from '../../components/InputItemList/InputItemList';
 import InputAddText from '../../components/InputAddText/InputAddText';
 import InputAddImage from '../../components/InputAddImage/InputAddImage';
 import InputFetchText from '../../components/InputFetchText/InputFetchText';
-import { Update } from '@mui/icons-material';
+import { fetchAndConvertImage } from '../../imageConvert';
+import { useNavigate } from 'react-router-dom';
 
 function CreateRegion({regionData = null}) {
 
@@ -16,6 +17,7 @@ function CreateRegion({regionData = null}) {
     const [errors, setErrors] = React.useState(null)
     const [errorMsg, setErrorMsg] = React.useState(null)
     const [createdMsg, setCreatedMsg] = React.useState(null)
+    const navigate = useNavigate()
 
     const initialRegionState = {
         name: "",
@@ -27,95 +29,74 @@ function CreateRegion({regionData = null}) {
 
     const [region, setRegion] = React.useState(regionData || initialRegionState)
 
-    const fetchAndConvertImage = async (url) => {
-        try {
-          const response = await fetch(url);
-          const contentType = response.headers.get('content-type');
-    
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-    
-          if (contentType !== 'image/jpeg' && contentType !== 'image/png') {
-            throw new Error('Image format not supported. Only .jpg and .png are allowed.');
-          }
-    
-          const blob = await response.blob();
-          const extension = contentType.split('/')[1]; // Extract the file extension
-          const fileName = `image.${extension}`; // Create a file name with the correct extension
-          const file = new File([blob], fileName, { type: contentType });
-          return file;
-        } catch (error) {
-          console.error('Error fetching or converting image:', error);
-          throw error;
-        }
-    };
-
     async function handleSubmit() {
-        event.preventDefault();
-    
-        console.log(region);
-        console.log(region.country);
-    
-        const formData = new FormData();
-        formData.append('name', region.name);
-        formData.append('country', region.country);
-        formData.append('description', region.description);
-    
-        // Append city names
-        region.cities.forEach((city, index) => {
-            formData.append(`cities[${index}]`, city);
-        });
-    
-        var _images = [];
-        for(var imageUrl of images){
-            const res = await fetchAndConvertImage(imageUrl)
-            _images.push(res)
-        }
-
-        console.log(_images);
-
-        // Append image files
-        _images.forEach((file, index) => {
-            console.log(file);
-            formData.append(`Images`, file, file.name);
-        });
-
-        console.log(formData);
-    
-        var response;
-        if(regionData == null) {
-            response = await fetch('/api/Region', {
-                method: 'POST',
-                body: formData
+        try{
+            const formData = new FormData();
+            formData.append('name', region.name);
+            formData.append('country', region.country);
+            formData.append('description', region.description);
+        
+            region.cities.forEach((city, index) => {
+                formData.append(`cities[${index}]`, city);
             });
-        } else {
-            response = await fetch(`/api/Region/${region.name}`, {
-                method: 'PUT',
-                body: formData
-            });
-        }
-    
-        setErrors({});
-        setErrorMsg(null);
-        setCreatedMsg(null);
-        if (!response.ok) {
-            if (response.status === 400) {
-                const errorData = await response.json();
-                console.log(errorData);
-                setErrors(errorData.errors);
-                if (errorData?.title) {
-                    setErrorMsg(`Couldn't create region: ${errorData.title}`);
-                } else {
-                    setErrorMsg(`Couldn't create region: ${errorData[0]}`);
-                }
-            } else {
-                console.error('Failed to create region', response);
-                setErrorMsg(`Couldn't create region: Unknown problem. Try again`);
+        
+            var _images = [];
+            for(var imageUrl of images){
+                const res = await fetchAndConvertImage(imageUrl)
+                _images.push(res)
             }
-        } else {
-            console.log('Region created successfully');
-            setCreatedMsg('Region created successfully');
+
+            _images.forEach(file => {
+                console.log(file);
+                formData.append(`Images`, file, file.name);
+            });
+
+            console.log(formData);
+        
+            var response;
+            if(regionData == null) {
+                response = await fetch('/api/Region', {
+                    method: 'POST',
+                    body: formData
+                });
+            } else {
+                response = await fetch(`/api/Region/${region.name}`, {
+                    method: 'PUT',
+                    body: formData
+                });
+            }
+        
+            if (!response.ok) {
+
+                const result = await response.json();
+
+                if (result.errors) {
+                    var _errors = {};
+                    console.log(result.errors);
+                    for (const errorKey in result.errors) {
+                        if (result.errors.hasOwnProperty(errorKey)) {
+                            _errors[errorKey] = result.errors[errorKey][0];
+                        }
+                    }
+                    setErrors(_errors);
+                }
+                if (result.title) {
+                    setErrorMsg(result.title);
+                }
+                return;
+            }
+
+            setErrors({});
+            setErrorMsg('');
+            setCreatedMsg(`Region ${initialRegionState ? 'edited' : 'created'} successfully`);
+            navigate(
+                '/region',
+                {state: { infoMsg: {type: 'success', msg: `Region ${region.name} ${regionData ? 'edited' : 'created'} successfully`}} }
+            );
+        }
+        catch(error){
+            console.log(error.message);
+            setErrorMsg("Couldn't create/edit region");
         }
     }    
 
@@ -138,7 +119,7 @@ function CreateRegion({regionData = null}) {
             return data;
         } catch (error) {
             console.error('Fetch error:', error);
-            throw error;
+            setErrorMsg(`Couldn't fetch ${type}`);
         }
     }
 
@@ -158,7 +139,7 @@ function CreateRegion({regionData = null}) {
             console.log(data)
         } catch (error) {
             console.error('Fetch error:', error);
-            updateDescription(error);
+            setErrorMsg(`Couldn't fetch description`);
         }
     }
     

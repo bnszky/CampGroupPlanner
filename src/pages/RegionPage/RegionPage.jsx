@@ -6,9 +6,10 @@ import ArticlesList from '../../components/ArticlesList/ArticlesList';
 import ReviewList from '../../components/ReviewList/ReviewList';
 import { useNavigate, useParams } from 'react-router-dom';
 
-export default function RegionPage({attractions, articles, reviews}) {
+export default function RegionPage({reviews}) {
 
   const {regionName} = useParams();
+  const navigate = useNavigate();
   const [region, setRegion] = React.useState({
     name: '',
     description: '',
@@ -16,14 +17,46 @@ export default function RegionPage({attractions, articles, reviews}) {
     cities: [],
     images: []
   });
+  const [attractions, setAttractions] = React.useState([]);
+  const [articles, setArticles] = React.useState([]);
 
   async function getData(){
-    const response = await fetch(`/api/region/${regionName}`);
-    const data = await response.json();
-    setRegion(data);
+    try{
+      const response = await fetch(`/api/region/${regionName}`);
+      const data = await response.json();
+      setRegion(data);
+    }
+    catch{
+      navigate(
+        '/region',
+        {state: { infoMsg: {type: 'error', msg: "Couldn't find description for this region"}} }
+      );
+    }
   }
 
-  React.useEffect(() => {getData();}, []);
+  async function getAttractions(){
+    try{
+      const response = await fetch(`/api/attraction/region/${regionName}`);
+      const data = await response.json();
+      setAttractions(data);
+    }
+    catch(error){
+      console.error(error.message);
+    }
+  }
+
+  async function getArticles(){
+    try{
+      const response = await fetch(`/api/articles/region/${regionName}`);
+      const data = await response.json();
+      setArticles(data);
+    }
+    catch(error){
+      console.error(error.message);
+    }
+  }
+
+  React.useEffect(() => {getData(); getAttractions(); getArticles();}, []);
 
   return <>
     <RegionInfo region={region}/>

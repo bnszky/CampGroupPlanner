@@ -1,24 +1,24 @@
 import { useEffect, useState } from "react"
-import ArticlesList from "../../components/ArticlesList/ArticlesList.jsx"
+import AttractionsList from "../../components/AttractionsList/AttractionsList";
 import { Alert, Typography, Box } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 
-export default function ArticlesFeed(){
+export default function AttractionsFeed(){
 
     const location = useLocation();
     const [infoMsg, setInfoMsg] = useState(location.state?.infoMsg);
 
     const navigate = useNavigate();
 
-    const [articles, setArticles] = useState(null);
+    const [attractions, setAttractions] = useState(null);
 
     const handleEdit = (id) => {
-        navigate(`/articles/edit/${id}`);
+        navigate(`/attraction/edit/${id}`);
     }
 
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`/api/articles/${id}`, {
+            const response = await fetch(`/api/attraction/${id}`, {
                 method: 'DELETE'
             });
 
@@ -28,31 +28,31 @@ export default function ArticlesFeed(){
             }
 
             await getData();
-            navigate('/articles', {state: {infoMsg: {type: 'success', msg: `Article ${id} successfully deleted`}}});
+            navigate('/attraction', {state: {infoMsg: {type: 'success', msg: `Attraction ${id} successfully deleted`}}});
             window.location.reload();
         } catch (error) {
             console.log(error.message);
-            navigate('/articles', {state: {infoMsg: {type: 'errror', msg: `Article ${id} couldn't be deleted`}}});
+            navigate('/attraction', {state: {infoMsg: {type: 'errror', msg: `Attraction ${id} couldn't be deleted`}}});
             window.location.reload();
         }
     };
 
     async function getData(){
         try{
-            const response = await fetch('api/articles');
+            const response = await fetch('api/attraction');
             const data = await response.json();
-            setArticles(data);
+            setAttractions(data);
         }
         catch (error){
             console.error(error.message);
-            setArticles([]);
+            setAttractions([]);
         }
     }
 
     useEffect(() => {getData();}, []);
 
-    return <Box>
+    return <Box sx={{maxWidth: 800, margin: 'auto'}}>
         {infoMsg && <Alert severity={infoMsg.type} variant="outlined" onClose={() => {setInfoMsg(null); navigate('.');}} sx={{mb: 2}}>{infoMsg.msg}</Alert>}
-        {articles ? <ArticlesList articles={articles} handleDelete={handleDelete} handleEdit={handleEdit}/> : <Typography variant="h2">Loading...</Typography>}
+        {attractions ? <AttractionsList attractions={attractions} handleDelete={handleDelete} handleEdit={handleEdit}/> : <Typography variant="h2">Loading...</Typography>}
         </Box>
 }

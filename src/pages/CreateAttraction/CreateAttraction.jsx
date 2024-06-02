@@ -6,6 +6,9 @@ import LocationInput from '../../components/LocationInput/LocationInput';
 import InteractiveAttractionMap from '../../components/InteractiveAttractionMap/InteractiveAttractionMap';
 import SelectInput from '../../components/SelectInput/SelectInput';
 
+import { fetchRegions } from '../../api';
+import { useNavigate } from 'react-router-dom';
+
 function CreateAttraction({initialAttractionData}) {
 
     const [attraction, setAttraction] = React.useState(initialAttractionData || {
@@ -18,28 +21,17 @@ function CreateAttraction({initialAttractionData}) {
         region: ''
     })
 
-    const fetchRegions = async () => {
-        try {
-            const response = await fetch(`/api/region/names`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch regions');
-            }
-            const data = await response.json();
-            setRegions(data);
-        } catch (error) {
-            console.error(error.message);
-        }
-    }
-
     const [regions, setRegions] = React.useState([]);
     React.useEffect(() => {async function fetchData() {
-         await fetchRegions();
+         const data = await fetchRegions();
+         setRegions(data)
       }
       fetchData();}, [regions])
     const [errorMsg, setErrorMsg] = React.useState(null);
     const [errors, setErrors] = React.useState({});
     const [createdMsg, setCreatedMsg] = React.useState(null);
     const [imageFile, setImageFile] = React.useState(null);
+    const navigate = useNavigate()
 
     const handleSubmit = async () => {
         const attractionData = new FormData();
@@ -90,7 +82,11 @@ function CreateAttraction({initialAttractionData}) {
 
             setErrors({});
             setErrorMsg('');
-            setCreatedMsg('Attraction created successfully');
+            setCreatedMsg('Attraction created/edited successfully');
+            navigate(
+                '/attraction',
+                {state: { infoMsg: {type: 'success', msg: `Attraction ${attraction.name} ${initialAttractionData ? 'edited' : 'created'} successfully`}} }
+            );
         } catch (error) {
             console.error(error);
             setErrorMsg('An unexpected error occurred');

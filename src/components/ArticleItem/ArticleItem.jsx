@@ -3,21 +3,33 @@ import "./ArticleItem.css"
 import PropTypes from 'prop-types';
 
 import Button from "@mui/material/Button";
-import { Grid, Card, CardActions, CardContent, CardHeader, CardMedia, Typography } from "@mui/material";
+import { Card, CardActions, CardContent, CardHeader, CardMedia, Typography, Link, IconButton, Badge } from "@mui/material";
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 function ArticleItem({article, handleDelete, handleEdit}) {
-
-    console.log(article.imageURL)
 
     return <Card sx={{maxWidth: 350, padding: 2, height: 500}}>
         <CardHeader
         title={article.title} 
-        subheader={humanizeDate(article.createdAt)}/>
+        subheader={<>
+            {humanizeDate(article.createdAt)} - rate: {article.positioningRate}
+        <br />
+            {article.regionName && <Link href={`/region/${article.regionName}`} underline="hover" sx={{ color: 'inherit' }}>
+              From {article.regionName}
+            </Link>}
+        </>}
+        action={
+          <Badge
+            badgeContent={
+                article.isVisible ? <Visibility sx={{color: 'primary.main'}}/> : <VisibilityOff />
+            }
+          />
+        }/>
 
         <CardMedia
         component='img'
         height={200}
-        image={article.imageURL}
+        image={article.imageURL || "/img/no-image.png"}
         alt={`image ${article.title}`}/>
 
         <CardContent>
@@ -33,16 +45,5 @@ function ArticleItem({article, handleDelete, handleEdit}) {
         </CardActions>
     </Card>;
 }
-
-/*ArticleItem.propTypes = {
-    article: PropTypes.shape({
-        id: PropTypes.number,
-        title: PropTypes.string,
-        description: PropTypes.string,
-        createdAt: PropTypes.object,
-        imgUrl: PropTypes.string,
-        sourceLink: PropTypes.string
-    })
-}*/
 
 export default ArticleItem;
