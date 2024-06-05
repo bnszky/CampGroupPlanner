@@ -9,6 +9,7 @@ using System.Text;
 using TripPlanner.Server.Models;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
+using TripPlanner.Server.Middlewares;
 
 namespace TripPlanner.Server
 {
@@ -61,6 +62,7 @@ namespace TripPlanner.Server
             builder.Services.AddScoped<IAttractionService, AttractionService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddTransient<ISeedingService, SeedingService>();
+            builder.Services.AddSingleton<ITokenBlacklistService, TokenBlacklistService>();
 
             builder.Services.AddDbContext<TripDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("TripAppDb")));
 
@@ -104,6 +106,10 @@ namespace TripPlanner.Server
             // Register admin if doesn't exist
             var seedingService = app.Services.GetRequiredService<ISeedingService>();
             seedingService.SeedAsync().Wait();
+
+            // Add Middlewares
+            // Middleware to ensure that logout disactivate token
+            app.UseMiddleware<TokenBlacklistMiddleware>();
 
             app.UseDefaultFiles();
             app.UseStaticFiles();

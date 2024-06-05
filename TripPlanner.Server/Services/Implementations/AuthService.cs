@@ -14,8 +14,10 @@ namespace TripPlanner.Server.Services.Implementations
     public class AuthService : IAuthService
     {
         private readonly IConfiguration _configuration;
-        public AuthService(IConfiguration configuration) {
+        private readonly ITokenBlacklistService _tokenBlacklistService;
+        public AuthService(IConfiguration configuration, ITokenBlacklistService tokenBlacklistService) {
             _configuration = configuration;
+            _tokenBlacklistService = tokenBlacklistService;
         }
         public string GenerateJwtToken(User user, IList<string> userRoles)
         {
@@ -47,5 +49,9 @@ namespace TripPlanner.Server.Services.Implementations
             return tokenHandler.WriteToken(token);
         }
 
+        public async Task AddTokenToBlacklistAsync(string token)
+        {
+            await _tokenBlacklistService.AddTokenToBlacklistAsync(token);
+        }
     }
 }
