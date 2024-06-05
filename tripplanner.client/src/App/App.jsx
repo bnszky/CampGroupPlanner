@@ -15,6 +15,7 @@ import EditArticle from '../pages/EditArticle/EditArticle';
 import EditRegion from '../pages/EditRegion/EditRegion';
 import EditAttraction from '../pages/EditAttraction/EditAttraction';
 import AttractionsFeed from '../pages/AttractionsFeed/AttractionsFeed';
+import { AuthProvider } from '../components/AuthProvider/AuthContext';
 
 function App() {
 
@@ -166,8 +167,7 @@ function App() {
   ]
 
   return (
-    <>
-      {/*<Navbar/>*/}
+    <AuthProvider>
       
       <Box sx={{
         display: 'flex',
@@ -204,7 +204,7 @@ function App() {
 
       <Footer/>
       </Box>
-    </>
+    </AuthProvider>
   )
 }
 

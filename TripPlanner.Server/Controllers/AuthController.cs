@@ -73,6 +73,21 @@ namespace TripPlanner.Server.Controllers
             return Ok();
         }
 
+        [HttpGet("info")]
+        [Authorize]
+        public async Task<IActionResult> GetUserInfo()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var isAdmin = roles.Contains("Admin");
+            return Ok(new { username = user.UserName, isAdmin });
+        }
+
     }
 
 }
