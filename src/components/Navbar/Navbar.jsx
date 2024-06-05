@@ -2,11 +2,17 @@ import { Box, Avatar, Tooltip, AppBar, Toolbar, Menu, MenuItem, IconButton, Butt
 import * as React from 'react'
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState } from 'react';
+import { useAuth } from '../AuthProvider/AuthContext';
 
 const profileOptions = ['Account', 'Favourite Posts']
-const isLoggedIn = true;
+const credentials = {
+  "email": "admin@admin.com",
+  'username': "admin@admin.com",
+  "password": "Admin123!",
+}
 
 function Navbar({pages}) {
+    const {isLoggedIn, username, isAdmin, logout, login} = useAuth();
 
     const [anchorElNav, setAnchorElNav] = useState(null);
     const [anchorElUser, setAnchorElUser] = useState(null);
@@ -81,46 +87,32 @@ function Navbar({pages}) {
 
             {/* Profile Settings */}
             
-            {isLoggedIn && <Box sx={{ flexGrow: 0, marginRight: 2}}>
-            <Tooltip title="Profile actions">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="profile image" src="https://www.iprcenter.gov/image-repository/blank-profile-picture.png/@@images/image.png" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: '40px' }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {profileOptions.map((option) => (
-                <MenuItem key={option} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{option}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>}
+            {isLoggedIn && (
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Tooltip title={username} sx={{ marginLeft: 1, color: isAdmin ? 'red' : 'black' }}>
+                  <IconButton sx={{p: 0}}>
+                    <Avatar
+                      alt="profile image"
+                      src="/img/no-profile-image.png"
+                    />
+                  </IconButton>
+                </Tooltip>
+                <Typography variant="body1" sx={{ marginLeft: 1, color: isAdmin ? 'red' : 'black' }}>
+                  {username}
+                </Typography>
+              </Box>
+            )}
 
             {/* Login and Register buttons */}
 
             {isLoggedIn ? 
             
             (<Box>
-                <Button color="inherit" variant="outlined" sx={{marginLeft: 2}}>Logout</Button>
+                <Button color="inherit" variant="outlined" sx={{marginLeft: 2}} onClick={logout}>Logout</Button>
             </Box>) : 
             
             (<Box>
-                <Button color="inherit" variant="outlined" sx={{marginLeft: 2}}>Login</Button>
+                <Button color="inherit" variant="outlined" sx={{marginLeft: 2}} onClick={() => login(credentials)}>Login</Button>
                 <Button color="inherit" variant="outlined" sx={{marginLeft: 2}}>Register</Button>
             </Box>)}
 
