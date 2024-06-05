@@ -1,15 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TripPlanner.Server.Models;
 
 namespace TripPlanner.Server.Data
 {
-    public class TripDbContext : DbContext
+    public class TripDbContext : IdentityDbContext<User>
     {
         public DbSet<Attraction> Attractions { get; set; }
         public DbSet<Article> Articles { get; set; }
         public DbSet<Image> ImageURLs { get; set; }
         public DbSet<City> Cities { get; set; }
-        public DbSet<User> Users { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Region> Regions { get; set; }
 
@@ -135,7 +136,7 @@ namespace TripPlanner.Server.Data
             }
             );
 
-            modelBuilder.Entity<User>().HasData(
+            /*modelBuilder.Entity<User>().HasData(
                 new User
                 {
                     Id = 1,
@@ -154,7 +155,7 @@ namespace TripPlanner.Server.Data
                     Nick = "gombalo",
                     ProfileImageUrl = "https://static.vecteezy.com/system/resources/thumbnails/002/002/403/small/man-with-beard-avatar-character-isolated-icon-free-vector.jpg"
                 }
-            );
+            );*/
 
             modelBuilder.Entity<Review>().HasData(
             new Review
@@ -164,7 +165,7 @@ namespace TripPlanner.Server.Data
                 Text = "Beautiful place! I would like to be there again",
                 Rate = 4.5,
                 CreatedAt = new DateTime(2024, 4, 14, 15, 41, 0),
-                AuthorId = 1,
+                AuthorId = "0076352e-d763-45c6-92fa-3731f323f01b",
                 RegionId = 1
             },
             new Review
@@ -174,7 +175,7 @@ namespace TripPlanner.Server.Data
                 Text = "I don't like spanish people, Ughh...",
                 Rate = 2,
                 CreatedAt = new DateTime(2023, 7, 18, 15, 41, 0),
-                AuthorId = 2,
+                AuthorId = "0076352e-d763-45c6-92fa-3731f323f01b",
                 RegionId = 1
             }
             );

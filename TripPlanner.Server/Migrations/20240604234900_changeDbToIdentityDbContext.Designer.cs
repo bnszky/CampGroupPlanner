@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TripPlanner.Server.Data;
 
@@ -11,9 +12,11 @@ using TripPlanner.Server.Data;
 namespace TripPlanner.Server.Migrations
 {
     [DbContext(typeof(TripDbContext))]
-    partial class TripDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240604234900_changeDbToIdentityDbContext")]
+    partial class changeDbToIdentityDbContext
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,17 +42,12 @@ namespace TripPlanner.Server.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
                         .HasDatabaseName("RoleNameIndex")
                         .HasFilter("[NormalizedName] IS NOT NULL");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("AspNetRoles", (string)null);
                 });
@@ -214,7 +212,7 @@ namespace TripPlanner.Server.Migrations
                             Id = 1,
                             CreatedAt = new DateTime(2020, 5, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eu vestibulum turpis. Nullam id ipsum at ipsum blandit porttitor sed ut odio. Sed vulputate justo est. Sed tristique, libero eu luctus pellentesque, sem justo luctus nulla, euismod semper quam dui eget mi. Sed at pretium arcu, at gravida nulla. Ut sagittis lacinia ex ut venenatis. Aenean.",
-                            EditedAt = new DateTime(2024, 6, 5, 10, 38, 55, 733, DateTimeKind.Local).AddTicks(5736),
+                            EditedAt = new DateTime(2024, 6, 5, 1, 49, 0, 198, DateTimeKind.Local).AddTicks(9750),
                             ImageURL = "https://rodzinanomadow.pl/wp-content/uploads/2018/06/image-10-1024x683.jpeg",
                             IsVisible = true,
                             PositioningRate = 4,
@@ -228,7 +226,7 @@ namespace TripPlanner.Server.Migrations
                             Id = 2,
                             CreatedAt = new DateTime(2022, 11, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Boasting a reputation as one of the most attractive cities in Europe, Barcelona celebrates its role as the capital of Catalonia.",
-                            EditedAt = new DateTime(2024, 6, 5, 10, 38, 55, 733, DateTimeKind.Local).AddTicks(5806),
+                            EditedAt = new DateTime(2024, 6, 5, 1, 49, 0, 198, DateTimeKind.Local).AddTicks(9814),
                             ImageURL = "https://www.theblondeabroad.com/wp-content/uploads/2022/02/theodor-vasile-LSscVPEyQpI-unsplash.jpg",
                             IsVisible = true,
                             PositioningRate = 1,
@@ -242,7 +240,7 @@ namespace TripPlanner.Server.Migrations
                             Id = 3,
                             CreatedAt = new DateTime(2024, 4, 14, 15, 41, 0, 0, DateTimeKind.Unspecified),
                             Description = "Rome is one of the most iconic and most-traveled cities in Europe, with a long history to match. With a mixture of cultures from around the world",
-                            EditedAt = new DateTime(2024, 6, 5, 10, 38, 55, 733, DateTimeKind.Local).AddTicks(5809),
+                            EditedAt = new DateTime(2024, 6, 5, 1, 49, 0, 198, DateTimeKind.Local).AddTicks(9817),
                             ImageURL = "https://www.theblondeabroad.com/wp-content/uploads/2022/02/david-edkins-grlIoctRp1o-unsplash.jpg",
                             IsVisible = true,
                             PositioningRate = 3,
@@ -580,13 +578,6 @@ namespace TripPlanner.Server.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.HasOne("TripPlanner.Server.Models.User", null)
-                        .WithMany("Roles")
-                        .HasForeignKey("UserId");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -715,8 +706,6 @@ namespace TripPlanner.Server.Migrations
             modelBuilder.Entity("TripPlanner.Server.Models.User", b =>
                 {
                     b.Navigation("Reviews");
-
-                    b.Navigation("Roles");
                 });
 #pragma warning restore 612, 618
         }

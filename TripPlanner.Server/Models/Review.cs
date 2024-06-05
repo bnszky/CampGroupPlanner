@@ -1,4 +1,6 @@
-﻿namespace TripPlanner.Server.Models
+﻿using System.Text.Json.Serialization;
+
+namespace TripPlanner.Server.Models
 {
     public class Review
     {
@@ -7,10 +9,11 @@
         public string? Text { get; set; }
         public double Rate { get; set; }
         public DateTime CreatedAt { get; set; }
-        public int AuthorId { get; set; }
-        public User Author { get; set; }
         public int RegionId { get; set; }
         public Region Region { get; set; }
+        [JsonIgnore]
+        public User Author { get; set; }
+        public string AuthorId { get; set; }
 
     }
 }
