@@ -3,34 +3,22 @@ import { useNavigate, useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Alert, Box } from '@mui/material';
 import CreateAttraction from '../CreateAttraction/CreateAttraction';
+import useDataFeed from '../../hooks/useDataFeed';
 
 const EditAttraction = () => {
     const { id } = useParams();
-    const [attractionData, setAttractionData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const navigate = useNavigate()
 
-    useEffect(() => {
-        const fetchAttractionData = async () => {
-            try {
-                const response = await fetch(`/api/attraction/${id}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch attraction data');
-                }
-                const data = await response.json();
-                setAttractionData(data);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const {
+        isLoading,
+        data,
+        error
+    } = useDataFeed (
+        `/api/attraction/${id}`,
+        '', 'attraction'
+    )
 
-        fetchAttractionData();
-    }, [id]);
-
-    if (loading) {
+    if (isLoading) {
         return <Box sx={{ display: 'flex' }}>
             <CircularProgress />
         </Box>
@@ -41,10 +29,9 @@ const EditAttraction = () => {
             '/attraction',
             {state: { infoMsg: {type: 'error', msg: error}} }
         );
-        return <Alert variant='outlined' severity='error'>Error: {error}</Alert>
     }
 
-    return <CreateAttraction initialAttractionData={attractionData} />;
+    return <CreateAttraction initialAttractionData={data} />;
 };
 
 export default EditAttraction;

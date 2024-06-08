@@ -3,34 +3,22 @@ import { useNavigate, useParams } from 'react-router-dom';
 import CreateRegion from '../CreateRegion/CreateRegion';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Alert, Box } from '@mui/material';
+import useDataFeed from '../../hooks/useDataFeed';
 
 const EditRegion = () => {
     const { regionName } = useParams();
-    const [regionData, setRegionData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const navigate = useNavigate()
 
-    useEffect(() => {
-        const fetchRegionData = async () => {
-            try {
-                const response = await fetch(`/api/region/${regionName}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch region data');
-                }
-                const data = await response.json();
-                setRegionData(data);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const {
+        isLoading,
+        data,
+        error
+    } = useDataFeed (
+        `/api/region/${regionName}`,
+        '', 'region'
+    )
 
-        fetchRegionData();
-    }, [regionName]);
-
-    if (loading) {
+    if (isLoading) {
         return <Box sx={{ display: 'flex' }}>
             <CircularProgress />
         </Box>
@@ -41,10 +29,9 @@ const EditRegion = () => {
             '/region',
             {state: { infoMsg: {type: 'error', msg: error}} }
         );
-        return <Alert variant='outlined' severity='error'>Error: {error}</Alert>
     }
 
-    return <CreateRegion regionData={regionData} />;
+    return <CreateRegion regionData={data} />;
 };
 
 export default EditRegion;
