@@ -2,10 +2,12 @@ import React from "react";
 import { Alert, Typography, Box } from "@mui/material";
 import RegionList from "../../components/RegionList/RegionList.jsx";
 import useDataFeed from "../../hooks/useDataFeed.jsx";
+import { useLocation } from 'react-router-dom';
 
 export default function RegionsFeed() {
 
-    const [infoMsg, setInfoMsg] = React.useState(null);
+  const location = useLocation();
+  const [infoMsg, setInfoMsg] = React.useState(location.state?.infoMsg || null);
     const {
       data: regions,
       isLoading,

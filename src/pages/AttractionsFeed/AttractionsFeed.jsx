@@ -1,10 +1,14 @@
+import React from "react";
 import AttractionsList from "../../components/AttractionsList/AttractionsList";
 import { Alert, Typography, Box } from "@mui/material";
 import useDataFeed from "../../hooks/useDataFeed";
+import { useLocation } from 'react-router-dom';
 
 export default function AttractionsFeed(){
 
-    const { data: attractions, isLoading, infoMsg, setInfoMsg, handleEdit, handleDelete } = useDataFeed('/api/attraction', '/attraction/edit', '/attraction');
+    const location = useLocation();
+    const [infoMsg, setInfoMsg] = React.useState(location.state?.infoMsg || null);
+    const { data: attractions, isLoading, handleEdit, handleDelete } = useDataFeed('/api/attraction', '/attraction/edit', '/attraction');
 
     return (
         <Box sx={{ maxWidth: 800, margin: 'auto' }}>

@@ -8,6 +8,7 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userDetails, setUserDetails] = useState({ username: '', email: '', isAdmin: false });
+  const [isLoading, setIsLoading] = useState(true);
 
   const checkAuth = async () => {
     try {
@@ -22,6 +23,8 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       setIsLoggedIn(false);
       setUserDetails({ username: '', email: '', isAdmin: false });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -56,7 +59,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, ...userDetails, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, ...userDetails, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

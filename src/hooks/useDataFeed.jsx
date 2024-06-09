@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 const useDataFeed = (apiUrl, editPath, listPath) => {
   const location = useLocation();
@@ -8,6 +9,9 @@ const useDataFeed = (apiUrl, editPath, listPath) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  const token = localStorage.getItem('token');
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
   const handleEdit = (identifier) => {
     navigate(`${editPath}/${identifier}`);
@@ -19,14 +23,14 @@ const useDataFeed = (apiUrl, editPath, listPath) => {
 
   const handleDelete = async (identifier) => {
     try {
-      const response = await fetch(`${apiUrl}/${identifier}`, {
-        method: 'DELETE',
-      });
+      const response = await axios.delete(`${apiUrl}/${identifier}`);
 
-      if (!response.ok) {
-        const errorData = await response.json();
+      if (!response.status === 200) {
+        const errorData = response.data;
+        setError(errorData);
         throw new Error(errorData);
       }
+      setError(null);
 
       await getData();
       navigate(listPath, {
@@ -45,10 +49,9 @@ const useDataFeed = (apiUrl, editPath, listPath) => {
   async function getData() {
     setIsLoading(true);
     try {
-      const response = await fetch(apiUrl);
-      const result = await response.json();
+      const response = await axios.get(apiUrl);
       setError(null);
-      setData(result);
+      setData(response.data);
     } catch (error) {
       console.error(error.message);
       setError(error.message);

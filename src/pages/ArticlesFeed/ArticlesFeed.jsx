@@ -2,10 +2,12 @@ import React from "react";
 import ArticlesList from "../../components/ArticlesList/ArticlesList.jsx"
 import { Alert, Typography, Box } from "@mui/material";
 import useDataFeed from "../../hooks/useDataFeed.jsx";
+import { useLocation } from 'react-router-dom';
 
 export default function ArticlesFeed() {
 
-    const [infoMsg, setInfoMsg] = React.useState(null);
+    const location = useLocation();
+    const [infoMsg, setInfoMsg] = React.useState(location.state?.infoMsg || null);
     const { data: articles, isLoading, handleEdit, handleDelete } = useDataFeed('/api/articles', '/articles/edit', '/articles');
 
     return (

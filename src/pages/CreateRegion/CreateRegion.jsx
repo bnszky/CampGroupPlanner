@@ -10,6 +10,7 @@ import InputAddImage from '../../components/InputAddImage/InputAddImage';
 import InputFetchText from '../../components/InputFetchText/InputFetchText';
 import { fetchAndConvertImage } from '../../functions/imageConvert';
 import useDataCreate from '../../hooks/useDataCreate';
+import axios from 'axios';
 
 function CreateRegion({regionData = null}) {
     
@@ -43,42 +44,42 @@ function CreateRegion({regionData = null}) {
 
     async function fetchListFromApi(regionName, type) {
         const url = `/api/Region/${type}/${regionName}`;
+        const token = localStorage.getItem('token');
     
         try {
-            const response = await fetch(url);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-    
-            const data = await response.json();
-    
-            if (!Array.isArray(data)) {
+            const response = await axios.get(url, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+        
+            if (!Array.isArray(response.data)) {
                 throw new Error('Data is not an array');
             }
-    
-            return data;
+        
+            return response.data;
         } catch (error) {
             console.error('Fetch error:', error);
+            return [];
         }
     }
 
     async function fetchDescription(regionName){
         const url = `/api/Region/description/${regionName}`;
+        const token = localStorage.getItem('token');
+
+        console.log(token);
 
         try {
-            const response = await fetch(url);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-    
-            const data = await response.text();
-    
-            updateRegion('description', data);
-            console.log(data)
+            updateRegion('description', 'Loading...');
+            const response = await axios.get(url, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            console.log(response.data);
+
+            updateRegion('description', response.data);
         } catch (error) {
             console.error('Fetch error:', error);
+            updateRegion('description', "Couldn't fetch description");
         }
     }
     

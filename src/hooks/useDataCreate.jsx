@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const useDataCreate = (initialData, apiEndpoint, redirectPath, entityName, extraProcess = null) => {
   const [data, setData] = useState(initialData);
@@ -28,13 +29,19 @@ const useDataCreate = (initialData, apiEndpoint, redirectPath, entityName, extra
     }
 
     try {
-      const response = await fetch(`${apiEndpoint}${initialData.id ? `/${initialData.id}` : ''}`, {
+      const token = localStorage.getItem('token');
+      const response = await axios({
         method: initialData.id ? 'PUT' : 'POST',
-        body: formData,
+        url: `${apiEndpoint}${initialData.id ? `/${initialData.id}` : ''}`,
+        data: formData,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
       });
 
-      if (!response.ok) {
-        const result = await response.json();
+      if (!response.status === 200) {
+        const result = response.data;
         if (result.errors) {
           const _errors = {};
           for (const errorKey in result.errors) {

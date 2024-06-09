@@ -1,8 +1,12 @@
 import * as React from 'react'
 import { Card, CardActionArea, CardContent, CardMedia, Typography, CardActions, Button } from '@mui/material';
+import { useAuth } from '../AuthProvider/AuthContext';
 
 function AttractionCard({attraction, handleDelete, handleEdit}) {
-    return <Card sx={{border: 2, margin: 2}}>
+
+    const {isAdmin} = useAuth();
+
+    return <Card sx={{border: 2, margin: 2, border: .5, borderRadius: 10}}>
         <CardActionArea>
             <CardMedia
                 component="img"
@@ -16,10 +20,10 @@ function AttractionCard({attraction, handleDelete, handleEdit}) {
                 <Typography variant='body2'>{attraction.description}</Typography>
             </CardContent>
 
-            <CardActions>
+            {isAdmin && <CardActions>
                 <Button size="small" variant="contained" color="secondary" onClick={handleEdit}>Edit</Button>
                 <Button size="small" variant="contained" color="error" onClick={handleDelete}>Delete</Button>
-            </CardActions>
+            </CardActions>}
         </CardActionArea>
     </Card>;
 }
