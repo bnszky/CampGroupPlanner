@@ -3,6 +3,7 @@ import * as React from 'react'
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState } from 'react';
 import { useAuth } from '../AuthProvider/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const pages = [
   { name: 'Articles', link: '/articles' },
@@ -16,24 +17,18 @@ const adminPages = [
   { name: 'Create Attraction', link: '/attraction/create' }
 ]
 
-const credentials = {
-  "email": "admin@admin.com",
-  'username': "admin@admin.com",
-  "password": "Admin123!",
-}
+const adminUsername = "admin@admin.com";
+const adminPassword = "Admin123!";
 
 function Navbar() {
     const {isLoggedIn, username, isAdmin, logout, login} = useAuth();
 
     const [anchorElNav, setAnchorElNav] = useState(null);
-    const [anchorElUser, setAnchorElUser] = useState(null);
+    const navigate = useNavigate();
 
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
     };
-    const handleOpenUserMenu = (event) => {
-        setAnchorElUser(event.currentTarget);
-      };
 
     const handleCloseNavMenu = () => {
         setAnchorElNav(null);
@@ -128,8 +123,8 @@ function Navbar() {
             </Box>) : 
             
             (<Box>
-                <Button color="inherit" variant="outlined" sx={{marginLeft: 2}} onClick={() => login(credentials)}>Login</Button>
-                <Button color="inherit" variant="outlined" sx={{marginLeft: 2}}>Register</Button>
+                <Button color="inherit" variant="outlined" sx={{marginLeft: 2}} onClick={() => navigate("/login")}>Login</Button>
+                <Button color="inherit" variant="outlined" sx={{marginLeft: 2}} onClick={() => navigate("/register")}>Register</Button>
             </Box>)}
 
         </Toolbar>
