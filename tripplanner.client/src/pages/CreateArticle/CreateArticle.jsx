@@ -1,35 +1,40 @@
 import { Select, MenuItem, Box, Grid, InputLabel, Button, Typography, TextField, Divider } from '@mui/material';
 import * as React from 'react'
 import './CreateArticle.css'
-import { Description, PhotoCamera } from '@mui/icons-material';
 import TextInput from '../../components/TextInput/TextInput';
 import ImageInput from '../../components/ImageInput/ImageInput';
 import SelectInput from '../../components/SelectInput/SelectInput';
 import ArticleItem from '../../components/ArticleItem/ArticleItem';
 import { Alert, Switch } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import SwitchInput from '../../components/SwitchInput/SwitchInput';
-import { fetchRegions } from '../../api';
+import { fetchRegions } from '../../functions/api';
 import { useState, useEffect } from 'react';
+import useDataCreate from '../../hooks/useDataCreate';
 
 function CreateArticle({initialData}) {
 
-    const [article, setArticle] = React.useState(
-        {
+    const {
+        data: article,
+        setData: setArticle,
+        errors,
+        errorMsg,
+        createdMsg,
+        handleSubmit,
+    } = useDataCreate(
+        initialData || {
             title: '',
-            description: "",
+            description: '',
             createdAt: new Date(),
             imageFile: null,
             sourceLink: '',
             isVisible: false,
-            regionName: null
-        }
-    )
+            regionName: null,
+        },
+        '/api/articles',
+        '/articles',
+        'Article'
+    );
 
-    const [errors, setErrors] = React.useState({});
-    const [errorMsg, setErrorMsg] = React.useState();
-    const [createdMsg, setCreatedMsg] = React.useState();
-    const navigate = useNavigate();
     const [regions, setRegions] = useState([]);
 
     useEffect(() => {
@@ -41,73 +46,12 @@ function CreateArticle({initialData}) {
         fetchData();
     }, []);
 
-    const handleSubmit = async () => {
-        const formData = new FormData();
-        formData.append('title', article.title);
-        formData.append('description', article.description);
-        formData.append('sourceLink', article.sourceLink);
-        if (article.imageFile) {
-            formData.append('imageFile', article.imageFile);
-        }
-        formData.append('regionName', article.regionName);
-        formData.append('isVisible', article.isVisible);
-        formData.append('positioningRate', article.positioningRate);
-
-        try {
-            var response;
-
-            if(initialData){
-                response = await fetch(`/api/articles/${article.id}`, {
-                    method: 'PUT',
-                    body: formData
-                });
-            }
-            else {
-                response = await fetch(`/api/articles`, {
-                    method: 'POST',
-                    body: formData
-                });
-            }
-
-            if (!response.ok) {
-
-                const result = await response.json();
-
-                if (result.errors) {
-                    var _errors = {};
-                    console.log(result.errors);
-                    for (const errorKey in result.errors) {
-                        if (result.errors.hasOwnProperty(errorKey)) {
-                            _errors[errorKey] = result.errors[errorKey][0];
-                        }
-                    }
-                    setErrors(_errors);
-                }
-                if (result.title) {
-                    setErrorMsg(result.title);
-                }
-                return;
-            }
-
-            setErrors({});
-            setErrorMsg('');
-            setCreatedMsg('Article created/edited successfully');
-            navigate(
-                '/articles',
-                {state: { infoMsg: {type: 'success', msg: `Article ${article.title} ${initialData ? 'edited' : 'created'} successfully`}} }
-            );
-        } catch (error) {
-            console.error(error);
-            setErrorMsg('An unexpected error occurred');
-        }
-    };
-
     function updateArticle(key, value) {
         setArticle(article => ({
           ...article,
           [key]: value
         }));
-      }
+    }
 
     function updateImageURL(value){
         setArticle(article => ({

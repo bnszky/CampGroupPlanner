@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TripPlanner.Server.Data;
 using TripPlanner.Server.Models;
@@ -20,6 +21,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<List<Attraction>>> GetAll()
         {
             try
@@ -34,6 +36,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("region/{regionName}")]
+        [AllowAnonymous]
         public async Task<ActionResult<List<Attraction>>> GetByRegion(string regionName)
         {
             try
@@ -53,6 +56,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Attraction>> Get(int id)
         {
             try
@@ -69,6 +73,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Create([FromForm] AttractionCreate attractionCreate)
         {
             if (!ModelState.IsValid)
@@ -96,6 +101,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Edit([FromForm] AttractionCreate attractionCreate, int id)
         {
             if (!ModelState.IsValid)
@@ -129,6 +135,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Delete(int id) {
             var errorMessage = await _attractionService.DeleteAsync(id);
             if (errorMessage != null) {

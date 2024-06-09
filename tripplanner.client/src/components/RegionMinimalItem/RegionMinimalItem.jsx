@@ -1,10 +1,11 @@
 import { Button, Card, CardActions, CardContent, CardHeader, CardMedia, Typography } from "@mui/material";
+import { useAuth } from "../AuthProvider/AuthContext";
 
 function RegionMinimalItem({region, handleEdit, handleDelete, handleVisit}) {
 
-    console.log(region.image)
+    const {isAdmin} = useAuth();
 
-    return <Card sx={{maxWidth: 350, padding: 2, height: 500}}>
+    return <Card sx={{maxWidth: 350, padding: 2, height: 500, border: .5, borderRadius: 10}}>
         <CardHeader
         title={region.name} />
 
@@ -22,8 +23,8 @@ function RegionMinimalItem({region, handleEdit, handleDelete, handleVisit}) {
 
         {handleEdit && <CardActions>
             <Button size="small" onClick={handleVisit}>Show</Button>
-            <Button size="small" variant="contained" color="secondary" onClick={handleEdit}>Edit</Button>
-            <Button size="small" variant="contained" color="error" onClick={handleDelete}>Delete</Button>
+            {isAdmin && <><Button size="small" variant="contained" color="secondary" onClick={handleEdit}>Edit</Button>
+            <Button size="small" variant="contained" color="error" onClick={handleDelete}>Delete</Button></>}
         </CardActions>}
     </Card>;
 }

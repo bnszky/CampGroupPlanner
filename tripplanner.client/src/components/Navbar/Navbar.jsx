@@ -4,14 +4,25 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useState } from 'react';
 import { useAuth } from '../AuthProvider/AuthContext';
 
-const profileOptions = ['Account', 'Favourite Posts']
+const pages = [
+  { name: 'Articles', link: '/articles' },
+  { name: 'Regions', link: '/region' },
+  { name: 'Attractions', link: '/attraction' },
+]
+
+const adminPages = [
+  { name: 'Create Article', link: '/articles/create' },
+  { name: 'Create Region', link: '/region/create' },
+  { name: 'Create Attraction', link: '/attraction/create' }
+]
+
 const credentials = {
   "email": "admin@admin.com",
   'username': "admin@admin.com",
   "password": "Admin123!",
 }
 
-function Navbar({pages}) {
+function Navbar() {
     const {isLoggedIn, username, isAdmin, logout, login} = useAuth();
 
     const [anchorElNav, setAnchorElNav] = useState(null);
@@ -27,9 +38,6 @@ function Navbar({pages}) {
     const handleCloseNavMenu = () => {
         setAnchorElNav(null);
     };
-    const handleCloseUserMenu = () => {
-        setAnchorElUser(null);
-      };
 
     return <Box sx={{flexGrow: 1, marginBottom: 10}}><AppBar>
         
@@ -74,6 +82,11 @@ function Navbar({pages}) {
                   <Button textAlign="center" color='inherit' onClick={handleCloseNavMenu} href={page.link}>{page.name}</Button>
                 </MenuItem>
               ))}
+              {isAdmin && adminPages.map((page) => (
+                <MenuItem key={page.name}>
+                  <Button textAlign="center" color='error' onClick={handleCloseNavMenu} href={page.link}>{page.name}</Button>
+                </MenuItem>
+              ))}
             </Menu>
             </Box>
             
@@ -82,6 +95,9 @@ function Navbar({pages}) {
             <Box ml={5} sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex'}}}>
                 {pages.map(page => (
                     <Button key={page.name} color="inherit" href={page.link}>{page.name}</Button>
+                ))}
+                {isAdmin && adminPages.map(page => (
+                    <Button key={page.name} color="error" href={page.link}>{page.name}</Button>
                 ))}
             </Box>
 

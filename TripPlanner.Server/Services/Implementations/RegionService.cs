@@ -163,14 +163,9 @@ namespace TripPlanner.Server.Services.Implementations
             foreach (var cityName in regionCreate.Cities)
             {
                 var city = await _cityService.FetchInformationAboutCityFromName(cityName);
-                if (city.Country != regionCreate.Country || _dbContext.Cities.Any(c => c.Name == cityName))
-                {
-                    var err = _errorService.CreateError("Invalid city data");
-                    _errorService.AddNewErrorMessageFor(err, "Cities", "Invalid city data");
-                    return err;
-                }
 
                 city.Region = region;
+
                 _dbContext.Cities.Add(city);
             }
 

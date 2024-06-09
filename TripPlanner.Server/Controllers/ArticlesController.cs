@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using TripPlanner.Server.Data;
@@ -22,6 +23,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<List<Article>>> Index()
         {
             try
@@ -36,6 +38,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("region/{regionName}")]
+        [AllowAnonymous]
         public async Task<ActionResult<List<Article>>> GetByRegion(string regionName)
         {
             try
@@ -55,6 +58,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Article>> Get(int id)
         {
             try
@@ -74,6 +78,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromForm] ArticleCreate articleCreate)
         {
             if (!ModelState.IsValid)
@@ -107,6 +112,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var errorMessage = await _articleService.DeleteAsync(id);
@@ -119,6 +125,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [FromForm] ArticleCreate editedArticle)
         {
             if (!ModelState.IsValid)

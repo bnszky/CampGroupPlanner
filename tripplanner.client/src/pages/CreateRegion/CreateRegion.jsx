@@ -8,156 +8,84 @@ import InputItemList from '../../components/InputItemList/InputItemList';
 import InputAddText from '../../components/InputAddText/InputAddText';
 import InputAddImage from '../../components/InputAddImage/InputAddImage';
 import InputFetchText from '../../components/InputFetchText/InputFetchText';
-import { fetchAndConvertImage } from '../../imageConvert';
-import { useNavigate } from 'react-router-dom';
+import { fetchAndConvertImage } from '../../functions/imageConvert';
+import useDataCreate from '../../hooks/useDataCreate';
+import axios from 'axios';
 
 function CreateRegion({regionData = null}) {
+    
+    const [images, setImages] = React.useState([]);
 
-    const [images, setImages] = React.useState([])
-    const [errors, setErrors] = React.useState(null)
-    const [errorMsg, setErrorMsg] = React.useState(null)
-    const [createdMsg, setCreatedMsg] = React.useState(null)
-    const navigate = useNavigate()
-
-    const initialRegionState = {
-        name: "",
-        country: "",
-        cities: [],
-        description: '',
-        images: []
-    };
-
-    const [region, setRegion] = React.useState(regionData || initialRegionState)
-
-    async function handleSubmit() {
-        try{
-            const formData = new FormData();
-            formData.append('name', region.name);
-            formData.append('country', region.country);
-            formData.append('description', region.description);
-        
-            region.cities.forEach((city, index) => {
-                formData.append(`cities[${index}]`, city);
+    const {
+        data: region,
+        setData: setRegion,
+        errors,
+        errorMsg,
+        createdMsg,
+        handleSubmit,
+    } = useDataCreate(
+        regionData || {
+            name: '',
+            country: '',
+            cities: [],
+            description: '',
+            images: []
+        },
+        '/api/Region',
+        '/region',
+        'Region',
+        async (formData) => {
+            const imageFiles = await Promise.all(images.map(url => fetchAndConvertImage(url)));
+            imageFiles.forEach((file) => {
+                formData.append('images', file, file.name);
             });
-        
-            var _images = [];
-            for(var imageUrl of images){
-                const res = await fetchAndConvertImage(imageUrl)
-                _images.push(res)
-            }
-
-            _images.forEach(file => {
-                console.log(file);
-                formData.append(`Images`, file, file.name);
-            });
-
-            console.log(formData);
-        
-            var response;
-            if(regionData == null) {
-                response = await fetch('/api/Region', {
-                    method: 'POST',
-                    body: formData
-                });
-            } else {
-                response = await fetch(`/api/Region/${region.name}`, {
-                    method: 'PUT',
-                    body: formData
-                });
-            }
-        
-            if (!response.ok) {
-
-                const result = await response.json();
-
-                if (result.errors) {
-                    var _errors = {};
-                    console.log(result.errors);
-                    for (const errorKey in result.errors) {
-                        if (result.errors.hasOwnProperty(errorKey)) {
-                            _errors[errorKey] = result.errors[errorKey][0];
-                        }
-                    }
-                    setErrors(_errors);
-                }
-                if (result.title) {
-                    setErrorMsg(result.title);
-                }
-                return;
-            }
-
-            setErrors({});
-            setErrorMsg('');
-            setCreatedMsg(`Region ${initialRegionState ? 'edited' : 'created'} successfully`);
-            navigate(
-                '/region',
-                {state: { infoMsg: {type: 'success', msg: `Region ${region.name} ${regionData ? 'edited' : 'created'} successfully`}} }
-            );
         }
-        catch(error){
-            console.log(error.message);
-            setErrorMsg("Couldn't create/edit region");
-        }
-    }    
+    );
 
     async function fetchListFromApi(regionName, type) {
         const url = `/api/Region/${type}/${regionName}`;
+        const token = localStorage.getItem('token');
     
         try {
-            const response = await fetch(url);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-    
-            const data = await response.json();
-    
-            if (!Array.isArray(data)) {
+            const response = await axios.get(url, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+        
+            if (!Array.isArray(response.data)) {
                 throw new Error('Data is not an array');
             }
-    
-            return data;
+        
+            return response.data;
         } catch (error) {
             console.error('Fetch error:', error);
-            setErrorMsg(`Couldn't fetch ${type}`);
+            return [];
         }
     }
 
     async function fetchDescription(regionName){
         const url = `/api/Region/description/${regionName}`;
+        const token = localStorage.getItem('token');
+
+        console.log(token);
 
         try {
-            const response = await fetch(url);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-    
-            const data = await response.text();
-    
-            updateDescription(data);
-            console.log(data)
+            updateRegion('description', 'Loading...');
+            const response = await axios.get(url, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            console.log(response.data);
+
+            updateRegion('description', response.data);
         } catch (error) {
             console.error('Fetch error:', error);
-            setErrorMsg(`Couldn't fetch description`);
+            updateRegion('description', "Couldn't fetch description");
         }
     }
     
-    function updateName(value){
+    function updateRegion(key, value){
         setRegion(reg => ({
-            ...reg, ...{'name': value}
-        }))
-    }
-
-    function updateCountry(value){
-        setRegion(reg => ({
-            ...reg, ...{'country': value}
-        }))
-    }
-
-    function updateDescription(value){
-        setRegion(reg => ({
-            ...reg, ...{'description': value}
+            ...reg, ...{[key]: value}
         }))
     }
 
@@ -181,11 +109,11 @@ function CreateRegion({regionData = null}) {
 
             <Grid item xs={12} md={6} my={2}>
                 <Grid container direction='column' display='flex' alignItems='center'>
-                    <TextInput fieldName='name' onValueChange={updateName} value={region.name} error={errors?.Name} errorMessage={errors?.Name} required disabled={regionData}/>
-                    <TextInput fieldName='description' onValueChange={updateDescription} value={region.description} error={errors?.Description} errorMessage={errors?.Description} multiline/>
+                    <TextInput fieldName='name' onValueChange={val => updateRegion("name", val)} value={region.name} error={errors?.Name} errorMessage={errors?.Name} required disabled={regionData}/>
+                    <TextInput fieldName='description' onValueChange={val => updateRegion("description", val)} value={region.description} error={errors?.Description} errorMessage={errors?.Description} multiline/>
                     <Button variant='outlined' color='secondary' sx={{my: 2}} onClick={() => fetchDescription(region.name)}>Import example description</Button>
 
-                    <CountrySelect updateCountry={updateCountry} value={region.country} error={errors?.Country} errorMessage={errors?.Country}/>
+                    <CountrySelect updateCountry={val => updateRegion("country", val)} value={region.country} error={errors?.Country} errorMessage={errors?.Country}/>
 
                     <InputItemList name="Cities" onItemListChange={onCitiesListChange} getInitialItems={() => region.cities}>
                         <InputAddText name="City" error={errors?.Cities} errorMessage={errors?.Cities}/>

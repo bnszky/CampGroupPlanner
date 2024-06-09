@@ -3,34 +3,22 @@ import { useNavigate, useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Alert, Box } from '@mui/material';
 import CreateArticle from '../CreateArticle/CreateArticle';
+import useDataFeed from '../../hooks/useDataFeed';
 
 const EditArticle = () => {
     const { id } = useParams();
-    const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch(`/api/articles/${id}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch articles data');
-                }
-                const data = await response.json();
-                setData(data);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const {
+        isLoading,
+        data,
+        error
+    } = useDataFeed (
+        `/api/articles/${id}`,
+        '', 'articles'
+    )
 
-        fetchData();
-    }, [id]);
-
-    if (loading) {
+    if (isLoading) {
         return <Box sx={{ display: 'flex' }}>
             <CircularProgress />
         </Box>
@@ -41,7 +29,6 @@ const EditArticle = () => {
             '/articles',
             {state: { infoMsg: {type: 'error', msg: error}} }
         );
-        return <Alert variant='outlined' severity='error'>Error: {error}</Alert>
     }
 
     return <CreateArticle initialData={data} />;

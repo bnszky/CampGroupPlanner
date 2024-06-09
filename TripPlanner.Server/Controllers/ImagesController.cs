@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TripPlanner.Server.Data;
 using TripPlanner.Server.Services.Abstractions;
 
 namespace TripPlanner.Server.Controllers
 {
     [ApiController]
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     public class ImagesController : ControllerBase
     {

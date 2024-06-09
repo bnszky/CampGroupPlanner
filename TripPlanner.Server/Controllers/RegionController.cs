@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TripPlanner.Server.Data;
 using TripPlanner.Server.Models;
@@ -29,24 +30,28 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("description/{region}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<string>> FetchDescription(string region)
         {
             return await _regionFetchService.GetDescriptionForRegion(region, 1000);
         }
 
         [HttpGet("cities/{region}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<string>>> FetchCities(string region)
         {
             return await _regionFetchService.FindCitiesByRegion(region, 5);
         }
 
         [HttpGet("images/{region}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<string>>> FetchImages(string region)
         {
             return await _regionFetchService.GetImagesForRegion(region, 10);
         }
 
         [HttpGet("names")]
+        [AllowAnonymous]
         public async Task<ActionResult<List<string>>> GetAllNames()
         {
             try
@@ -60,6 +65,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<List<RegionMini>>> GetAllMini()
         {
             try
@@ -73,6 +79,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("{regionName}/mini")]
+        [AllowAnonymous]
         public async Task<ActionResult<RegionMini>> GetMini(string regionName)
         {
             try
@@ -91,6 +98,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("{regionName}")]
+        [AllowAnonymous]
         public async Task<ActionResult<RegionGet>> Get(string regionName)
         {
             try
@@ -110,6 +118,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromForm] RegionCreate regionCreate)
         {
             try
@@ -134,6 +143,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpPut("{regionName}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(string regionName, [FromForm] RegionCreate regionCreate)
         {
             try
@@ -158,6 +168,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpDelete("{regionName}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(string regionName)
         {
             try

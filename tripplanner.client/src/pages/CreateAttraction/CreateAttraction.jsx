@@ -6,20 +6,10 @@ import LocationInput from '../../components/LocationInput/LocationInput';
 import InteractiveAttractionMap from '../../components/InteractiveAttractionMap/InteractiveAttractionMap';
 import SelectInput from '../../components/SelectInput/SelectInput';
 
-import { fetchRegions } from '../../api';
-import { useNavigate } from 'react-router-dom';
+import { fetchRegions } from '../../functions/api';
+import useDataCreate from '../../hooks/useDataCreate';
 
 function CreateAttraction({initialAttractionData}) {
-
-    const [attraction, setAttraction] = React.useState(initialAttractionData || {
-        id: null,
-        name: '',
-        description: '',
-        imageURL: '',
-        longitude: 0,
-        latitude: 0,
-        region: ''
-    })
 
     const [regions, setRegions] = React.useState([]);
     React.useEffect(() => {async function fetchData() {
@@ -27,94 +17,41 @@ function CreateAttraction({initialAttractionData}) {
          setRegions(data)
       }
       fetchData();}, [regions])
-    const [errorMsg, setErrorMsg] = React.useState(null);
-    const [errors, setErrors] = React.useState({});
-    const [createdMsg, setCreatedMsg] = React.useState(null);
-    const [imageFile, setImageFile] = React.useState(null);
-    const navigate = useNavigate()
 
-    const handleSubmit = async () => {
-        const attractionData = new FormData();
-        attractionData.append('name', attraction.name);
-        attractionData.append('description', attraction.description);
+    const {
+        data: attraction,
+        setData: setAttraction,
+        errors,
+        errorMsg,
+        createdMsg,
+        handleSubmit,
+    } = useDataCreate(
+        initialAttractionData || {
+            name: '',
+            description: '',
+            imageURL: '',
+            longitude: 0,
+            latitude: 0,
+            regionName: '',
+        },
+        '/api/attraction',
+        '/attraction',
+        'Attraction'
+    );
 
-        if (imageFile) attractionData.append('image', imageFile);
-
-        attractionData.append('latitude', attraction.latitude.toString().replace('.', ','));
-        attractionData.append('longitude', attraction.longitude.toString().replace('.', ','));
-        attractionData.append('regionName', attraction.region);
-
-        try {
-            var response;
-
-            if(initialAttractionData){
-                response = await fetch(`/api/attraction/${attraction.id}`, {
-                    method: 'PUT',
-                    body: attractionData
-                });
-            }
-            else {
-                response = await fetch(`/api/attraction`, {
-                    method: 'POST',
-                    body: attractionData
-                });
-            }
-
-            if (!response.ok) {
-
-                const result = await response.json();
-
-                if (result.errors) {
-                    var _errors = {};
-                    console.log(result.errors);
-                    for (const errorKey in result.errors) {
-                        if (result.errors.hasOwnProperty(errorKey)) {
-                            _errors[errorKey] = result.errors[errorKey][0];
-                        }
-                    }
-                    setErrors(_errors);
-                }
-                if (result.title) {
-                    setErrorMsg(result.title);
-                }
-                return;
-            }
-
-            setErrors({});
-            setErrorMsg('');
-            setCreatedMsg('Attraction created/edited successfully');
-            navigate(
-                '/attraction',
-                {state: { infoMsg: {type: 'success', msg: `Attraction ${attraction.name} ${initialAttractionData ? 'edited' : 'created'} successfully`}} }
-            );
-        } catch (error) {
-            console.error(error);
-            setErrorMsg('An unexpected error occurred');
-        }
-    };
-
-    function updateName(value){
+    function updateAttraction(key, value) {
         setAttraction(att => ({
-            ...att, ...{'name': value}
-        }))
-    }
-
-    function updateDescription(value){
-        setAttraction(att => ({
-            ...att, ...{'description': value}
-        }))
+          ...att,
+          [key]: value
+        }));
     }
 
     function updateImage(value){
         setAttraction(att => ({
             ...att, ...{'imageURL': URL.createObjectURL(value)}
         }))
-        setImageFile(value);
-    }
-
-    function updateRegion(value){
         setAttraction(att => ({
-            ...att, ...{'region': value}
+            ...att, ...{'image': value}
         }))
     }
 
@@ -136,13 +73,13 @@ function CreateAttraction({initialAttractionData}) {
         <Grid display='flex' container justifyContent='center'>
             <Grid item xs={12} md={6} p={5}>
                 <Grid container direction='column' spacing={2} display='flex' alignItems='center'>
-                    <TextInput fieldName='name' error={errors?.name} errorMessage={errors?.name} value={attraction.name} onValueChange={updateName} required disabled={initialAttractionData}/>
-                    <TextInput fieldName='description' error={errors?.description} errorMessage={errors?.description} value={attraction.description} onValueChange={updateDescription} multiline/>
+                    <TextInput fieldName='name' error={errors?.name} errorMessage={errors?.name} value={attraction.name} onValueChange={val => updateAttraction('name', val)} required disabled={initialAttractionData}/>
+                    <TextInput fieldName='description' error={errors?.description} errorMessage={errors?.description} value={attraction.description} onValueChange={val => updateAttraction('description', val)} multiline/>
                     <ImageInput fieldName='image' error={errors?.image} errorMessage={errors?.image} onImageChange={updateImage}/>
 
                     <LocationInput error={errors?.latitude || errors?.longitude} errorMessage={errors?.longitude || errors?.latitude} latitude={attraction.latitude} longitude={attraction.longitude}/>
 
-                    <SelectInput fieldName='region' error={errors?.regionName} errorMessage={errors?.regionName} onValueChange={updateRegion} value={attraction.region} items={regions}/>
+                    <SelectInput fieldName='region' error={errors?.regionName} errorMessage={errors?.regionName} onValueChange={val => updateAttraction('regionName', val)} value={attraction.region} items={regions}/>
 
                     {errorMsg && <Alert variant="outlined" severity="error" sx={{width: 350, mt: 3}}>
                     {errorMsg}
