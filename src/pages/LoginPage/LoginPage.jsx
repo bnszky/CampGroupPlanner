@@ -2,10 +2,14 @@ import React, { useState } from 'react';
 import { Grid, Box, Typography, Button, Alert } from '@mui/material';
 import TextInput from '../../components/TextInput/TextInput';
 import { useAuth } from '../../components/AuthProvider/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const redirectPath = "/articles";
 
 function LoginPage() {
+
+  const navigate = useNavigate();
+
   const { login, isLoggedIn } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');

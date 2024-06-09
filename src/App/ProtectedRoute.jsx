@@ -3,8 +3,8 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider/AuthContext";
 import { CircularProgress } from "@mui/material";
 
-const ProtectedRoute = ({ isAdminRequired }) => {
-  const { isAdmin, isLoading } = useAuth();
+const ProtectedRoute = ({ isAdminRequired, isLoggedInRequired }) => {
+  const { isAdmin, isLoading, isLoggedIn } = useAuth();
   console.log("Admin: " + isAdmin)
 
   if(isLoading){
@@ -12,6 +12,10 @@ const ProtectedRoute = ({ isAdminRequired }) => {
   }
 
   if (isAdminRequired && !isAdmin) {
+    return <Navigate to="/" />;
+  }
+
+  if(isLoggedInRequired && !isLoggedIn){
     return <Navigate to="/" />;
   }
 

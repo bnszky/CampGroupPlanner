@@ -113,6 +113,7 @@ function App() {
         <Route path="/attraction" element={<AttractionsFeed />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/review/create/:regionName" element={<CreateReview />} />
 
         <Route element={<ProtectedRoute isAdminRequired={true}/>}>
           <Route path="/articles/create" element={<CreateArticle />} />

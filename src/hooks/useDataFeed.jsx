@@ -69,6 +69,7 @@ const useDataFeed = (apiUrl, editPath, listPath) => {
     data,
     isLoading,
     infoMsg,
+    error,
     setInfoMsg,
     handleEdit,
     handleDelete,

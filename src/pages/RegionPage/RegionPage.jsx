@@ -1,13 +1,19 @@
 import * as React from 'react';
 import RegionInfo from '../../components/RegionInfo/RegionInfo';
-import { Divider, Typography } from '@mui/material';
+import { Divider, Typography, Alert } from '@mui/material';
 import AttractionsInfo from '../../components/AttractionsInfo/AttractionsInfo';
 import ArticlesList from '../../components/ArticlesList/ArticlesList';
 import ReviewList from '../../components/ReviewList/ReviewList';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import useDataFeed from '../../hooks/useDataFeed';
+import { useAuth } from '../../components/AuthProvider/AuthContext';
 
-export default function RegionPage({reviews}) {
+export default function RegionPage() {
+
+  const {isLoggedIn} = useAuth();
+
+  const location = useLocation();
+  const [infoMsg, setInfoMsg] = React.useState(location.state?.infoMsg || null);
 
   const {regionName} = useParams();
   const navigate = useNavigate();
@@ -32,6 +38,12 @@ export default function RegionPage({reviews}) {
     handleDelete: handleDeleteAttraction
   } = useDataFeed(`/api/attraction/region/${regionName}`, '/attraction/edit', '/attraction');
 
+  const {
+    data: reviews,
+    isLoading: areReviewsLoading,
+    handleDelete: handleDeleteReview
+  } = useDataFeed(`/api/review/region/name/${regionName}`, '', '/review');
+
   if (regionError) {
     navigate('/region', {
       state: { infoMsg: { type: 'error', msg: "Couldn't find region with this name" } },
@@ -40,7 +52,13 @@ export default function RegionPage({reviews}) {
 
   return (
     <>
-      {isRegionLoading || areAttractionsLoading || areArticlesLoading || regionError ? (
+      {infoMsg && (
+        <Alert severity={infoMsg.type} variant="outlined" onClose={() => setInfoMsg(null)} sx={{ mb: 2 }}>
+          {infoMsg.msg}
+        </Alert>
+      )}
+
+      {isRegionLoading || areAttractionsLoading || areArticlesLoading || areReviewsLoading || regionError ? (
         <Typography variant="h2">Loading...</Typography>
       ) : (
         <>
@@ -55,7 +73,7 @@ export default function RegionPage({reviews}) {
           <ArticlesList articles={articles} handleDelete={handleDeleteArticle} handleEdit={handleEditArticle} regionName={region.name} />
           <Divider sx={{ margin: 10, backgroundColor: 'black' }} /> </>}
 
-          <ReviewList reviews={reviews} />
+          <ReviewList reviews={reviews} handleDelete={handleDeleteReview} addReview={isLoggedIn ? `/review/create/${regionName}` : null} />
         </>
       )}
     </>

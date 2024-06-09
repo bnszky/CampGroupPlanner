@@ -4,6 +4,8 @@ import TextInput from '../../components/TextInput/TextInput';
 import { useAuth } from '../../components/AuthProvider/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+const redirectPath = "/articles"
+
 function RegisterPage() {
 
   const navigate = useNavigate();
