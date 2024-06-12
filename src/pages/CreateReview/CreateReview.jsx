@@ -20,7 +20,7 @@ function CreateReview() {
         });
     }
 
-    const {isLoading, error, data: region} = useDataFeed(`/api/region/${regionName}/mini`, '/region/edit', 'region')
+    const {isLoading, error, data: region} = useDataFeed(`/api/region/${regionName}/mini`, '/region/edit', '/api/region', 'region')
     const {
         data: review,
         setData: setReview,
@@ -34,6 +34,7 @@ function CreateReview() {
             text: '',
             rate: 1.0,
             regionId: null,
+            regionName: regionName
         },
         '/api/review',
         `/region/${regionName}`,

@@ -2,7 +2,7 @@ import { Grid, Stack, Chip, Button, Typography } from "@mui/material";
 import ReviewContainer from "../ReviewContainer/ReviewContainer";
 import { useEffect, useState } from "react";
 
-function ReviewList({reviews, handleDelete, addReview}) {
+function ReviewList({reviews, handleDelete, addReview, isRegion}) {
 
     const nextItemsNumber = 3;
     const [reviewsToShow, setReviewsToShow] = useState(reviews.slice(0, nextItemsNumber))
@@ -61,8 +61,9 @@ function ReviewList({reviews, handleDelete, addReview}) {
     </Stack>}
     <Grid container spacing={5}>
         { reviews.length > 0 ?
-            reviewsToShow.map(review => <ReviewContainer key={review.id} review={review} handleDelete={() => handleDelete(review.id)}/>) :
-            <Typography variant="h4" sx={{pt: 8, px: 8}}>No reviews for this region, be the first one</Typography>
+            reviewsToShow.map(review => <ReviewContainer key={review.id} review={review} isRegion={isRegion} handleDelete={() => handleDelete(review.id)}/>) :
+            (isRegion ? <Typography variant="h4" sx={{pt: 8, px: 8}}>You don't have any review</Typography>
+                : <Typography variant="h4" sx={{pt: 8, px: 8}}>No reviews for this region, be the first one</Typography>)
         }
     </Grid>
     {(reviewsToShow.length < reviews.length) &&

@@ -17,6 +17,10 @@ const adminPages = [
   { name: 'Create Attraction', link: '/attraction/create' }
 ]
 
+const userPages = [
+  { name: 'Your Reviews', link: '/review/user' },
+]
+
 const adminUsername = "admin@admin.com";
 const adminPassword = "Admin123!";
 
@@ -77,6 +81,11 @@ function Navbar() {
                   <Button textAlign="center" color='inherit' onClick={handleCloseNavMenu} href={page.link}>{page.name}</Button>
                 </MenuItem>
               ))}
+              {isLoggedIn && userPages.map((page) => (
+                <MenuItem key={page.name}>
+                  <Button textAlign="center" color='inherit' onClick={handleCloseNavMenu} href={page.link}>{page.name}</Button>
+                </MenuItem>
+              ))}
               {isAdmin && adminPages.map((page) => (
                 <MenuItem key={page.name}>
                   <Button textAlign="center" color='error' onClick={handleCloseNavMenu} href={page.link}>{page.name}</Button>
@@ -89,6 +98,9 @@ function Navbar() {
 
             <Box ml={5} sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex'}}}>
                 {pages.map(page => (
+                    <Button key={page.name} color="inherit" href={page.link}>{page.name}</Button>
+                ))}
+                {isLoggedIn && userPages.map(page => (
                     <Button key={page.name} color="inherit" href={page.link}>{page.name}</Button>
                 ))}
                 {isAdmin && adminPages.map(page => (

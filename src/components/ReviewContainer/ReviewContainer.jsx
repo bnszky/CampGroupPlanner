@@ -1,8 +1,8 @@
-import { Button, Grid, Avatar, Card, CardContent, CardHeader, Rating, Typography, CardActions } from "@mui/material";
+import { Button, Grid, Avatar, Card, CardContent, CardHeader, Rating, Typography, CardActions, Link } from "@mui/material";
 import humanizeDate from "../HumanDate/HumanDate";
 import { useAuth } from "../AuthProvider/AuthContext";
 
-function ReviewContainer({review, handleDelete}) {
+function ReviewContainer({review, handleDelete, isRegion}) {
 
     console.log(review);
     const {username, isAdmin} = useAuth()
@@ -21,6 +21,7 @@ function ReviewContainer({review, handleDelete}) {
                 <Grid container direction='column' sx={{display: 'flex'}}>
                 <Rating name="read-only" value={review.rate} precision={0.5} readOnly/>
                 <Typography variant="body2">{humanizeDate(review.createdAt)}</Typography>
+                {isRegion && <Link href={`/region/${review.regionName}`} underline="hover" sx={{ color: 'inherit' }}>{`Region: ${review.regionName}`}</Link>}
                 </Grid>    
             }
             />

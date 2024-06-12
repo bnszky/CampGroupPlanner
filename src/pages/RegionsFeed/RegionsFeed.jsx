@@ -14,7 +14,7 @@ export default function RegionsFeed() {
       handleEdit,
       handleDelete,
       handleVisit,
-    } = useDataFeed('/api/region', '/region/edit', '/region');
+    } = useDataFeed('/api/region', '/region/edit', '/api/region', '/region');
   
     return (
       <Box>

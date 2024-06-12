@@ -8,7 +8,7 @@ export default function ArticlesFeed() {
 
     const location = useLocation();
     const [infoMsg, setInfoMsg] = React.useState(location.state?.infoMsg || null);
-    const { data: articles, isLoading, handleEdit, handleDelete } = useDataFeed('/api/articles', '/articles/edit', '/articles');
+    const { data: articles, isLoading, handleEdit, handleDelete } = useDataFeed('/api/articles', '/articles/edit', '/api/articles', '/articles');
 
     return (
         <Box>

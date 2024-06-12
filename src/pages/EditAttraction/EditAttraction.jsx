@@ -15,7 +15,7 @@ const EditAttraction = () => {
         error
     } = useDataFeed (
         `/api/attraction/${id}`,
-        '', 'attraction'
+        '', '', 'attraction'
     )
 
     if (isLoading) {

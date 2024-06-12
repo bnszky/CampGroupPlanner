@@ -18,6 +18,7 @@ import AttractionsFeed from '../pages/AttractionsFeed/AttractionsFeed';
 import { AuthProvider, useAuth } from '../components/AuthProvider/AuthContext';
 import LoginPage from '../pages/LoginPage/LoginPage';
 import RegisterPage from '../pages/RegisterPage/RegisterPage';
+import ReviewsFeed from '../pages/ReviewsFeed/ReviewsFeed';
 
 function App() {
 
@@ -113,7 +114,11 @@ function App() {
         <Route path="/attraction" element={<AttractionsFeed />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/review/create/:regionName" element={<CreateReview />} />
+
+        <Route element={<ProtectedRoute isLoggedInRequired={true}/>}>
+          <Route path="/review/user" element={<ReviewsFeed />} />
+          <Route path="/review/create/:regionName" element={<CreateReview />} />
+        </Route>
 
         <Route element={<ProtectedRoute isAdminRequired={true}/>}>
           <Route path="/articles/create" element={<CreateArticle />} />

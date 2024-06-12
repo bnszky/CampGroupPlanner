@@ -22,27 +22,27 @@ export default function RegionPage() {
     data: region,
     isLoading: isRegionLoading,
     error: regionError,
-  } = useDataFeed(`/api/region/${regionName}`, '/region/edit', '/region');
+  } = useDataFeed(`/api/region/${regionName}`, '/region/edit', '/api/region', '/region');
 
   const {
     data: articles,
     isLoading: areArticlesLoading,
     handleEdit: handleEditArticle,
     handleDelete: handleDeleteArticle
-  } = useDataFeed(`/api/articles/region/${regionName}`, '/articles/edit', '/articles');
+  } = useDataFeed(`/api/articles/region/${regionName}`, '/articles/edit', '/api/articles', '/articles');
 
   const {
     data: attractions,
     isLoading: areAttractionsLoading,
     handleEdit: handleEditAttraction,
     handleDelete: handleDeleteAttraction
-  } = useDataFeed(`/api/attraction/region/${regionName}`, '/attraction/edit', '/attraction');
+  } = useDataFeed(`/api/attraction/region/${regionName}`, '/attraction/edit', '/api/attraction', '/attraction');
 
   const {
     data: reviews,
     isLoading: areReviewsLoading,
     handleDelete: handleDeleteReview
-  } = useDataFeed(`/api/review/region/name/${regionName}`, '', '/review');
+  } = useDataFeed(`/api/review/region/name/${regionName}`, '', '/api/review', `/region/${regionName}`);
 
   if (regionError) {
     navigate('/region', {
