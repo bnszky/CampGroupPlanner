@@ -15,11 +15,13 @@ namespace TripPlanner.Server.Controllers
     {
         private readonly IArticleService _articleService;
         private readonly IErrorService _errorService;
+        private readonly IArticleFetchService _articleFetchService;
 
-        public ArticlesController(IArticleService articleService, IErrorService errorService)
+        public ArticlesController(IArticleService articleService, IErrorService errorService, IArticleFetchService articleFetchService)
         {
             _articleService = articleService;
             _errorService = errorService;
+            _articleFetchService = articleFetchService;
         }
 
         [HttpGet]
@@ -156,6 +158,12 @@ namespace TripPlanner.Server.Controllers
             await _articleService.CreateOrUpdateArticleAsync(editedArticle, existingArticle, false);
 
             return Ok();
+        }
+
+        [HttpGet("fetch/{regionName}")]
+        public async Task<ActionResult<List<Article>>> FetchArticles(string regionName)
+        {
+            return await _articleFetchService.FetchArticlesByRegionNameAsync(regionName);
         }
     }
 }

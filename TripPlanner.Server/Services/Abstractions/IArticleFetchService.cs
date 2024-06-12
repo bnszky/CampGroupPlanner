@@ -4,6 +4,6 @@ namespace TripPlanner.Server.Services.Abstractions
 {
     public interface IArticleFetchService
     {
-        Task<List<Article>> FetchArticlesByRegionDataAsync(string regionName, string countryName, List<string> citiesNames);
+        Task<List<Article>> FetchArticlesByRegionNameAsync(string regionName);
     }
 }

@@ -10,6 +10,8 @@ using TripPlanner.Server.Models;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
 using TripPlanner.Server.Middlewares;
+using Serilog;
+using Serilog.Events;
 
 namespace TripPlanner.Server
 {
@@ -17,7 +19,17 @@ namespace TripPlanner.Server
     {
         public static void Main(string[] args)
         {
+            // Configure Serilog
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+
             var builder = WebApplication.CreateBuilder(args);
+            builder.Host.UseSerilog();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -25,7 +37,7 @@ namespace TripPlanner.Server
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(opt =>
             {
-                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
+                opt.SwaggerDoc("v1", new OpenApiInfo { Title = "TripApp Api", Version = "v1" });
                 opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
@@ -66,6 +78,8 @@ namespace TripPlanner.Server
 
             // Services for fetching articles
             builder.Services.AddTransient<IArticleFetchService, ArticleFetchService>();
+
+            builder.Services.AddTransient<IArticleSourceService, ArticleSourceDemoService>();
 
             builder.Services.AddTransient<IArticleRatingService, ArticleRatingService>();
 
@@ -127,13 +141,6 @@ namespace TripPlanner.Server
                 app.UseSwaggerUI();
             }
 
-            // Logging
-            builder.Services.AddLogging(logging =>
-            {
-                logging.AddConsole();
-                logging.AddDebug();
-            });
-
             app.UseHttpsRedirection();
 
             // Authentication and Authorization
@@ -144,7 +151,18 @@ namespace TripPlanner.Server
 
             app.MapFallbackToFile("/index.html");
 
-            app.Run();
+            try
+            {
+                app.Run();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Application start-up failed");
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
     }
 }
