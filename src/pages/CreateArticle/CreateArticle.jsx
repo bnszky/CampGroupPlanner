@@ -27,6 +27,7 @@ function CreateArticle({initialData}) {
             createdAt: new Date(),
             imageFile: null,
             sourceLink: '',
+            positioningRate: 0,
             isVisible: false,
             regionName: null,
         },
@@ -71,6 +72,7 @@ function CreateArticle({initialData}) {
                 <Grid container direction='column' spacing={2} display='flex' alignItems='center'>
                     <TextInput 
                         fieldName='title' 
+                        value={article.title}
                         onValueChange={value => updateArticle('title', value)} 
                         error={errors?.Title} 
                         errorMessage={errors?.Title} 
@@ -78,7 +80,8 @@ function CreateArticle({initialData}) {
                     />
 
                     <TextInput 
-                        fieldName='description' 
+                        fieldName='description'
+                        value={article.description} 
                         onValueChange={value => updateArticle('description', value)} 
                         error={errors?.Description} 
                         errorMessage={errors?.Description} 
@@ -87,6 +90,7 @@ function CreateArticle({initialData}) {
 
                     <TextInput 
                         fieldName='source' 
+                        value={article.sourceLink}
                         onValueChange={value => updateArticle('sourceLink', value)} 
                         error={errors?.SourceLink} 
                         errorMessage={errors?.SourceLink} 
@@ -102,6 +106,7 @@ function CreateArticle({initialData}) {
 
                     <SelectInput 
                         fieldName='region' 
+                        value={article.regionName}
                         onValueChange={value => updateArticle('regionName', value)} 
                         items={regions} 
                         error={errors?.Region} 
@@ -110,6 +115,7 @@ function CreateArticle({initialData}) {
 
                     <TextInput 
                         fieldName='rate' 
+                        value={article.positioningRate}
                         onValueChange={value => updateArticle('positioningRate', value)} 
                         error={errors?.PositioningRate} 
                         errorMessage={errors?.PositioningRate} 

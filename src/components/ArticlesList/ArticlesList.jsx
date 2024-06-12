@@ -5,7 +5,7 @@ import ArticleItem from '../ArticleItem/ArticleItem';
 
 function ArticlesList({articles, regionName, handleDelete, handleEdit}) {
 
-    const nextItemsNumber = 3; 
+    const nextItemsNumber = 100; 
 
     const [articlesToShow, setArticlesToShow] = useState(articles.slice(0, nextItemsNumber))
 
