@@ -64,6 +64,11 @@ namespace TripPlanner.Server
             builder.Services.AddTransient<ISeedingService, SeedingService>();
             builder.Services.AddSingleton<ITokenBlacklistService, TokenBlacklistService>();
 
+            // Services for fetching articles
+            builder.Services.AddTransient<IArticleFetchService, ArticleFetchService>();
+
+            builder.Services.AddTransient<IArticleRatingService, ArticleRatingService>();
+
             builder.Services.AddDbContext<TripDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("TripAppDb")));
 
             builder.Services.AddIdentity<User, IdentityRole>()
