@@ -35,7 +35,7 @@ namespace TripPlanner.Server.Services.Implementations
             }
             else
             {
-                throw new Exception($"Failed to fetch information about {cityName}");
+                return null;
             }
         }
     }

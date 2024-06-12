@@ -64,6 +64,8 @@ namespace TripPlanner.Server
                 });
             });
 
+            builder.Services.AddHttpClient();
+
             // Services
             builder.Services.AddScoped<IImageService, ImageService>();
             builder.Services.AddScoped<IRegionFetchService, RegionFetchService>();
@@ -80,8 +82,12 @@ namespace TripPlanner.Server
             builder.Services.AddTransient<IArticleFetchService, ArticleFetchService>();
 
             builder.Services.AddTransient<IArticleSourceService, ArticleSourceDemoService>();
+            builder.Services.AddTransient<IArticleSourceService, ArticleSourceRSS>();
 
             builder.Services.AddTransient<IArticleRatingService, ArticleRatingService>();
+
+            // Services for fetching attractions
+            builder.Services.AddTransient<IAttractionFetchService, AttractionFetchService>();
 
             builder.Services.AddDbContext<TripDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("TripAppDb")));
 

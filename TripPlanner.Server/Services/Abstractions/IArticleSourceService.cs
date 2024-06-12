@@ -4,6 +4,6 @@ namespace TripPlanner.Server.Services.Abstractions
 {
     public interface IArticleSourceService
     {
-        Task<List<Article>> GetArticlesAsync(string regionName, string countryName, List<string> citiesNames);
+        Task<List<Article>> GetArticlesAsync();
     }
 }

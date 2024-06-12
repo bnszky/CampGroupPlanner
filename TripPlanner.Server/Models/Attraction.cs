@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace TripPlanner.Server.Models
 {
@@ -13,6 +14,8 @@ namespace TripPlanner.Server.Models
         public double Longitude { get; set; }
         public double Latitude { get; set; }
         public int RegionId { get; set; }
+        [JsonIgnore]
         public Region Region { get; set; }
+        public string? FRS_ID { get; set; }
     }
 }

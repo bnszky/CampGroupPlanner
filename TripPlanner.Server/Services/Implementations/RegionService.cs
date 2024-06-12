@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using TripPlanner.Server.Data;
 using TripPlanner.Server.Models;
 using TripPlanner.Server.Services.Abstractions;
@@ -165,9 +166,12 @@ namespace TripPlanner.Server.Services.Implementations
             {
                 var city = await _cityService.FetchInformationAboutCityFromName(cityName);
 
-                city.Region = region;
+                if (city != null)
+                {
+                    city.Region = region;
 
-                _dbContext.Cities.Add(city);
+                    _dbContext.Cities.Add(city);
+                }
             }
 
             return null;
@@ -237,6 +241,17 @@ namespace TripPlanner.Server.Services.Implementations
                 Description = region.Description,
                 Image = region.Images.FirstOrDefault()?.Link
             };
+        }
+
+        public async Task<List<City>> GetCitiesByRegionName(string regionName)
+        {
+            var region = await _dbContext.Regions.Where(r => r.Name.ToLower().Equals(regionName.ToLower())).Include(r => r.Cities).FirstOrDefaultAsync();
+            if (region == null)
+            {
+                throw new Exception("Region with this name not found");
+            }
+
+            return region.Cities.ToList();
         }
     }
 

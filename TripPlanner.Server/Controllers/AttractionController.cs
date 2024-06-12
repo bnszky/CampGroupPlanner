@@ -14,10 +14,14 @@ namespace TripPlanner.Server.Controllers
     {
         private readonly IAttractionService _attractionService;
         private readonly IErrorService _errorService;
-        public AttractionController(IAttractionService attractionService, IErrorService errorService)
+        private readonly IRegionService _regionService;
+        private readonly IAttractionFetchService _attractionFetchService;
+        public AttractionController(IAttractionService attractionService, IErrorService errorService, IRegionService regionService, IAttractionFetchService attractionFetchService)
         {
             _errorService = errorService;
             _attractionService = attractionService;
+            _regionService = regionService;
+            _attractionFetchService = attractionFetchService;
         }
 
         [HttpGet]
@@ -143,6 +147,14 @@ namespace TripPlanner.Server.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpGet("fetch/{regionName}")]
+        public async Task<ActionResult<List<Attraction>>> FetchAttractionsByRegionName(string regionName)
+        {
+            var cities = await _regionService.GetCitiesByRegionName(regionName);
+            var attractions = await _attractionFetchService.FetchAttractionsForGivenCities(cities, 10);
+            return Ok(attractions);
         }
     }
 }

@@ -161,9 +161,15 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("fetch/{regionName}")]
-        public async Task<ActionResult<List<Article>>> FetchArticles(string regionName)
+        public async Task<ActionResult<List<Article>>> FetchArticlesForRegion(string regionName)
         {
             return await _articleFetchService.FetchArticlesByRegionNameAsync(regionName);
+        }
+
+        [HttpGet("fetch")]
+        public async Task<ActionResult<List<Article>>> FetchArticles()
+        {
+            return await _articleFetchService.FetchArticles();
         }
     }
 }

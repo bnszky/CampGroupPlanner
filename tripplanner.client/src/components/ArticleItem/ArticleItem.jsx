@@ -10,7 +10,7 @@ function ArticleItem({article, handleDelete, handleEdit}) {
 
     const { isAdmin } = useAuth();
 
-    return <Card sx={{maxWidth: 350, padding: 2, height: 500, border: .5, borderRadius: 10}}>
+    return <Card sx={{maxWidth: 350, padding: 2, height: 550, border: .5, borderRadius: 10}}>
         <CardHeader
         title={article.title} 
         subheader={<>
@@ -36,7 +36,7 @@ function ArticleItem({article, handleDelete, handleEdit}) {
 
         <CardContent>
             <Typography variant="body2">
-                {article.description.substring(0, 150) + "..."}
+                {article.description && article.description.substring(0, 150) + "..."}
             </Typography>
         </CardContent>
 

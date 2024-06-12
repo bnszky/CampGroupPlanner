@@ -4,7 +4,7 @@ namespace TripPlanner.Server.Services.Abstractions
 {
     public interface IArticleRatingService
     {
-        Task<int> RateArticleAsync(Article article);
         Task<bool> IsArticleValidAsync(Article article);
+        Task<int?> RateArticleAsync(Article article, string regionName, string countryName, List<string> cityNames);
     }
 }

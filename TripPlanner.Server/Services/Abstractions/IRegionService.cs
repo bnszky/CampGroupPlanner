@@ -11,6 +11,7 @@ namespace TripPlanner.Server.Services.Abstractions
         Task<ErrorResponse?> CreateRegionAsync(RegionCreate regionCreate);
         Task<ErrorResponse?> UpdateRegionAsync(string regionName, RegionCreate regionCreate);
         Task<ErrorResponse?> DeleteRegionAsync(string regionName);
+        Task<List<City>> GetCitiesByRegionName(string regionName);
     }
 
 }

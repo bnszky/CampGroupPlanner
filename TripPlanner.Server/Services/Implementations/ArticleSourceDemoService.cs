@@ -7,7 +7,7 @@ namespace TripPlanner.Server.Services.Implementations
     {
         private readonly ILogger<ArticleSourceDemoService> _logger;
         public ArticleSourceDemoService(ILogger<ArticleSourceDemoService> logger) { _logger = logger; }
-        public async Task<List<Article>> GetArticlesAsync(string regionName, string countryName, List<string> citiesNames)
+        public async Task<List<Article>> GetArticlesAsync()
         {
             List<Article> articles = new List<Article>();
             articles.Add(new Article
