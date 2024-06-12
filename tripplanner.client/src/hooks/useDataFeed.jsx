@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 
-const useDataFeed = (apiUrl, editPath, listPath) => {
+const useDataFeed = (apiUrl, editPath, deleteApiUrl, listPath) => {
   const location = useLocation();
   const [infoMsg, setInfoMsg] = useState(location.state?.infoMsg);
   const [data, setData] = useState(null);
@@ -23,7 +23,7 @@ const useDataFeed = (apiUrl, editPath, listPath) => {
 
   const handleDelete = async (identifier) => {
     try {
-      const response = await axios.delete(`${apiUrl}/${identifier}`);
+      const response = await axios.delete(`${deleteApiUrl}/${identifier}`);
 
       if (!response.status === 200) {
         const errorData = response.data;
@@ -34,15 +34,15 @@ const useDataFeed = (apiUrl, editPath, listPath) => {
 
       await getData();
       navigate(listPath, {
-        state: { infoMsg: { type: 'success', msg: `Item with ${identifier} successfully deleted` } },
+        state: { infoMsg: { type: 'success', msg: `Item ${identifier} successfully deleted` } },
       });
       window.location.reload();
     } catch (error) {
       console.error(error.message);
       navigate(listPath, {
-        state: { infoMsg: { type: 'error', msg: `Item with ${identifier} couldn't be deleted` } },
+        state: { infoMsg: { type: 'error', msg: `Item ${identifier} couldn't be deleted` } },
       });
-      window.location.reload();
+      //window.location.reload();
     }
   };
 
@@ -69,6 +69,7 @@ const useDataFeed = (apiUrl, editPath, listPath) => {
     data,
     isLoading,
     infoMsg,
+    error,
     setInfoMsg,
     handleEdit,
     handleDelete,

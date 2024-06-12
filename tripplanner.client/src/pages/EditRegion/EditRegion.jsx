@@ -15,7 +15,7 @@ const EditRegion = () => {
         error
     } = useDataFeed (
         `/api/region/${regionName}`,
-        '', 'region'
+        '', '', 'region'
     )
 
     if (isLoading) {

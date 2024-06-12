@@ -34,6 +34,7 @@ namespace TripPlanner.Server.Services.Implementations
 
             return new RegionGet
             {
+                Id = region.Id,
                 Name = region.Name,
                 Description = region.Description,
                 Country = region.Country,

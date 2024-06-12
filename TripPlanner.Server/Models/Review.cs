@@ -10,10 +10,13 @@ namespace TripPlanner.Server.Models
         public double Rate { get; set; }
         public DateTime CreatedAt { get; set; }
         public int RegionId { get; set; }
+        [JsonIgnore]
         public Region Region { get; set; }
+        public string RegionName { get; set; }
         [JsonIgnore]
         public User Author { get; set; }
         public string AuthorId { get; set; }
+        public string AuthorUsername { get; set; }
 
     }
 }

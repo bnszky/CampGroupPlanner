@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TripPlanner.Server.Data;
 
@@ -11,9 +12,11 @@ using TripPlanner.Server.Data;
 namespace TripPlanner.Server.Migrations
 {
     [DbContext(typeof(TripDbContext))]
-    partial class TripDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240609212602_addedAuthorUsername")]
+    partial class addedAuthorUsername
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -214,7 +217,7 @@ namespace TripPlanner.Server.Migrations
                             Id = 1,
                             CreatedAt = new DateTime(2020, 5, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eu vestibulum turpis. Nullam id ipsum at ipsum blandit porttitor sed ut odio. Sed vulputate justo est. Sed tristique, libero eu luctus pellentesque, sem justo luctus nulla, euismod semper quam dui eget mi. Sed at pretium arcu, at gravida nulla. Ut sagittis lacinia ex ut venenatis. Aenean.",
-                            EditedAt = new DateTime(2024, 6, 12, 10, 28, 5, 859, DateTimeKind.Local).AddTicks(9392),
+                            EditedAt = new DateTime(2024, 6, 9, 23, 26, 2, 473, DateTimeKind.Local).AddTicks(3679),
                             ImageURL = "https://rodzinanomadow.pl/wp-content/uploads/2018/06/image-10-1024x683.jpeg",
                             IsVisible = true,
                             PositioningRate = 4,
@@ -228,7 +231,7 @@ namespace TripPlanner.Server.Migrations
                             Id = 2,
                             CreatedAt = new DateTime(2022, 11, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Boasting a reputation as one of the most attractive cities in Europe, Barcelona celebrates its role as the capital of Catalonia.",
-                            EditedAt = new DateTime(2024, 6, 12, 10, 28, 5, 859, DateTimeKind.Local).AddTicks(9460),
+                            EditedAt = new DateTime(2024, 6, 9, 23, 26, 2, 473, DateTimeKind.Local).AddTicks(3746),
                             ImageURL = "https://www.theblondeabroad.com/wp-content/uploads/2022/02/theodor-vasile-LSscVPEyQpI-unsplash.jpg",
                             IsVisible = true,
                             PositioningRate = 1,
@@ -242,7 +245,7 @@ namespace TripPlanner.Server.Migrations
                             Id = 3,
                             CreatedAt = new DateTime(2024, 4, 14, 15, 41, 0, 0, DateTimeKind.Unspecified),
                             Description = "Rome is one of the most iconic and most-traveled cities in Europe, with a long history to match. With a mixture of cultures from around the world",
-                            EditedAt = new DateTime(2024, 6, 12, 10, 28, 5, 859, DateTimeKind.Local).AddTicks(9464),
+                            EditedAt = new DateTime(2024, 6, 9, 23, 26, 2, 473, DateTimeKind.Local).AddTicks(3749),
                             ImageURL = "https://www.theblondeabroad.com/wp-content/uploads/2022/02/david-edkins-grlIoctRp1o-unsplash.jpg",
                             IsVisible = true,
                             PositioningRate = 3,
@@ -481,10 +484,6 @@ namespace TripPlanner.Server.Migrations
                     b.Property<int>("RegionId")
                         .HasColumnType("int");
 
-                    b.Property<string>("RegionName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Text")
                         .HasColumnType("nvarchar(max)");
 
@@ -509,7 +508,6 @@ namespace TripPlanner.Server.Migrations
                             CreatedAt = new DateTime(2024, 4, 14, 15, 41, 0, 0, DateTimeKind.Unspecified),
                             Rate = 4.5,
                             RegionId = 1,
-                            RegionName = "Catalonia",
                             Text = "Beautiful place! I would like to be there again",
                             Title = "Opinion 1"
                         },
@@ -521,7 +519,6 @@ namespace TripPlanner.Server.Migrations
                             CreatedAt = new DateTime(2023, 7, 18, 15, 41, 0, 0, DateTimeKind.Unspecified),
                             Rate = 2.0,
                             RegionId = 1,
-                            RegionName = "Catalonia",
                             Text = "I don't like spanish people, Ughh...",
                             Title = "Opinion 2"
                         });

@@ -8,7 +8,7 @@ export default function AttractionsFeed(){
 
     const location = useLocation();
     const [infoMsg, setInfoMsg] = React.useState(location.state?.infoMsg || null);
-    const { data: attractions, isLoading, handleEdit, handleDelete } = useDataFeed('/api/attraction', '/attraction/edit', '/attraction');
+    const { data: attractions, isLoading, handleEdit, handleDelete } = useDataFeed('/api/attraction', '/attraction/edit', '/api/attraction', '/attraction');
 
     return (
         <Box sx={{ maxWidth: 800, margin: 'auto' }}>

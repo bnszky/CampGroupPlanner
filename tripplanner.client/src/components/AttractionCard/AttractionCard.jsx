@@ -6,7 +6,7 @@ function AttractionCard({attraction, handleDelete, handleEdit}) {
 
     const {isAdmin} = useAuth();
 
-    return <Card sx={{border: 2, margin: 2, border: .5, borderRadius: 10}}>
+    return <Card sx={{margin: 2, border: .5, borderRadius: 10}}>
         <CardActionArea>
             <CardMedia
                 component="img"

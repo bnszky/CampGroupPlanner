@@ -166,7 +166,9 @@ namespace TripPlanner.Server.Data
                 Rate = 4.5,
                 CreatedAt = new DateTime(2024, 4, 14, 15, 41, 0),
                 AuthorId = "0076352e-d763-45c6-92fa-3731f323f01b",
-                RegionId = 1
+                RegionId = 1,
+                RegionName = "Catalonia",
+                AuthorUsername = "Michal"
             },
             new Review
             {
@@ -176,7 +178,9 @@ namespace TripPlanner.Server.Data
                 Rate = 2,
                 CreatedAt = new DateTime(2023, 7, 18, 15, 41, 0),
                 AuthorId = "0076352e-d763-45c6-92fa-3731f323f01b",
-                RegionId = 1
+                RegionId = 1,
+                RegionName = "Catalonia",
+                AuthorUsername = "Michal"
             }
             );
         }

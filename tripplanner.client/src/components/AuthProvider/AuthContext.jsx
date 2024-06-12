@@ -32,17 +32,47 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = async (credentials) => {
+  const login = async (username, password) => {
     try {
-      const response = await axios.post('/api/auth/login', credentials);
+      const response = await axios.post('/api/auth/login', {username, password});
       if (response.status === 200) {
-        const { token, username, email, isAdmin } = response.data;
+        const { token } = response.data;
         localStorage.setItem('token', token);
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        checkAuth();
+        await checkAuth();
+        return {"isOk": true, "msg": "Succesfully login"}
       }
     } catch (error) {
-      console.error('Login failed', error);
+      console.error(error.message);
+      return {"isOk": false, "msg": "Couldn't login. Make sure your password and email are correct"}
+    }
+  };
+
+  const register = async (username, email, password, confirmedPassword) => {
+    if (password !== confirmedPassword) {
+      return { isOk: false, msg: "Registration failed: \n > Passwords do not match" };
+    }
+
+    try {
+      const response = await axios.post('/api/auth/register', { username, email, password, confirmedPassword });
+      if (response.status === 200) {
+        const { token } = response.data;
+        localStorage.setItem('token', token);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        await checkAuth();
+        return { isOk: true, msg: "Successfully registered" };
+      }
+    } catch (error) {
+      console.log(error.response);
+      if (error.response && error.response.data) {
+        let errMsg = "Registration failed:\n";
+        error.response.data.slice(0, 3).forEach(err => {
+          errMsg += `> ${err.description}\n`;
+        });
+        return { isOk: false, msg: errMsg.trim() };
+      }
+      console.error('Registration failed', error);
+      return { isOk: false, msg: `Registration failed` };
     }
   };
 
@@ -53,13 +83,15 @@ export const AuthProvider = ({ children }) => {
       setIsLoggedIn(false);
       setUserDetails({ username: '', email: '', isAdmin: false });
       delete axios.defaults.headers.common['Authorization'];
+      return {"isOk": true, "msg": "Succesfully logout"}
     } catch (error) {
       console.error('Logout failed', error);
+      return {"isOk": false, "msg": `Logout failed ${error}`}
     }
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, ...userDetails, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ isLoggedIn, ...userDetails, login, logout, register, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
