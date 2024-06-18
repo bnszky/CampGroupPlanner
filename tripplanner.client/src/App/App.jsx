@@ -19,6 +19,9 @@ import { AuthProvider, useAuth } from '../components/AuthProvider/AuthContext';
 import LoginPage from '../pages/LoginPage/LoginPage';
 import RegisterPage from '../pages/RegisterPage/RegisterPage';
 import ReviewsFeed from '../pages/ReviewsFeed/ReviewsFeed';
+import ConfirmEmail from '../pages/ConfirmEmail/ConfirmEmail';
+import RecoverPassword from '../pages/RecoverPassword/RecoverPassword';
+import ResetPassword from '../pages/ResetPassword/ResetPassword';
 
 function App() {
 
@@ -114,6 +117,9 @@ function App() {
         <Route path="/attraction" element={<AttractionsFeed />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/confirm-email" element={<ConfirmEmail />} />
+        <Route path="/recover-password" element={<RecoverPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         <Route element={<ProtectedRoute isLoggedInRequired={true}/>}>
           <Route path="/review/user" element={<ReviewsFeed />} />

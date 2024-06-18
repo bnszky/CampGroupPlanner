@@ -90,8 +90,67 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const confirmEmail = async (email, token) => {
+    try {
+      const response = await axios.get('/api/auth/confirm-email', {
+        params: { email, token }
+      });
+      if (response.status === 200) {
+        return { isOk: true, msg: "Email successfully confirmed" };
+      }
+    } catch (error) {
+      console.error('Email confirmation failed', error);
+      return { isOk: false, msg: `Email confirmation failed ${error}` };
+    }
+  };
+
+  const resendConfirmationLink = async (email) => {
+    console.log("sth")
+    try {
+      const response = await axios.get('/api/auth/resend-confirmation-link', {
+        params: { email }
+      });
+      if (response.status === 200) {
+        return { isOk: true, msg: "Confirmation link has been sent again" };
+      }
+    } catch (error) {
+      console.error('Confirmation link send failed', error);
+      return { isOk: false, msg: `Confirmation link send failed ${error}` };
+    }
+  }
+
+  const recoverPassword = async (email) => {
+    try {
+      const response = await axios.get('/api/auth/recover-password', {
+        params: { email }
+      });
+      if (response.status === 200) {
+        return { isOk: true, msg: "Recovery email sent" };
+      }
+    } catch (error) {
+      console.error('Password recovery failed', error);
+      return { isOk: false, msg: `Password recovery failed ${error}` };
+    }
+  };
+
+  const resetPassword = async (email, token, password, confirmedPassword) => {
+    if (password !== confirmedPassword) {
+      return { isOk: false, msg: "Reset failed: \n > Passwords do not match" };
+    }
+
+    try {
+      const response = await axios.put('/api/auth/reset-password', { email, token, password, confirmedPassword });
+      if (response.status === 200) {
+        return { isOk: true, msg: "Password successfully reset" };
+      }
+    } catch (error) {
+      console.error('Password reset failed', error);
+      return { isOk: false, msg: `Password reset failed ${error}` };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ isLoggedIn, ...userDetails, login, logout, register, isLoading }}>
+    <AuthContext.Provider value={{ isLoggedIn, ...userDetails, login, logout, register, isLoading, confirmEmail, recoverPassword, resetPassword, resendConfirmationLink }}>
       {children}
     </AuthContext.Provider>
   );

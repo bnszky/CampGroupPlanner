@@ -77,6 +77,7 @@ namespace TripPlanner.Server
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddTransient<ISeedingService, SeedingService>();
             builder.Services.AddSingleton<ITokenBlacklistService, TokenBlacklistService>();
+            builder.Services.AddTransient<IEmailService, EmailService>();
 
             // Services for fetching articles
             builder.Services.AddTransient<IArticleFetchService, ArticleFetchService>();
