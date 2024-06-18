@@ -12,5 +12,9 @@ namespace TripPlanner.Server.Models
         public double Latitude { get; set; }
         public int RegionId { get; set; }
         public Region Region { get; set; }
+        public override string ToString()
+        {
+            return Name + " - " + Country;
+        }
     }
 }

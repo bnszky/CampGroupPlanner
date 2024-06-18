@@ -18,5 +18,10 @@ namespace TripPlanner.Server.Models
         public string AuthorId { get; set; }
         public string AuthorUsername { get; set; }
 
+        public override string ToString()
+        {
+            return AuthorUsername + " - " + Title + " - Stars: " + Rate;
+        }
+
     }
 }

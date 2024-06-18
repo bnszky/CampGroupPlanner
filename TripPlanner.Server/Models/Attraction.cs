@@ -17,5 +17,10 @@ namespace TripPlanner.Server.Models
         [JsonIgnore]
         public Region Region { get; set; }
         public string? FRS_ID { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

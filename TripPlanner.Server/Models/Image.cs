@@ -6,5 +6,9 @@
         public string Link { get; set; }
         public int RegionId { get; set; }
         public Region Region { get; set; }
+        public override string ToString()
+        {
+            return Link;
+        }
     }
 }

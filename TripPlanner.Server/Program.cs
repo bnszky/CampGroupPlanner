@@ -73,6 +73,7 @@ namespace TripPlanner.Server
             builder.Services.AddScoped<IRegionService, RegionService>();
             builder.Services.AddScoped<ICityService, CityService>();
             builder.Services.AddScoped<IErrorService, ErrorService>();
+            builder.Services.AddScoped<IResponseService, ResponseService>();
             builder.Services.AddScoped<IAttractionService, AttractionService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddTransient<ISeedingService, SeedingService>();

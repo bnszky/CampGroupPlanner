@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TripPlanner.Server.Data;
 using TripPlanner.Server.Models;
 using TripPlanner.Server.Services.Abstractions;
-using TripPlanner.Server.Services.Implementations;
-using static System.Net.Mime.MediaTypeNames;
-using Image = TripPlanner.Server.Models.Image;
+using TripPlanner.Server.Messages;
+using Microsoft.Extensions.Logging;
 
 namespace TripPlanner.Server.Controllers
 {
@@ -15,39 +13,83 @@ namespace TripPlanner.Server.Controllers
     public class RegionController : ControllerBase
     {
         private readonly TripDbContext _dbContext;
-        private IRegionFetchService _regionFetchService;
-        private ICityService _cityService;
-        private IImageService _imageService;
-        private IErrorService _errorService;
-        private IRegionService _regionService;
-        public RegionController(TripDbContext dbContext, IRegionFetchService regionFetchService, ICityService citiesService, IImageService imageService, IErrorService errorService, IRegionService regionService) { 
+        private readonly IRegionFetchService _regionFetchService;
+        private readonly ICityService _cityService;
+        private readonly IImageService _imageService;
+        private readonly IErrorService _errorService;
+        private readonly IRegionService _regionService;
+        private readonly ILogger<RegionController> _logger;
+
+        public RegionController(
+            TripDbContext dbContext,
+            IRegionFetchService regionFetchService,
+            ICityService citiesService,
+            IImageService imageService,
+            IErrorService errorService,
+            IRegionService regionService,
+            ILogger<RegionController> logger)
+        {
             _regionFetchService = regionFetchService;
             _cityService = citiesService;
             _dbContext = dbContext;
             _imageService = imageService;
             _errorService = errorService;
             _regionService = regionService;
+            _logger = logger;
         }
 
         [HttpGet("description/{region}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<string>> FetchDescription(string region)
         {
-            return await _regionFetchService.GetDescriptionForRegion(region, 1000);
+            try
+            {
+                var desc = await _regionFetchService.GetDescriptionForRegion(region, 1000);
+                _logger.LogInformation("{Message} Region: {Region}, Description: {Description}", ResponseMessages.DescriptionFetchedRegion, region, desc);
+                return Ok(desc);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{Message} Region: {Region}", ResponseMessages.CouldNotFetchDescription, region);
+                var errorResponse = _errorService.CreateError(ResponseMessages.CouldNotFetchDescription);
+                return BadRequest(errorResponse);
+            }
         }
 
         [HttpGet("cities/{region}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<string>>> FetchCities(string region)
         {
-            return await _regionFetchService.FindCitiesByRegion(region, 5);
+            try
+            {
+                var cities = await _regionFetchService.FindCitiesByRegion(region, 5);
+                _logger.LogInformation("{Message} Region: {Region}, CitiesCount: {Count}", ResponseMessages.CitiesFetchedRegion, region, cities.Count);
+                return Ok(cities);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{Message} Region: {Region}", ResponseMessages.CouldNotFetchCities, region);
+                var errorResponse = _errorService.CreateError(ResponseMessages.CouldNotFetchCities);
+                return BadRequest(errorResponse);
+            }
         }
 
         [HttpGet("images/{region}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<string>>> FetchImages(string region)
         {
-            return await _regionFetchService.GetImagesForRegion(region, 10);
+            try
+            {
+                var images = await _regionFetchService.GetImagesForRegion(region, 10);
+                _logger.LogInformation("{Message} Region: {Region}, ImagesCount: {Count}", ResponseMessages.ImagesFetchedRegion, region, images.Count);
+                return Ok(images);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{Message} Region: {Region}", ResponseMessages.CouldNotFetchImages, region);
+                var errorResponse = _errorService.CreateError(ResponseMessages.CouldNotFetchImages);
+                return BadRequest(errorResponse);
+            }
         }
 
         [HttpGet("names")]
@@ -56,11 +98,14 @@ namespace TripPlanner.Server.Controllers
         {
             try
             {
-                return await _regionService.GetAllRegionNamesAsync();
+                var regionNames = await _regionService.GetAllRegionNamesAsync();
+                _logger.LogInformation("{Message} RegionNamesCount: {Count}", ResponseMessages.RegionNamesFetched, regionNames.Count);
+                return Ok(regionNames);
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest(_errorService.CreateError("Unexpected error"));
+                _logger.LogError(ex, "{Message}", ResponseMessages.CouldNotFetchRegionNames);
+                return BadRequest(_errorService.CreateError(ResponseMessages.CouldNotFetchRegionNames));
             }
         }
 
@@ -70,11 +115,14 @@ namespace TripPlanner.Server.Controllers
         {
             try
             {
-                return await _regionService.GetAllRegionMinisAsync();
+                var regions = await _regionService.GetAllRegionMinisAsync();
+                _logger.LogInformation("{Message} RegionsCount: {Count}", ResponseMessages.RegionFetched, regions.Count);
+                return Ok(regions);
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest(_errorService.CreateError("Unexpected error"));
+                _logger.LogError(ex, "{Message}", ResponseMessages.CouldNotFetchRegion);
+                return BadRequest(_errorService.CreateError(ResponseMessages.CouldNotFetchRegion));
             }
         }
 
@@ -85,15 +133,18 @@ namespace TripPlanner.Server.Controllers
             try
             {
                 var region = await _regionService.GetRegionMiniByNameAsync(regionName);
-                if(region == null)
+                if (region == null)
                 {
-                    return BadRequest(_errorService.CreateError("Region with this name doesn't exist"));
+                    _logger.LogError("{Message} Region: {Region}", ResponseMessages.RegionNotFound, regionName);
+                    return BadRequest(_errorService.CreateError(ResponseMessages.RegionNotFound, StatusCodes.Status404NotFound));
                 }
-                return region;
+                _logger.LogInformation("{Message} Region: {Region}", ResponseMessages.RegionFetched, region);
+                return Ok(region);
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest(_errorService.CreateError("Unexpected error"));
+                _logger.LogError(ex, "{Message} Region: {Region}", ResponseMessages.CouldNotFetchRegion, regionName);
+                return BadRequest(_errorService.CreateError(ResponseMessages.CouldNotFetchRegion));
             }
         }
 
@@ -106,14 +157,17 @@ namespace TripPlanner.Server.Controllers
                 var region = await _regionService.GetRegionByNameAsync(regionName);
                 if (region == null)
                 {
-                    return NotFound(_errorService.CreateError("Region not found"));
+                    _logger.LogError("{Message} Region: {Region}", ResponseMessages.RegionNotFound, regionName);
+                    return NotFound(_errorService.CreateError(ResponseMessages.RegionNotFound, StatusCodes.Status404NotFound));
                 }
 
+                _logger.LogInformation("{Message} Region: {Region}", ResponseMessages.RegionFetched, region);
                 return Ok(region);
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest(_errorService.CreateError("Region not found"));
+                _logger.LogError(ex, "{Message} Region: {Region}", ResponseMessages.CouldNotFetchRegion, regionName);
+                return BadRequest(_errorService.CreateError(ResponseMessages.CouldNotFetchRegion));
             }
         }
 
@@ -125,20 +179,24 @@ namespace TripPlanner.Server.Controllers
             {
                 if (!ModelState.IsValid)
                 {
+                    _logger.LogError("{Message} ModelState: {ModelState}", ResponseMessages.InvalidModelState, ModelState);
                     return BadRequest(ModelState);
                 }
 
                 var errorResponse = await _regionService.CreateRegionAsync(regionCreate);
                 if (errorResponse != null)
                 {
+                    _logger.LogError("{Message} Error: {ErrorResponse}", ResponseMessages.RegionCreateError, errorResponse);
                     return BadRequest(errorResponse);
                 }
 
+                _logger.LogInformation("{Message} Region: {Region}", ResponseMessages.RegionCreated, regionCreate);
                 return Ok();
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest(_errorService.CreateError("Unexpected error"));
+                _logger.LogError(ex, "{Message}", ResponseMessages.UnexpectedError);
+                return BadRequest(_errorService.CreateError(ResponseMessages.UnexpectedError));
             }
         }
 
@@ -150,20 +208,24 @@ namespace TripPlanner.Server.Controllers
             {
                 if (!ModelState.IsValid)
                 {
+                    _logger.LogError("{Message} ModelState: {ModelState}", ResponseMessages.InvalidModelState, ModelState);
                     return BadRequest(ModelState);
                 }
 
                 var errorResponse = await _regionService.UpdateRegionAsync(regionName, regionCreate);
                 if (errorResponse != null)
                 {
+                    _logger.LogError("{Message} Error: {ErrorResponse}", ResponseMessages.RegionUpdateError, errorResponse);
                     return BadRequest(errorResponse);
                 }
 
+                _logger.LogInformation("{Message} Region: {Region}", ResponseMessages.RegionUpdated, regionCreate);
                 return Ok();
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest(_errorService.CreateError("Unexpected error"));
+                _logger.LogError(ex, "{Message}", ResponseMessages.UnexpectedError);
+                return BadRequest(_errorService.CreateError(ResponseMessages.UnexpectedError));
             }
         }
 
@@ -176,17 +238,18 @@ namespace TripPlanner.Server.Controllers
                 var errorResponse = await _regionService.DeleteRegionAsync(regionName);
                 if (errorResponse != null)
                 {
+                    _logger.LogError("{Message} Error: {ErrorResponse}", ResponseMessages.RegionDeleteError, errorResponse);
                     return BadRequest(errorResponse);
                 }
 
+                _logger.LogInformation("{Message} Region: {Region}", ResponseMessages.RegionDeleted, regionName);
                 return Ok();
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest(_errorService.CreateError("Unexpected error"));
+                _logger.LogError(ex, "{Message}", ResponseMessages.UnexpectedError);
+                return BadRequest(_errorService.CreateError(ResponseMessages.UnexpectedError));
             }
         }
-
-
     }
 }

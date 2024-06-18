@@ -22,5 +22,10 @@ namespace TripPlanner.Server.Models
         [Range(0, 100, ErrorMessage = "PositioningRate must be between 0 and 100.")]
         public int PositioningRate { get; set; }
         public bool IsVisible { get; set; }
+
+        public override string ToString()
+        {
+            return Title;
+        }
     }
 }

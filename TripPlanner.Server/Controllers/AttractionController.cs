@@ -5,6 +5,8 @@ using TripPlanner.Server.Data;
 using TripPlanner.Server.Models;
 using TripPlanner.Server.Services.Abstractions;
 using TripPlanner.Server.Services.Implementations;
+using TripPlanner.Server.Messages;
+using Microsoft.Extensions.Logging;
 
 namespace TripPlanner.Server.Controllers
 {
@@ -16,12 +18,20 @@ namespace TripPlanner.Server.Controllers
         private readonly IErrorService _errorService;
         private readonly IRegionService _regionService;
         private readonly IAttractionFetchService _attractionFetchService;
-        public AttractionController(IAttractionService attractionService, IErrorService errorService, IRegionService regionService, IAttractionFetchService attractionFetchService)
+        private readonly ILogger<AttractionController> _logger;
+
+        public AttractionController(
+            IAttractionService attractionService,
+            IErrorService errorService,
+            IRegionService regionService,
+            IAttractionFetchService attractionFetchService,
+            ILogger<AttractionController> logger)
         {
             _errorService = errorService;
             _attractionService = attractionService;
             _regionService = regionService;
             _attractionFetchService = attractionFetchService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -30,11 +40,14 @@ namespace TripPlanner.Server.Controllers
         {
             try
             {
-                return await _attractionService.GetAllAsync();
+                var attractions = await _attractionService.GetAllAsync();
+                _logger.LogInformation("{Message} AttractionsCount: {Count}", ResponseMessages.AttractionsFetched, attractions.Count);
+                return Ok(attractions);
             }
-            catch
+            catch (Exception ex)
             {
-                var errorResponse = _errorService.CreateError("Couldn't fetch attractions from database");
+                _logger.LogError(ex, "{Message}", ResponseMessages.CouldNotFetchAttractions);
+                var errorResponse = _errorService.CreateError(ResponseMessages.CouldNotFetchAttractions);
                 return BadRequest(errorResponse);
             }
         }
@@ -45,16 +58,19 @@ namespace TripPlanner.Server.Controllers
         {
             try
             {
-                var articles = await _attractionService.GetAllByRegionAsync(regionName);
-                if (articles == null)
+                var attractions = await _attractionService.GetAllByRegionAsync(regionName);
+                if (attractions == null || attractions.Count == 0)
                 {
-                    return NotFound(_errorService.CreateError("Region with this name doesn't exist", 404));
+                    _logger.LogError("{Message} Region: {RegionName}", ResponseMessages.RegionNotFound, regionName);
+                    return NotFound(_errorService.CreateError(ResponseMessages.RegionNotFound, StatusCodes.Status404NotFound));
                 }
-                return Ok(articles);
+                _logger.LogInformation("{Message} Region: {RegionName} AttractionsCount: {Count}", ResponseMessages.AttractionsFetched, regionName, attractions.Count);
+                return Ok(attractions);
             }
-            catch
+            catch (Exception ex)
             {
-                var errorResponse = _errorService.CreateError("Couldn't fetch attractions from database");
+                _logger.LogError(ex, "{Message}", ResponseMessages.CouldNotFetchAttractions);
+                var errorResponse = _errorService.CreateError(ResponseMessages.CouldNotFetchAttractions);
                 return BadRequest(errorResponse);
             }
         }
@@ -65,13 +81,19 @@ namespace TripPlanner.Server.Controllers
         {
             try
             {
-                var att = await _attractionService.GetAsync(id);
-                if (att == null) { throw new Exception("Couldn't find attraction with this id"); }
-                return Ok(att);
+                var attraction = await _attractionService.GetAsync(id);
+                if (attraction == null)
+                {
+                    _logger.LogError("{Message} Attraction ID: {AttractionId}", ResponseMessages.AttractionNotFound, id);
+                    return NotFound(_errorService.CreateError(ResponseMessages.AttractionNotFound, StatusCodes.Status404NotFound));
+                }
+                _logger.LogInformation("{Message} Attraction: {Attraction}", ResponseMessages.AttractionsFetched, attraction);
+                return Ok(attraction);
             }
-            catch
+            catch (Exception ex)
             {
-                var errorResponse = _errorService.CreateError("Couldn't find attraction with this id");
+                _logger.LogError(ex, "{Message}", ResponseMessages.CouldNotFetchAttractions);
+                var errorResponse = _errorService.CreateError(ResponseMessages.CouldNotFetchAttractions);
                 return BadRequest(errorResponse);
             }
         }
@@ -80,81 +102,128 @@ namespace TripPlanner.Server.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Create([FromForm] AttractionCreate attractionCreate)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogError("{Message} ModelState: {ModelState}", ResponseMessages.InvalidModelState, ModelState);
+                    return BadRequest(ModelState);
+                }
+
+                var attraction = new Attraction();
+
+                var regionError = await _attractionService.ValidateAndSetRegionAsync(attractionCreate, attraction);
+                if (regionError != null)
+                {
+                    _logger.LogError("{Message} Error: {RegionError}", ResponseMessages.RegionValidationError, regionError);
+                    return BadRequest(regionError);
+                }
+
+                var imageError = await _attractionService.HandleImageUploadAsync(attractionCreate, attraction);
+                if (imageError != null)
+                {
+                    _logger.LogError("{Message} Error: {ImageError}", ResponseMessages.ImageUploadError, imageError);
+                    return BadRequest(imageError);
+                }
+
+                await _attractionService.CreateOrUpdateAttractionAsync(attractionCreate, attraction.Region, attraction.ImageURL);
+                _logger.LogInformation("{Message} Attraction: {Attraction}", ResponseMessages.AttractionCreated, attraction);
+                return Ok();
             }
-
-            var attraction = new Attraction();
-
-            var regionError = await _attractionService.ValidateAndSetRegionAsync(attractionCreate, attraction);
-            if (regionError != null)
+            catch (Exception ex)
             {
-                return BadRequest(regionError);
+                _logger.LogError(ex, "{Message}", ResponseMessages.AttractionCreateError);
+                var errorResponse = _errorService.CreateError(ResponseMessages.AttractionCreateError);
+                return BadRequest(errorResponse);
             }
-
-            var imageError = await _attractionService.HandleImageUploadAsync(attractionCreate, attraction);
-            if (imageError != null)
-            {
-                return BadRequest(imageError);
-            }
-
-            await _attractionService.CreateOrUpdateAttractionAsync(attractionCreate, attraction.Region, attraction.ImageURL);
-
-            return Ok();
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Edit([FromForm] AttractionCreate attractionCreate, int id)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
-            }
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogError("{Message} ModelState: {ModelState}", ResponseMessages.InvalidModelState, ModelState);
+                    return BadRequest(ModelState);
+                }
 
-            var existingAttraction = await _attractionService.GetAsync(id);
-            if (existingAttraction == null)
+                var existingAttraction = await _attractionService.GetAsync(id);
+                if (existingAttraction == null)
+                {
+                    var errorResponse = _errorService.CreateError(ResponseMessages.AttractionNotFound, StatusCodes.Status404NotFound);
+                    _errorService.AddNewErrorMessageFor(errorResponse, "AttractionId", ResponseMessages.AttractionNotFound);
+                    _logger.LogError("{Message} Attraction ID: {AttractionId}", ResponseMessages.AttractionNotFound, id);
+                    return NotFound(errorResponse);
+                }
+
+                var regionError = await _attractionService.ValidateAndSetRegionAsync(attractionCreate, existingAttraction);
+                if (regionError != null)
+                {
+                    _logger.LogError("{Message} Error: {RegionError}", ResponseMessages.RegionValidationError, regionError);
+                    return BadRequest(regionError);
+                }
+
+                var imageError = await _attractionService.HandleImageUploadAsync(attractionCreate, existingAttraction);
+                if (imageError != null)
+                {
+                    _logger.LogError("{Message} Error: {ImageError}", ResponseMessages.ImageUploadError, imageError);
+                    return BadRequest(imageError);
+                }
+
+                await _attractionService.CreateOrUpdateAttractionAsync(attractionCreate, existingAttraction.Region, existingAttraction.ImageURL, existingAttraction);
+                _logger.LogInformation("{Message} Attraction: {Attraction}", ResponseMessages.AttractionUpdated, existingAttraction);
+                return Ok();
+            }
+            catch (Exception ex)
             {
-                var errorResponse = _errorService.CreateError("Attraction not found", 404);
-                _errorService.AddNewErrorMessageFor(errorResponse, "AttractionId", "Couldn't find attraction with this id");
-                return NotFound(errorResponse);
+                _logger.LogError(ex, "{Message}", ResponseMessages.AttractionUpdateError);
+                var errorResponse = _errorService.CreateError(ResponseMessages.AttractionUpdateError);
+                return BadRequest(errorResponse);
             }
-
-            var regionError = await _attractionService.ValidateAndSetRegionAsync(attractionCreate, existingAttraction);
-            if (regionError != null)
-            {
-                return BadRequest(regionError);
-            }
-
-            var imageError = await _attractionService.HandleImageUploadAsync(attractionCreate, existingAttraction);
-            if (imageError != null)
-            {
-                return BadRequest(imageError);
-            }
-
-            await _attractionService.CreateOrUpdateAttractionAsync(attractionCreate, existingAttraction.Region, existingAttraction.ImageURL, existingAttraction);
-
-            return Ok();
         }
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> Delete(int id) {
-            var errorMessage = await _attractionService.DeleteAsync(id);
-            if (errorMessage != null) {
-                return BadRequest(errorMessage);
+        public async Task<ActionResult> Delete(int id)
+        {
+            try
+            {
+                var errorMessage = await _attractionService.DeleteAsync(id);
+                if (errorMessage != null)
+                {
+                    _logger.LogError("{Message} Error: {DeleteError}", ResponseMessages.AttractionDeleteError, errorMessage);
+                    return BadRequest(errorMessage);
+                }
+                _logger.LogInformation("{Message} Attraction ID: {AttractionId}", ResponseMessages.AttractionDeleted, id);
+                return Ok();
             }
-
-            return Ok();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{Message}", ResponseMessages.AttractionDeleteError);
+                var errorResponse = _errorService.CreateError(ResponseMessages.AttractionDeleteError);
+                return BadRequest(errorResponse);
+            }
         }
 
         [HttpGet("fetch/{regionName}")]
         public async Task<ActionResult<List<Attraction>>> FetchAttractionsByRegionName(string regionName)
         {
-            var cities = await _regionService.GetCitiesByRegionName(regionName);
-            var attractions = await _attractionFetchService.FetchAttractionsForGivenCities(cities, 10);
-            return Ok(attractions);
+            try
+            {
+                var cities = await _regionService.GetCitiesByRegionName(regionName);
+                var attractions = await _attractionFetchService.FetchAttractionsForGivenCities(cities, 10);
+                _logger.LogInformation("{Message} Region: {RegionName} AttractionsCount: {Count}", ResponseMessages.AttractionsFetched, regionName, attractions.Count);
+                return Ok(attractions);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{Message}", ResponseMessages.CouldNotFetchAttractions);
+                var errorResponse = _errorService.CreateError(ResponseMessages.CouldNotFetchAttractions);
+                return BadRequest(errorResponse);
+            }
         }
     }
 }
