@@ -11,7 +11,7 @@ function AttractionCard({attraction, handleDelete, handleEdit}) {
             <CardMedia
                 component="img"
                 height={200}
-                image={attraction.imageURL}
+                image={attraction.imageURL != null ? attraction.imageURL : "/img/no-image.png"}
                 alt="image ${attraction.name}"
                 sx={{borderRadius: 0}}
             />

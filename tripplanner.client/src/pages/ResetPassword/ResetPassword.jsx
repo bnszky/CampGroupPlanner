@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Grid, Box, Typography, Button, Alert } from '@mui/material';
 import TextInput from '../../components/TextInput/TextInput';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -9,7 +9,7 @@ const redirectPath = "/";
 function ResetPassword() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { resetPassword } = useAuth();
+  const { resetPassword, validateToken } = useAuth();
   const [password, setPassword] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -18,6 +18,19 @@ function ResetPassword() {
   const query = new URLSearchParams(location.search);
   const email = decodeURIComponent(query.get('email'));
   const token = decodeURIComponent(query.get('token'));
+
+  useEffect(() => {
+    const validateAndNavigate = async () => {
+        const isTokenCorrect = await validateToken(email, token, "ResetPassword");
+        if (!isTokenCorrect) {
+          navigate(redirectPath, {
+            state: { infoMsg: { type: 'error', msg: "Couldn't allow, invalid token" } },
+          });
+        }
+    };
+
+    validateAndNavigate();
+  }, [token]);
 
   const handleSubmit = async () => {
     const response = await resetPassword(email, token, password, repeatPassword);

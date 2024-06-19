@@ -9,7 +9,6 @@ namespace TripPlanner.Server.Data
     {
         public DbSet<Attraction> Attractions { get; set; }
         public DbSet<Article> Articles { get; set; }
-        public DbSet<Image> ImageURLs { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Region> Regions { get; set; }
@@ -37,17 +36,6 @@ namespace TripPlanner.Server.Data
                     Name = "Catalonia",
                     Country = "Spain",
                     Description = "Boasting a reputation as one of the most attractive cities in Europe, Barcelona celebrates its role as the capital of Catalonia. The city’s cosmopolitan and international vibe makes it a favorite city for many people around the world. The city is especially known for its architecture and art—travelers flock from around the world to see the iconic Sagrada Família church and other modernist landmarks designed by Gaudí. These Barcelona travel tips just scrape the surface of what can be found in the vibrant city!"
-                }
-            );
-
-            modelBuilder.Entity<Image>().HasData(
-                new Image { Id = 1, RegionId = 1,
-                    Link = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnwf8dsSKIsCsVbwXlpQEuvEP6q70MdNVjdQ&s" },
-                new Image
-                {
-                    Id = 2,
-                    RegionId = 1,
-                    Link = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRaRfTP8AW7Od72m4IRi4LPRt9xNqPYfYlPrg&s"
                 }
             );
 

@@ -26,7 +26,7 @@ function ResendEmail({email, isRecoverPassword}) {
   };
 
   return (
-          <Grid container direction='column' spacing={2} display='flex' alignItems='center'>
+          <Grid container direction='column' sx={{my: 2}} display='flex' alignItems='center'>
             {errorMsg && <Alert variant="outlined" severity="error" sx={{ width: 350, mt: 3, whiteSpace: 'pre-line' }}>{errorMsg}</Alert>}
             {successMsg && <Alert variant="outlined" severity="success" sx={{ width: 350, mt: 3 }}>{successMsg}</Alert>}
             <Button sx={{ width: 300, height: 50, mt: 3 }} size='large' variant="contained" color="secondary" onClick={handleSubmit}>Send link to email {isSent && 'again'}</Button>

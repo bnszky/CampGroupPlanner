@@ -12,7 +12,7 @@ function RegionMinimalItem({region, handleEdit, handleDelete, handleVisit}) {
         <CardMedia
         component='img'
         height={180}
-        image={region?.images ? region.images[0] : region.image}
+        image={region.image != null ? region.image : "/img/no-image.png"}
         alt={`image ${region.name}`}/>
 
         <CardContent>

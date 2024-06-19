@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Grid, Box, Typography, Button, Alert } from '@mui/material';
+import { Grid, Box, Typography, Button, Alert, Link } from '@mui/material';
 import TextInput from '../../components/TextInput/TextInput';
 import { useAuth } from '../../components/AuthProvider/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import ResendEmail from '../../components/ResendEmail/ResendEmail';
 
 const redirectPath = "/articles";
 
@@ -11,10 +12,11 @@ function LoginPage() {
   const navigate = useNavigate();
 
   const { login, isLoggedIn } = useAuth();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [isResendEmailWindow, setIsResendEmailWindow] = useState(false);
 
   if(isLoggedIn){
     navigate(redirectPath, {
@@ -23,16 +25,21 @@ function LoginPage() {
   }
 
   const handleSubmit = async () => {
-    const response = await login(username, password);
+    const response = await login(email, password);
     if (response.isOk) {
       setSuccessMsg(response.msg);
       setErrorMsg('');
       navigate(redirectPath, {
         state: { infoMsg: { type: 'success', msg: response.msg } },
       });
+    } else if (response.isAccountCreated) {
+      setErrorMsg(response.msg);
+      setSuccessMsg('');
+      setIsResendEmailWindow(true);
     } else {
       setErrorMsg(response.msg);
       setSuccessMsg('');
+      setIsResendEmailWindow(false);
     }
   };
 
@@ -48,9 +55,9 @@ function LoginPage() {
         <Grid item xs={12} md={6} p={5}>
           <Grid container direction='column' spacing={2} display='flex' alignItems='center'>
             <TextInput
-              fieldName='username'
-              value={username}
-              onValueChange={val => setUsername(val)}
+              fieldName='email'
+              value={email}
+              onValueChange={val => setEmail(val)}
               required
             />
             <TextInput
@@ -60,9 +67,11 @@ function LoginPage() {
               type='password'
               required
             />
+            <Link href="/recover-password" underline="hover" sx={{ color: 'inherit', mt: 2}}>I forgot my password</Link>
             {errorMsg && <Alert variant="outlined" severity="error" sx={{ width: 350, mt: 3 }}>{errorMsg}</Alert>}
             {successMsg && <Alert variant="outlined" severity="success" sx={{ width: 350, mt: 3 }}>{successMsg}</Alert>}
             <Button sx={{ width: 300, height: 50, mt: 3 }} size='large' variant="contained" color="secondary" onClick={handleSubmit}>Login</Button>
+            {isResendEmailWindow && <ResendEmail email={email} isRecoverPassword={false}/>}
           </Grid>
         </Grid>
       </Grid>

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using TripPlanner.Server.Data;
+using TripPlanner.Server.Messages;
 using TripPlanner.Server.Models;
 using TripPlanner.Server.Services.Abstractions;
 
@@ -12,24 +14,27 @@ namespace TripPlanner.Server.Services.Implementations
         private readonly ICityService _cityService;
         private readonly IImageService _imageService;
         private readonly IErrorService _errorService;
+        private readonly ILogger<RegionService> _logger;
 
-        public RegionService(TripDbContext dbContext, ICityService cityService, IImageService imageService, IErrorService errorService)
+        public RegionService(TripDbContext dbContext, ICityService cityService, IImageService imageService, IErrorService errorService, ILogger<RegionService> logger)
         {
             _dbContext = dbContext;
             _cityService = cityService;
             _imageService = imageService;
             _errorService = errorService;
+            _logger = logger;
         }
 
         public async Task<RegionGet?> GetRegionByNameAsync(string regionName)
         {
             var region = await _dbContext.Regions
                 .Include(r => r.Cities)
-                .Include(r => r.Images)
-                .FirstOrDefaultAsync(r => r.Name.ToLower() == regionName.ToLower());
+                .Include(r => r.Attractions)
+                .FirstOrDefaultAsync(r => r.Name.ToLower().Equals(regionName.ToLower()));
 
             if (region == null)
             {
+                _logger.LogError("Region {RegionName} doesn't exist", regionName);
                 return null;
             }
 
@@ -40,7 +45,7 @@ namespace TripPlanner.Server.Services.Implementations
                 Description = region.Description,
                 Country = region.Country,
                 Cities = region.Cities.Select(c => c.Name).ToList(),
-                Images = region.Images.Select(i => i.Link).ToList()
+                Images = region.Attractions.Where(a => a.ImageURL != null).Select(a => a.ImageURL).ToList()
             };
         }
 
@@ -50,6 +55,8 @@ namespace TripPlanner.Server.Services.Implementations
             {
                 var err = _errorService.CreateError("Region exists in the database");
                 _errorService.AddNewErrorMessageFor(err, "Name", "Region exists in the database");
+
+                _logger.LogError("Region {RegionName} already exists", regionCreate.Name);
                 return err;
             }
 
@@ -66,12 +73,6 @@ namespace TripPlanner.Server.Services.Implementations
                 return citiesError;
             }
 
-            var imagesError = await ValidateAndAddImagesAsync(regionCreate, newRegion);
-            if (imagesError != null)
-            {
-                return imagesError;
-            }
-
             _dbContext.Regions.Add(newRegion);
             await _dbContext.SaveChangesAsync();
 
@@ -82,23 +83,17 @@ namespace TripPlanner.Server.Services.Implementations
         {
             var region = await _dbContext.Regions
                 .Include(r => r.Cities)
-                .Include(r => r.Images)
-                .FirstOrDefaultAsync(r => r.Name.ToLower() == regionName.ToLower());
+                .FirstOrDefaultAsync(r => r.Name.ToLower().Equals(regionName.ToLower()));
 
             if (region == null)
             {
                 var err = _errorService.CreateError("Region not found");
                 _errorService.AddNewErrorMessageFor(err, "Name", "Region not found");
+                _logger.LogError(ResponseMessages.RegionNotFound + "regionName: {RegionName}", regionName);
                 return err;
             }
 
-            foreach (var image in region.Images)
-            {
-                await _imageService.DeleteImage(image.Link);
-            }
-
             _dbContext.Cities.RemoveRange(region.Cities);
-            _dbContext.ImageURLs.RemoveRange(region.Images);
 
             region.Name = regionCreate.Name;
             region.Description = regionCreate.Description;
@@ -110,12 +105,6 @@ namespace TripPlanner.Server.Services.Implementations
                 return citiesError;
             }
 
-            var imagesError = await ValidateAndAddImagesAsync(regionCreate, region);
-            if (imagesError != null)
-            {
-                return imagesError;
-            }
-
             await _dbContext.SaveChangesAsync();
 
             return null;
@@ -125,7 +114,6 @@ namespace TripPlanner.Server.Services.Implementations
         {
             var region = await _dbContext.Regions
                 .Include(r => r.Cities)
-                .Include(r => r.Images)
                 .Include(r => r.Attractions)
                 .Include(r => r.Reviews)
                 .Include(r => r.Articles)
@@ -135,16 +123,16 @@ namespace TripPlanner.Server.Services.Implementations
             {
                 var err = _errorService.CreateError("Region not found");
                 _errorService.AddNewErrorMessageFor(err, "Name", "Region not found");
+                _logger.LogError(ResponseMessages.RegionNotFound + "regionName: {RegionName}", regionName);
                 return err;
             }
 
-            foreach (var image in region.Images)
+            foreach (var attraction in region.Attractions)
             {
-                await _imageService.DeleteImage(image.Link);
+                if(attraction.ImageURL != null) await _imageService.DeleteImage(attraction.ImageURL);
             }
 
             _dbContext.Cities.RemoveRange(region.Cities);
-            _dbContext.ImageURLs.RemoveRange(region.Images);
             _dbContext.Attractions.RemoveRange(region.Attractions);
             _dbContext.Reviews.RemoveRange(region.Reviews);
 
@@ -177,33 +165,6 @@ namespace TripPlanner.Server.Services.Implementations
             return null;
         }
 
-        private async Task<ErrorResponse?> ValidateAndAddImagesAsync(RegionCreate regionCreate, Region region)
-        {
-            if (regionCreate.Images != null && regionCreate.Images.Count >= 10)
-            {
-                var err = _errorService.CreateError("Number of images has exceeded limit");
-                _errorService.AddNewErrorMessageFor(err, "Images", "Number of images has exceeded limit");
-                return err;
-            }
-
-            foreach (var imageFile in regionCreate.Images)
-            {
-                try
-                {
-                    var image = new Image { Link = await _imageService.UploadImage(imageFile), Region = region };
-                    _dbContext.ImageURLs.Add(image);
-                }
-                catch
-                {
-                    var err = _errorService.CreateError("Couldn't upload image");
-                    _errorService.AddNewErrorMessageFor(err, "Images", "Couldn't upload image");
-                    return err;
-                }
-            }
-
-            return null;
-        }
-
         public async Task<List<string>> GetAllRegionNamesAsync()
         {
             return await _dbContext.Regions.Select(r => r.Name).ToListAsync();
@@ -212,13 +173,13 @@ namespace TripPlanner.Server.Services.Implementations
         public async Task<List<RegionMini>> GetAllRegionMinisAsync()
         {
             return await _dbContext.Regions
-            .Include(r => r.Images)
+            .Include(r => r.Attractions)
             .Select(r => new RegionMini
             {
                 Id = r.Id,
                 Name = r.Name,
                 Description = r.Description,
-                Image = r.Images.FirstOrDefault().Link
+                Image = r.Attractions.Where(a => a.ImageURL != null).Select(a => a.ImageURL).FirstOrDefault()
             })
             .ToListAsync();
         }
@@ -226,7 +187,7 @@ namespace TripPlanner.Server.Services.Implementations
         public async Task<RegionMini?> GetRegionMiniByNameAsync(string regionName)
         {
             var region = await _dbContext.Regions
-            .Include(r => r.Images)
+            .Include(r => r.Attractions)
             .FirstOrDefaultAsync(r => r.Name.ToLower() == regionName.ToLower());
 
             if (region == null)
@@ -239,7 +200,7 @@ namespace TripPlanner.Server.Services.Implementations
                 Id = region.Id,
                 Name = region.Name,
                 Description = region.Description,
-                Image = region.Images.FirstOrDefault()?.Link
+                Image = region.Attractions.Where(a => a.ImageURL != null).Select(a => a.ImageURL).FirstOrDefault()
             };
         }
 
@@ -248,6 +209,7 @@ namespace TripPlanner.Server.Services.Implementations
             var region = await _dbContext.Regions.Where(r => r.Name.ToLower().Equals(regionName.ToLower())).Include(r => r.Cities).FirstOrDefaultAsync();
             if (region == null)
             {
+                _logger.LogError(ResponseMessages.RegionNotFound + "regionName: {RegionName}", regionName);
                 throw new Exception("Region with this name not found");
             }
 

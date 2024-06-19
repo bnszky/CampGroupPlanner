@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -130,6 +132,47 @@ namespace TripPlanner.Server.Controllers
             return _responseService.Get(ResponseMessages.EmailConfirmationFailed, StatusCodes.Status400BadRequest);
         }
 
+        [HttpGet("validate-token")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ValidateToken(string email, string token, string purpose)
+        {
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token) || string.IsNullOrEmpty(purpose))
+            {
+                _logger.LogError("Invalid token validation request");
+                return _responseService.Get("Invalid token validation request", StatusCodes.Status400BadRequest);
+            }
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                _logger.LogError(ResponseMessages.UserNotFound);
+                return _responseService.Get(ResponseMessages.UserNotFound, StatusCodes.Status404NotFound);
+            }
+
+            var isValidToken = false;
+            switch (purpose.ToLower())
+            {
+                case "resetpassword":
+                    isValidToken = await _userManager.VerifyUserTokenAsync(user, _userManager.Options.Tokens.PasswordResetTokenProvider, "ResetPassword", token);
+                    break;
+                case "emailconfirmation":
+                    isValidToken = await _userManager.VerifyUserTokenAsync(user, _userManager.Options.Tokens.EmailConfirmationTokenProvider, "EmailConfirmation", token);
+                    break;
+                default:
+                    _logger.LogError("Invalid token purpose");
+                    return _responseService.Get("Invalid token purpose", StatusCodes.Status400BadRequest);
+            }
+
+            if (isValidToken)
+            {
+                _logger.LogInformation("Token validation succeeded for {UserEmail}", user.Email);
+                return Ok("Token is valid");
+            }
+
+            _logger.LogError("Token validation failed for {UserEmail}", user.Email);
+            return _responseService.Get("Invalid token", StatusCodes.Status400BadRequest);
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
@@ -200,6 +243,7 @@ namespace TripPlanner.Server.Controllers
             try
             {
                 var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+
                 var resetPasswordLink = $"{_configuration["Ports:Client"]}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(resetToken)}";
                 await _emailService.SendMessageByEmailAsync(user.Email, "Reset your password by following this link", resetPasswordLink);
                 _logger.LogDebug("Succesffully reset password link has been sent: {ResetPasswordLink} to the user with email: {ModelEmail}", resetPasswordLink, email);
@@ -214,7 +258,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpPut("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] RegisterModel model, string token)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -222,14 +266,14 @@ namespace TripPlanner.Server.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = await _userManager.FindByIdAsync(model.Email);
+            var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
                 _logger.LogError(ResponseMessages.UserNotFound);
                 return _responseService.Get(ResponseMessages.UserNotFound, StatusCodes.Status404NotFound);
             }
 
-            var result = await _userManager.ResetPasswordAsync(user, token, model.Password);
+            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
             if (result.Succeeded)
             {
                 _logger.LogInformation("Password reset successful for user with email: {ModelEmail}", model.Email);

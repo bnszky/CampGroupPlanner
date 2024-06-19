@@ -93,7 +93,9 @@ namespace TripPlanner.Server
 
             builder.Services.AddDbContext<TripDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("TripAppDb")));
 
-            builder.Services.AddIdentity<User, IdentityRole>()
+            builder.Services.AddIdentity<User, IdentityRole>(options => {
+                options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
+            })
             .AddEntityFrameworkStores<TripDbContext>()
             .AddDefaultTokenProviders();
 

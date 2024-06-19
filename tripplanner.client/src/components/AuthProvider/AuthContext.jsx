@@ -40,11 +40,14 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', token);
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         await checkAuth();
-        return {"isOk": true, "msg": "Succesfully login"}
+        return {"isOk": true, "msg": "Succesfully login", "isAccountCreated": true}
       }
     } catch (error) {
       console.error(error.message);
-      return {"isOk": false, "msg": "Couldn't login. Make sure your password and email are correct"}
+      if (error.response && error.response.status === 403) {
+        return {"isOk": false, "msg": "Couldn't login. Your email is not confirmed", "isAccountCreated": true}
+      }
+      return {"isOk": false, "msg": "Couldn't login. Make sure your password and email are correct", "isAccountCreated": false}
     }
   };
 
@@ -60,7 +63,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', token);
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         await checkAuth();
-        return { isOk: true, msg: "Successfully registered" };
+        return { isOk: true, msg: "Successfully registered, check your email and confirm your account" };
       }
     } catch (error) {
       console.log(error.response);
@@ -100,7 +103,7 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Email confirmation failed', error);
-      return { isOk: false, msg: `Email confirmation failed ${error}` };
+      return { isOk: false, msg: `Email confirmation failed: resend email confirmation link and try again` };
     }
   };
 
@@ -115,7 +118,7 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Confirmation link send failed', error);
-      return { isOk: false, msg: `Confirmation link send failed ${error}` };
+      return { isOk: false, msg: `Confirmation link send failed, check email is correct` };
     }
   }
 
@@ -129,7 +132,7 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Password recovery failed', error);
-      return { isOk: false, msg: `Password recovery failed ${error}` };
+      return { isOk: false, msg: `Password recovery failed. This email is not related to any account` };
     }
   };
 
@@ -145,12 +148,29 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Password reset failed', error);
-      return { isOk: false, msg: `Password reset failed ${error}` };
+      if (error.response && error.response.data) {
+        let errMsg = "Password reset failed:\n";
+        error.response.data.slice(0, 3).forEach(err => {
+          errMsg += `> ${err.description}\n`;
+        });
+        return { isOk: false, msg: errMsg.trim() };
+      }
+      return { isOk: false, msg: `Password reset failed` };
     }
   };
 
+  const validateToken = async (email, token, purpose) => {
+    try {
+      await axios.get('/api/auth/validate-token', { params: { email, token, purpose } });
+      return true;
+    } catch (error) {
+      console.error("Token validation failed", error);
+      return false;
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ isLoggedIn, ...userDetails, login, logout, register, isLoading, confirmEmail, recoverPassword, resetPassword, resendConfirmationLink }}>
+    <AuthContext.Provider value={{ isLoggedIn, ...userDetails, login, logout, register, isLoading, confirmEmail, recoverPassword, resetPassword, resendConfirmationLink, validateToken }}>
       {children}
     </AuthContext.Provider>
   );
