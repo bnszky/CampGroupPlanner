@@ -1,17 +1,10 @@
 import * as React from 'react';
 import Grid from '@mui/material/Grid';
 import Carousel from 'react-material-ui-carousel';
-import { Typography } from '@mui/material';
+import { Typography, Box } from '@mui/material';
+import Image from 'mui-image';
 
 function RegionInfo({region}) {
-
-    const imageComponents = region.images.map((srcLink, key) => {
-        return <img 
-        key={key} 
-        height="500px"
-        src={srcLink} 
-        alt={`images for region ${region.name}`}/>
-    }) 
 
     const cities = region.cities.join(", ");
 
@@ -35,9 +28,13 @@ function RegionInfo({region}) {
             </Typography>
         </Grid>
         <Grid item xs={12} md={5}>
-            <Carousel>
-                {imageComponents}
-            </Carousel>
+            <Box sx={{width: 500, height: 500}}><Carousel>
+                    {region.images == null || region.images.length <= 0
+                    ? <Image key={0} height={500} style={{ maxWidth: 500 }} duration={0} src={"/img/no-image.png"} alt='image'/>
+                    : region.images.map((image, key) => {
+                        return <Image key={key} height={500} style={{ maxWidth: 500 }} duration={0} src={image} alt='image'/>
+                    })}
+            </Carousel></Box>
         </Grid>
         </Grid>;
 }

@@ -16,7 +16,7 @@ function CreateAttraction({initialAttractionData}) {
          const data = await fetchRegions();
          setRegions(data)
       }
-      fetchData();}, [regions])
+      fetchData();}, [])
 
     const {
         data: attraction,

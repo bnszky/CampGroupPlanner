@@ -11,10 +11,9 @@ import InputFetchText from '../../components/InputFetchText/InputFetchText';
 import { fetchAndConvertImage } from '../../functions/imageConvert';
 import useDataCreate from '../../hooks/useDataCreate';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 
 function CreateRegion({regionData = null}) {
-    
-    const [images, setImages] = React.useState([]);
 
     const {
         data: region,
@@ -34,12 +33,6 @@ function CreateRegion({regionData = null}) {
         '/api/Region',
         '/region',
         'Region',
-        async (formData) => {
-            const imageFiles = await Promise.all(images.map(url => fetchAndConvertImage(url)));
-            imageFiles.forEach((file) => {
-                formData.append('images', file, file.name);
-            });
-        }
     );
 
     async function fetchListFromApi(regionName, type) {
@@ -89,10 +82,6 @@ function CreateRegion({regionData = null}) {
         }))
     }
 
-    function onImageListChange(_images){
-        setImages([..._images]);
-    }
-
     function onCitiesListChange(_cities){
         setRegion(reg => ({
             ...reg, ...{'cities': [..._cities]}
@@ -120,11 +109,6 @@ function CreateRegion({regionData = null}) {
                         <InputFetchText name="Fetch cities" fetchData={() => fetchListFromApi(region.name, 'cities')}/>
                     </InputItemList>
 
-                    <InputItemList name="Images" onItemListChange={onImageListChange} getInitialItems={() => region.images}>
-                        <InputAddImage name="Image" error={errors?.Images} errorMessage={errors?.Images}/>
-                        <InputFetchText name="Fetch images" fetchData={() => fetchListFromApi(region.name, 'images')}/>
-                    </InputItemList>
-
                     {errorMsg && <Alert variant="outlined" severity="error" sx={{width: 350, mt: 3}}>
                     {errorMsg}
                     </Alert>}
@@ -136,12 +120,12 @@ function CreateRegion({regionData = null}) {
             </Grid>
 
             <Grid item xs={12} md={6} my={4} display='flex' alignItems='center' justifyContent='center'>
-                {(images.length > 0) ? (<Box sx={{width: 500, height: 500}}><Carousel>
-                    {images.map((image, key) => {
+                {(region.images.length > 0) ? (<Box sx={{width: 500, height: 500}}><Carousel>
+                    {region.images.map((image, key) => {
                         return <Image key={key} height={500} style={{ maxWidth: 500 }} duration={0} src={image} alt='image'/>
                     })}
                 </Carousel></Box>) : (
-                    <Typography variant='h3' textAlign='center'>No Image</Typography>
+                    <Typography variant='h3' textAlign='center'>No Image, add more attractions</Typography>
                 )}
             </Grid>
 

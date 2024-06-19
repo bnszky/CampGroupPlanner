@@ -1,16 +1,17 @@
 import * as React from 'react';
 import RegionInfo from '../../components/RegionInfo/RegionInfo';
-import { Divider, Typography, Alert } from '@mui/material';
+import { Divider, Typography, Alert, Button } from '@mui/material';
 import AttractionsInfo from '../../components/AttractionsInfo/AttractionsInfo';
 import ArticlesList from '../../components/ArticlesList/ArticlesList';
 import ReviewList from '../../components/ReviewList/ReviewList';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import useDataFeed from '../../hooks/useDataFeed';
 import { useAuth } from '../../components/AuthProvider/AuthContext';
+import useFetchFromApi from '../../hooks/useFetchFromApi';
 
 export default function RegionPage() {
 
-  const {isLoggedIn} = useAuth();
+  const {isLoggedIn, isAdmin} = useAuth();
 
   const location = useLocation();
   const [infoMsg, setInfoMsg] = React.useState(location.state?.infoMsg || null);
@@ -18,6 +19,10 @@ export default function RegionPage() {
   const {regionName} = useParams();
   const navigate = useNavigate();
   
+  const {
+    fetchData, isFetching
+  } = useFetchFromApi()
+
   const {
     data: region,
     isLoading: isRegionLoading,
@@ -63,6 +68,11 @@ export default function RegionPage() {
       ) : (
         <>
           <RegionInfo region={region} />
+          {isAdmin && <>
+            <Button color="primary" variant="contained" sx={{mx: 1}} onClick={async () => await fetchData(`/api/articles/fetch/${regionName}`)}>Fetch Articles</Button>
+            <Button color="secondary" variant="contained" sx={{mx: 1}} onClick={async () => await fetchData(`/api/attraction/fetch/${regionName}`)}>Fetch Attractions</Button> </>
+          } 
+          {isFetching && <Typography variant="h4">Fetching...</Typography>}
           <Divider sx={{ margin: 10, backgroundColor: 'black' }} />
 
           {attractions.length != 0 && <>

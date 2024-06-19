@@ -8,7 +8,7 @@ const redirectPath = "/";
 function ConfirmEmail() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { confirmEmail, resendConfirmationLink } = useAuth();
+  const { confirmEmail, resendConfirmationLink, validateToken } = useAuth();
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -17,6 +17,16 @@ function ConfirmEmail() {
   const token = decodeURIComponent(query.get('token'));
 
   useEffect(() => {
+
+    const validateAndNavigate = async () => {
+      const isTokenCorrect = await validateToken(email, token, "EmailConfirmation");
+      if (!isTokenCorrect) {
+        navigate(redirectPath, {
+          state: { infoMsg: { type: 'error', msg: "Couldn't allow, invalid token" } },
+        });
+      }
+    };
+
     const confirmUserEmail = async () => {
       const response = await confirmEmail(email, token);
       if (response.isOk) {
@@ -31,7 +41,12 @@ function ConfirmEmail() {
       }
     };
 
-    confirmUserEmail();
+    const executeAsyncFunctions = async () => {
+      await validateAndNavigate();
+      await confirmUserEmail();
+    };
+
+    executeAsyncFunctions();
   }, [email, token, navigate, confirmEmail]);
 
   const handleResend = async () => {

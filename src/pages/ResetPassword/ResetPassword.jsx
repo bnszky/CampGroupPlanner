@@ -21,7 +21,7 @@ function ResetPassword() {
 
   useEffect(() => {
     const validateAndNavigate = async () => {
-        const isTokenCorrect = await validateToken(email, token);
+        const isTokenCorrect = await validateToken(email, token, "ResetPassword");
         if (!isTokenCorrect) {
           navigate(redirectPath, {
             state: { infoMsg: { type: 'error', msg: "Couldn't allow, invalid token" } },
