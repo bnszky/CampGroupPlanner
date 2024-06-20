@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TripPlanner.Server.Models
+namespace TripPlanner.Server.Models.DTOs.Outgoing
 {
-    public class RegionGet
+    public class RegionGetDto
     {
         public int Id { get; set; }
         public string Name { get; set; }

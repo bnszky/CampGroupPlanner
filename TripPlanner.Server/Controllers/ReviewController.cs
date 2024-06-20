@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TripPlanner.Server.Data;
-using TripPlanner.Server.Models;
 using Microsoft.Extensions.Logging;
 using TripPlanner.Server.Messages;
 using TripPlanner.Server.Services.Abstractions;
@@ -11,6 +10,12 @@ using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using TripPlanner.Server.Models.Auth;
+using TripPlanner.Server.Models.Database;
+using AutoMapper;
+using TripPlanner.Server.Models.DTOs.Outgoing;
+using TripPlanner.Server.Models.DTOs.Incoming;
+using Microsoft.EntityFrameworkCore;
 
 namespace TripPlanner.Server.Controllers
 {
@@ -22,24 +27,27 @@ namespace TripPlanner.Server.Controllers
         private readonly UserManager<User> _userManager;
         private readonly ILogger<ReviewController> _logger;
         private readonly IErrorService _errorService;
+        private readonly IMapper _mapper;
 
-        public ReviewController(TripDbContext context, UserManager<User> userManager, ILogger<ReviewController> logger, IErrorService errorService)
+        public ReviewController(TripDbContext context, UserManager<User> userManager, ILogger<ReviewController> logger, IErrorService errorService, IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
             _logger = logger;
             _errorService = errorService;
+            _mapper = mapper;
         }
 
         [HttpGet("region/{regionId}")]
         [AllowAnonymous]
-        public ActionResult<List<Review>> GetReviewsByRegion(int regionId)
+        public ActionResult<List<ReviewGetDto>> GetReviewsByRegion(int regionId)
         {
             try
             {
-                var reviews = _context.Reviews.Where(r => r.RegionId == regionId).ToList();
-                _logger.LogInformation("{Message} RegionId: {RegionId}, ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, regionId, reviews.Count);
-                return Ok(reviews);
+                var reviews = _context.Reviews.Where(r => r.RegionId == regionId).Include(r => r.Author).ToList();
+                var reviewDtos = _mapper.Map<IEnumerable<ReviewGetDto>>(reviews).ToList();
+                _logger.LogInformation("{Message} RegionId: {RegionId}, ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, regionId, reviewDtos.Count);
+                return Ok(reviewDtos);
             }
             catch (Exception ex)
             {
@@ -50,7 +58,7 @@ namespace TripPlanner.Server.Controllers
 
         [HttpGet("region/name/{regionName}")]
         [AllowAnonymous]
-        public ActionResult<List<Review>> GetReviewsByRegionName(string regionName)
+        public ActionResult<List<ReviewGetDto>> GetReviewsByRegionName(string regionName)
         {
             try
             {
@@ -62,9 +70,10 @@ namespace TripPlanner.Server.Controllers
                     return NotFound(_errorService.CreateError(ResponseMessages.RegionNotFound, StatusCodes.Status404NotFound));
                 }
 
-                var reviews = _context.Reviews.Where(r => r.RegionId == region.Id).ToList();
-                _logger.LogInformation("{Message} RegionName: {RegionName}, ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, regionName, reviews.Count);
-                return Ok(reviews);
+                var reviews = _context.Reviews.Where(r => r.RegionId == region.Id).Include(r => r.Author).ToList();
+                var reviewDtos = _mapper.Map<IEnumerable<ReviewGetDto>>(reviews).ToList();
+                _logger.LogInformation("{Message} RegionName: {RegionName}, ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, regionName, reviewDtos.Count);
+                return Ok(reviewDtos);
             }
             catch (Exception ex)
             {
@@ -75,13 +84,14 @@ namespace TripPlanner.Server.Controllers
 
         [HttpGet("all")]
         [Authorize(Roles = "Admin")]
-        public ActionResult<List<Review>> GetAllReviews()
+        public ActionResult<List<ReviewGetDto>> GetAllReviews()
         {
             try
             {
-                var reviews = _context.Reviews.ToList();
-                _logger.LogInformation("{Message} ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, reviews.Count);
-                return Ok(reviews);
+                var reviews = _context.Reviews.Include(r => r.Author).ToList();
+                var reviewDtos = _mapper.Map<IEnumerable<ReviewGetDto>>(reviews).ToList();
+                _logger.LogInformation("{Message} ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, reviewDtos.Count);
+                return Ok(reviewDtos);
             }
             catch (Exception ex)
             {
@@ -92,13 +102,14 @@ namespace TripPlanner.Server.Controllers
 
         [HttpGet("user/{userId}")]
         [Authorize(Roles = "Admin")]
-        public ActionResult<List<Review>> GetReviewsByUser(string userId)
+        public ActionResult<List<ReviewGetDto>> GetReviewsByUser(string userId)
         {
             try
             {
-                var reviews = _context.Reviews.Where(r => r.AuthorId == userId).ToList();
-                _logger.LogInformation("{Message} UserId: {UserId}, ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, userId, reviews.Count);
-                return Ok(reviews);
+                var reviews = _context.Reviews.Where(r => r.AuthorId == userId).Include(r => r.Author).ToList();
+                var reviewDtos = _mapper.Map<IEnumerable<ReviewGetDto>>(reviews).ToList();
+                _logger.LogInformation("{Message} UserId: {UserId}, ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, userId, reviewDtos.Count);
+                return Ok(reviewDtos);
             }
             catch (Exception ex)
             {
@@ -109,16 +120,17 @@ namespace TripPlanner.Server.Controllers
 
         [HttpGet("user")]
         [Authorize]
-        public async Task<ActionResult<List<Review>>> GetUserReviews()
+        public async Task<ActionResult<List<ReviewGetDto>>> GetUserReviews()
         {
             try
             {
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null) return Unauthorized(_errorService.CreateError(ResponseMessages.UserNotFound));
 
-                var reviews = _context.Reviews.Where(r => r.AuthorId == user.Id).ToList();
-                _logger.LogInformation("{Message} Username: {UserUsername}, ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, user.UserName, reviews.Count);
-                return Ok(reviews);
+                var reviews = _context.Reviews.Where(r => r.AuthorId == user.Id).Include(r => r.Author).ToList();
+                var reviewDtos = _mapper.Map<IEnumerable<ReviewGetDto>>(reviews).ToList();
+                _logger.LogInformation("{Message} Username: {UserUsername}, ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, user.UserName, reviewDtos.Count);
+                return Ok(reviewDtos);
             }
             catch (Exception ex)
             {
@@ -129,7 +141,7 @@ namespace TripPlanner.Server.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> CreateReview([FromForm] ReviewCreate model)
+        public async Task<IActionResult> CreateReview([FromForm] ReviewCreateDto model)
         {
             try
             {
@@ -142,18 +154,15 @@ namespace TripPlanner.Server.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var review = new Review
+                var review = _mapper.Map<Review>(model);
+                review.Author = user;
+                var region = _context.Regions.FirstOrDefault(r => r.Name.ToLower().Equals(model.RegionName));
+                if (region == null)
                 {
-                    Title = model.Title,
-                    Text = model.Text,
-                    Rate = model.Rate,
-                    CreatedAt = DateTime.Now,
-                    RegionId = model.RegionId,
-                    RegionName = model.RegionName,
-                    Author = user,
-                    AuthorId = user.Id,
-                    AuthorUsername = user.UserName
-                };
+                    _logger.LogError("{Message} RegionName: {RegionName}", ResponseMessages.RegionNotFound, model.RegionName);
+                    return BadRequest(_errorService.CreateError(ResponseMessages.RegionNotFound, StatusCodes.Status400BadRequest));
+                }
+                review.Region = region;
 
                 _context.Reviews.Add(review);
                 await _context.SaveChangesAsync();

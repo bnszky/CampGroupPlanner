@@ -1,6 +1,6 @@
-﻿namespace TripPlanner.Server.Models
+﻿namespace TripPlanner.Server.Models.DTOs.Outgoing
 {
-    public class RegionMini
+    public class RegionMiniGetDto
     {
         public int Id { get; set; }
         public string Name { get; set; }

@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using TripPlanner.Server.Data;
 using TripPlanner.Server.Messages;
 using TripPlanner.Server.Models;
+using TripPlanner.Server.Models.Database;
+using TripPlanner.Server.Models.DTOs.Incoming;
+using TripPlanner.Server.Models.DTOs.Outgoing;
 using TripPlanner.Server.Services.Abstractions;
 
 namespace TripPlanner.Server.Services.Implementations
@@ -15,17 +19,19 @@ namespace TripPlanner.Server.Services.Implementations
         private readonly IImageService _imageService;
         private readonly IErrorService _errorService;
         private readonly ILogger<RegionService> _logger;
+        private readonly IMapper _mapper;
 
-        public RegionService(TripDbContext dbContext, ICityService cityService, IImageService imageService, IErrorService errorService, ILogger<RegionService> logger)
+        public RegionService(TripDbContext dbContext, ICityService cityService, IImageService imageService, IErrorService errorService, ILogger<RegionService> logger, IMapper mapper)
         {
             _dbContext = dbContext;
             _cityService = cityService;
             _imageService = imageService;
             _errorService = errorService;
             _logger = logger;
+            _mapper = mapper;
         }
 
-        public async Task<RegionGet?> GetRegionByNameAsync(string regionName)
+        public async Task<RegionGetDto?> GetRegionByNameAsync(string regionName)
         {
             var region = await _dbContext.Regions
                 .Include(r => r.Cities)
@@ -38,18 +44,10 @@ namespace TripPlanner.Server.Services.Implementations
                 return null;
             }
 
-            return new RegionGet
-            {
-                Id = region.Id,
-                Name = region.Name,
-                Description = region.Description,
-                Country = region.Country,
-                Cities = region.Cities.Select(c => c.Name).ToList(),
-                Images = region.Attractions.Where(a => a.ImageURL != null).Select(a => a.ImageURL).ToList()
-            };
+            return _mapper.Map<RegionGetDto?>(region);
         }
 
-        public async Task<ErrorResponse?> CreateRegionAsync(RegionCreate regionCreate)
+        public async Task<ErrorResponse?> CreateRegionAsync(RegionCreateDto regionCreate)
         {
             if (_dbContext.Regions.Any(r => r.Name.ToLower().Equals(regionCreate.Name.ToLower())))
             {
@@ -60,14 +58,9 @@ namespace TripPlanner.Server.Services.Implementations
                 return err;
             }
 
-            var newRegion = new Region
-            {
-                Name = regionCreate.Name,
-                Description = regionCreate.Description,
-                Country = regionCreate.Country
-            };
+            var newRegion = _mapper.Map<Region>(regionCreate);
 
-            var citiesError = await ValidateAndAddCitiesAsync(regionCreate, newRegion);
+            var citiesError = await ValidateAndAddCitiesAsync(regionCreate.Cities, newRegion);
             if (citiesError != null)
             {
                 return citiesError;
@@ -79,13 +72,13 @@ namespace TripPlanner.Server.Services.Implementations
             return null;
         }
 
-        public async Task<ErrorResponse?> UpdateRegionAsync(string regionName, RegionCreate regionCreate)
+        public async Task<ErrorResponse?> UpdateRegionAsync(string regionName, RegionCreateDto regionCreate)
         {
-            var region = await _dbContext.Regions
+            var regionEdited = await _dbContext.Regions
                 .Include(r => r.Cities)
                 .FirstOrDefaultAsync(r => r.Name.ToLower().Equals(regionName.ToLower()));
 
-            if (region == null)
+            if (regionEdited == null)
             {
                 var err = _errorService.CreateError("Region not found");
                 _errorService.AddNewErrorMessageFor(err, "Name", "Region not found");
@@ -93,13 +86,11 @@ namespace TripPlanner.Server.Services.Implementations
                 return err;
             }
 
-            _dbContext.Cities.RemoveRange(region.Cities);
+            _dbContext.Cities.RemoveRange(regionEdited.Cities);
 
-            region.Name = regionCreate.Name;
-            region.Description = regionCreate.Description;
-            region.Country = regionCreate.Country;
+            var region = _mapper.Map(regionCreate, regionEdited);
 
-            var citiesError = await ValidateAndAddCitiesAsync(regionCreate, region);
+            var citiesError = await ValidateAndAddCitiesAsync(regionCreate.Cities, region);
             if (citiesError != null)
             {
                 return citiesError;
@@ -148,9 +139,9 @@ namespace TripPlanner.Server.Services.Implementations
             return null;
         }
 
-        private async Task<ErrorResponse?> ValidateAndAddCitiesAsync(RegionCreate regionCreate, Region region)
+        private async Task<ErrorResponse?> ValidateAndAddCitiesAsync(List<string> cities, Region region)
         {
-            foreach (var cityName in regionCreate.Cities)
+            foreach (var cityName in cities)
             {
                 var city = await _cityService.FetchInformationAboutCityFromName(cityName);
 
@@ -170,21 +161,16 @@ namespace TripPlanner.Server.Services.Implementations
             return await _dbContext.Regions.Select(r => r.Name).ToListAsync();
         }
 
-        public async Task<List<RegionMini>> GetAllRegionMinisAsync()
+        public async Task<List<RegionMiniGetDto>> GetAllRegionMinisAsync()
         {
-            return await _dbContext.Regions
+            var regions = await _dbContext.Regions
             .Include(r => r.Attractions)
-            .Select(r => new RegionMini
-            {
-                Id = r.Id,
-                Name = r.Name,
-                Description = r.Description,
-                Image = r.Attractions.Where(a => a.ImageURL != null).Select(a => a.ImageURL).FirstOrDefault()
-            })
             .ToListAsync();
+
+            return _mapper.Map<IEnumerable<RegionMiniGetDto>>(regions).ToList();
         }
 
-        public async Task<RegionMini?> GetRegionMiniByNameAsync(string regionName)
+        public async Task<RegionMiniGetDto?> GetRegionMiniByNameAsync(string regionName)
         {
             var region = await _dbContext.Regions
             .Include(r => r.Attractions)
@@ -195,13 +181,7 @@ namespace TripPlanner.Server.Services.Implementations
                 return null;
             }
 
-            return new RegionMini
-            {
-                Id = region.Id,
-                Name = region.Name,
-                Description = region.Description,
-                Image = region.Attractions.Where(a => a.ImageURL != null).Select(a => a.ImageURL).FirstOrDefault()
-            };
+            return _mapper.Map<RegionMiniGetDto>(region);
         }
 
         public async Task<List<City>> GetCitiesByRegionName(string regionName)

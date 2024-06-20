@@ -1,4 +1,4 @@
-﻿using TripPlanner.Server.Models;
+﻿using TripPlanner.Server.Models.Database;
 
 namespace TripPlanner.Server.Services.Abstractions
 {

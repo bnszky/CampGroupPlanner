@@ -1,4 +1,4 @@
-﻿namespace TripPlanner.Server.Models
+﻿namespace TripPlanner.Server.Models.Auth
 {
     public class LoginModel
     {

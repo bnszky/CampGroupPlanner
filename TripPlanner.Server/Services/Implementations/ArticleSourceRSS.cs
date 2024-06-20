@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System.ServiceModel.Syndication;
 using System.Xml;
-using TripPlanner.Server.Models;
+using TripPlanner.Server.Models.Database;
 using TripPlanner.Server.Services.Abstractions;
 
 namespace TripPlanner.Server.Services.Implementations

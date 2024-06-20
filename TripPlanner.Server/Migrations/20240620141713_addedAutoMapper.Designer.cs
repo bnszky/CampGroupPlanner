@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TripPlanner.Server.Data;
 
@@ -11,9 +12,11 @@ using TripPlanner.Server.Data;
 namespace TripPlanner.Server.Migrations
 {
     [DbContext(typeof(TripDbContext))]
-    partial class TripDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240620141713_addedAutoMapper")]
+    partial class addedAutoMapper
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

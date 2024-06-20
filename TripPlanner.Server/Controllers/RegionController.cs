@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TripPlanner.Server.Data;
-using TripPlanner.Server.Models;
 using TripPlanner.Server.Services.Abstractions;
 using TripPlanner.Server.Messages;
 using Microsoft.Extensions.Logging;
+using TripPlanner.Server.Models.DTOs.Outgoing;
+using TripPlanner.Server.Models.DTOs.Incoming;
 
 namespace TripPlanner.Server.Controllers
 {
@@ -111,7 +112,7 @@ namespace TripPlanner.Server.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<List<RegionMini>>> GetAllMini()
+        public async Task<ActionResult<List<RegionMiniGetDto>>> GetAllMini()
         {
             try
             {
@@ -128,7 +129,7 @@ namespace TripPlanner.Server.Controllers
 
         [HttpGet("{regionName}/mini")]
         [AllowAnonymous]
-        public async Task<ActionResult<RegionMini>> GetMini(string regionName)
+        public async Task<ActionResult<RegionMiniGetDto>> GetMini(string regionName)
         {
             try
             {
@@ -150,7 +151,7 @@ namespace TripPlanner.Server.Controllers
 
         [HttpGet("{regionName}")]
         [AllowAnonymous]
-        public async Task<ActionResult<RegionGet>> Get(string regionName)
+        public async Task<ActionResult<RegionGetDto>> Get(string regionName)
         {
             try
             {
@@ -173,7 +174,7 @@ namespace TripPlanner.Server.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([FromForm] RegionCreate regionCreate)
+        public async Task<IActionResult> Create([FromForm] RegionCreateDto regionCreate)
         {
             try
             {
@@ -202,7 +203,7 @@ namespace TripPlanner.Server.Controllers
 
         [HttpPut("{regionName}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(string regionName, [FromForm] RegionCreate regionCreate)
+        public async Task<IActionResult> Edit(string regionName, [FromForm] RegionCreateDto regionCreate)
         {
             try
             {

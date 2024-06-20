@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.Text.Json.Serialization;
+using TripPlanner.Server.Models.Database;
 
-namespace TripPlanner.Server.Models
+namespace TripPlanner.Server.Models.Auth
 {
     public class User : IdentityUser
     {

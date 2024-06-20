@@ -3,9 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TripPlanner.Server.Messages;
-using TripPlanner.Server.Models;
 using TripPlanner.Server.Services.Abstractions;
 using Microsoft.Extensions.Logging;
+using TripPlanner.Server.Models.Database;
+using AutoMapper;
+using TripPlanner.Server.Models.DTOs.Incoming;
+using TripPlanner.Server.Models.DTOs.Outgoing;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace TripPlanner.Server.Controllers
 {
@@ -17,24 +21,27 @@ namespace TripPlanner.Server.Controllers
         private readonly IErrorService _errorService;
         private readonly IArticleFetchService _articleFetchService;
         private readonly ILogger<ArticlesController> _logger;
+        private readonly IMapper _mapper;
 
-        public ArticlesController(IArticleService articleService, IErrorService errorService, IArticleFetchService articleFetchService, ILogger<ArticlesController> logger)
+        public ArticlesController(IArticleService articleService, IErrorService errorService, IArticleFetchService articleFetchService, ILogger<ArticlesController> logger, IMapper mapper)
         {
             _articleService = articleService;
             _errorService = errorService;
             _articleFetchService = articleFetchService;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<List<Article>>> Index()
+        public async Task<ActionResult<List<ArticleGetDto>>> Index()
         {
             try
             {
                 var articles = await _articleService.GetAllAsync();
-                _logger.LogInformation("{Message} ArticlesCount: {Count}", ResponseMessages.ArticlesFetched, articles.Count);
-                return Ok(articles);
+                var articleDtos = _mapper.Map<IEnumerable<ArticleGetDto>>(articles).ToList();
+                _logger.LogInformation("{Message} ArticlesDtosCount: {Count}", ResponseMessages.ArticlesFetched, articleDtos.Count);
+                return Ok(articleDtos);
             }
             catch (Exception ex)
             {
@@ -46,18 +53,19 @@ namespace TripPlanner.Server.Controllers
 
         [HttpGet("region/{regionName}")]
         [AllowAnonymous]
-        public async Task<ActionResult<List<Article>>> GetByRegion(string regionName)
+        public async Task<ActionResult<List<ArticleGetDto>>> GetByRegion(string regionName)
         {
             try
             {
                 var articles = await _articleService.GetAllByRegionAsync(regionName);
-                if (articles == null || articles.Count == 0)
+                var articleDtos = _mapper.Map<IEnumerable<ArticleGetDto>>(articles).ToList();
+                if (articleDtos == null || articleDtos.Count == 0)
                 {
                     _logger.LogError("{Message} Region: {RegionName}", ResponseMessages.RegionNotFound, regionName);
                     return NotFound(_errorService.CreateError(ResponseMessages.RegionNotFound, StatusCodes.Status404NotFound));
                 }
-                _logger.LogInformation("{Message} ArticlesCount: {Count}", ResponseMessages.ArticlesFetched, articles.Count);
-                return Ok(articles);
+                _logger.LogInformation("{Message} ArticlesCount: {Count}", ResponseMessages.ArticlesFetched, articleDtos.Count);
+                return Ok(articleDtos);
             }
             catch (Exception ex)
             {
@@ -69,18 +77,19 @@ namespace TripPlanner.Server.Controllers
 
         [HttpGet("{id}")]
         [AllowAnonymous]
-        public async Task<ActionResult<Article>> Get(int id)
+        public async Task<ActionResult<ArticleGetDto>> Get(int id)
         {
             try
             {
                 var article = await _articleService.GetAsync(id);
-                if (article == null)
+                var articleDto = _mapper.Map<ArticleGetDto>(article);
+                if (articleDto == null)
                 {
                     _logger.LogError("{Message} Article ID: {ArticleId}", ResponseMessages.ArticleNotFound, id);
                     return NotFound(_errorService.CreateError(ResponseMessages.ArticleNotFound));
                 }
-                _logger.LogInformation("{Message} Article: {Article}", ResponseMessages.ArticlesFetched, article);
-                return Ok(article);
+                _logger.LogInformation("{Message} Article: {Article}", ResponseMessages.ArticlesFetched, articleDto);
+                return Ok(articleDto);
             }
             catch (Exception ex)
             {
@@ -92,7 +101,7 @@ namespace TripPlanner.Server.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([FromForm] ArticleCreate articleCreate)
+        public async Task<IActionResult> Create([FromForm] ArticleCreateDto articleCreate)
         {
             try
             {
@@ -102,30 +111,30 @@ namespace TripPlanner.Server.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var article = new Article();
+                var article = _mapper.Map<Article>(articleCreate);
 
-                var regionError = await _articleService.ValidateAndSetRegionAsync(articleCreate, article);
+                var regionError = await _articleService.ValidateAndSetRegionAsync(article);
                 if (regionError != null)
                 {
                     _logger.LogError("{Message} Error: {RegionError}", ResponseMessages.RegionValidationError, regionError);
                     return BadRequest(regionError);
                 }
 
-                var imageError = await _articleService.HandleImageUploadAsync(articleCreate, article);
+                var imageError = await _articleService.HandleImageUploadAsync(article, articleCreate.ImageFile);
                 if (imageError != null)
                 {
                     _logger.LogError("{Message} Error: {ImageError}", ResponseMessages.ImageUploadError, imageError);
                     return BadRequest(imageError);
                 }
 
-                var articleExistsError = _articleService.CheckArticleExists(articleCreate);
+                var articleExistsError = _articleService.CheckArticleExists(article);
                 if (articleExistsError != null)
                 {
                     _logger.LogError("{Message} Error: {ArticleExistsError}", ResponseMessages.ArticleExists, articleExistsError);
                     return BadRequest(articleExistsError);
                 }
 
-                await _articleService.CreateOrUpdateArticleAsync(articleCreate, article, true);
+                await _articleService.CreateOrUpdateArticleAsync(article, true);
 
                 _logger.LogInformation("{Message} Article: {Article}", ResponseMessages.ArticleCreated, article);
                 return Ok();
@@ -164,7 +173,7 @@ namespace TripPlanner.Server.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [FromForm] ArticleCreate editedArticle)
+        public async Task<IActionResult> Edit(int id, [FromForm] ArticleCreateDto editedArticle)
         {
             try
             {
@@ -183,21 +192,23 @@ namespace TripPlanner.Server.Controllers
                     return NotFound(errorResponse);
                 }
 
-                var regionError = await _articleService.ValidateAndSetRegionAsync(editedArticle, existingArticle);
+                var article = _mapper.Map(editedArticle, existingArticle);
+
+                var regionError = await _articleService.ValidateAndSetRegionAsync(article);
                 if (regionError != null)
                 {
                     _logger.LogError("{Message} Error: {RegionError}", ResponseMessages.RegionValidationError, regionError);
                     return BadRequest(regionError);
                 }
 
-                var imageError = await _articleService.HandleImageUploadAsync(editedArticle, existingArticle);
+                var imageError = await _articleService.HandleImageUploadAsync(article, editedArticle.ImageFile);
                 if (imageError != null)
                 {
                     _logger.LogError("{Message} Error: {ImageError}", ResponseMessages.ImageUploadError, imageError);
                     return BadRequest(imageError);
                 }
 
-                await _articleService.CreateOrUpdateArticleAsync(editedArticle, existingArticle, false);
+                await _articleService.CreateOrUpdateArticleAsync(article, false);
                 _logger.LogInformation("{Message} Article: {Article}", ResponseMessages.ArticleUpdated, existingArticle);
 
                 return Ok();
@@ -211,13 +222,14 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("fetch/{regionName}")]
-        public async Task<ActionResult<List<Article>>> FetchArticlesForRegion(string regionName)
+        public async Task<ActionResult<List<ArticleGetDto>>> FetchArticlesForRegion(string regionName)
         {
             try
             {
                 var articles = await _articleFetchService.FetchArticlesByRegionNameAsync(regionName);
-                _logger.LogInformation("{Message} Region: {RegionName} ArticlesCount: {Count}", ResponseMessages.ArticlesFetched, regionName, articles.Count);
-                return Ok(articles);
+                var articleDtos = _mapper.Map<IEnumerable<ArticleGetDto>>(articles).ToList();
+                _logger.LogInformation("{Message} Region: {RegionName} ArticlesCount: {Count}", ResponseMessages.ArticlesFetched, regionName, articleDtos.Count);
+                return Ok(articleDtos);
             }
             catch (Exception ex)
             {
@@ -228,13 +240,14 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("fetch")]
-        public async Task<ActionResult<List<Article>>> FetchArticles()
+        public async Task<ActionResult<List<ArticleGetDto>>> FetchArticles()
         {
             try
             {
                 var articles = await _articleFetchService.FetchArticles();
-                _logger.LogInformation("{Message} ArticlesCount: {Count}", ResponseMessages.ArticlesFetched, articles.Count);
-                return Ok(articles);
+                var articleDtos = _mapper.Map<IEnumerable<ArticleGetDto>>(articles).ToList();
+                _logger.LogInformation("{Message} ArticlesCount: {Count}", ResponseMessages.ArticlesFetched, articleDtos.Count);
+                return Ok(articleDtos);
             }
             catch (Exception ex)
             {

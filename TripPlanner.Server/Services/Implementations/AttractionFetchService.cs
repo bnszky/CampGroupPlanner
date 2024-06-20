@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using TripPlanner.Server.Data;
-using TripPlanner.Server.Models;
+using TripPlanner.Server.Models.Database;
 using TripPlanner.Server.Services.Abstractions;
 
 namespace TripPlanner.Server.Services.Implementations

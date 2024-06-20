@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TripPlanner.Server.Data;
+using TripPlanner.Server.Messages;
 using TripPlanner.Server.Models;
+using TripPlanner.Server.Models.Database;
 using TripPlanner.Server.Services.Abstractions;
 
 namespace TripPlanner.Server.Services.Implementations
@@ -18,16 +20,16 @@ namespace TripPlanner.Server.Services.Implementations
             _imageService = imageService;
         }
 
-        public async Task<ErrorResponse?> ValidateAndSetRegionAsync(AttractionCreate attractionCreate, Attraction attraction)
+        public async Task<ErrorResponse?> ValidateAndSetRegionAsync(Attraction attraction)
         {
             var region = await _dbContext.Regions
-                .Where(r => r.Name.ToLower().Equals(attractionCreate.RegionName.ToLower()))
+                .Where(r => r.Name.ToLower().Equals(attraction.RegionName.ToLower()))
                 .FirstOrDefaultAsync();
 
             if (region == null)
             {
-                var errorResponse = _errorService.CreateError("Region not found");
-                _errorService.AddNewErrorMessageFor(errorResponse, "RegionName", "Couldn't find region with this name");
+                var errorResponse = _errorService.CreateError(ResponseMessages.RegionNotFound);
+                _errorService.AddNewErrorMessageFor(errorResponse, "RegionName", ResponseMessages.RegionNotFound);
                 return errorResponse;
             }
 
@@ -35,11 +37,11 @@ namespace TripPlanner.Server.Services.Implementations
             return null;
         }
 
-        public async Task<ErrorResponse?> HandleImageUploadAsync(AttractionCreate attractionCreate, Attraction attraction)
+        public async Task<ErrorResponse?> HandleImageUploadAsync(Attraction attraction, IFormFile? image)
         {
-            if (attractionCreate.Image != null)
+            if (image != null)
             {
-                if (!_imageService.IsJpgOrPng(attractionCreate.Image))
+                if (!_imageService.IsJpgOrPng(image))
                 {
                     var errorResponse = _errorService.CreateError("Invalid file extension");
                     _errorService.AddNewErrorMessageFor(errorResponse, "Image", "Incorrect file extension. It must be .jpg or .png");
@@ -48,7 +50,7 @@ namespace TripPlanner.Server.Services.Implementations
 
                 try
                 {
-                    string imageUrl = await _imageService.UploadImage(attractionCreate.Image);
+                    string imageUrl = await _imageService.UploadImage(image);
                     attraction.ImageURL = imageUrl;
                 }
                 catch
@@ -62,18 +64,9 @@ namespace TripPlanner.Server.Services.Implementations
             return null;
         }
 
-        public async Task<Attraction> CreateOrUpdateAttractionAsync(AttractionCreate attractionCreate, Region region, string? ImageURL = null, Attraction existingAttraction = null)
+        public async Task<Attraction> CreateOrUpdateAttractionAsync(Attraction attraction, bool isAdd)
         {
-            var attraction = existingAttraction ?? new Attraction();
-
-            attraction.Name = attractionCreate.Name;
-            attraction.Description = attractionCreate.Description;
-            attraction.Latitude = attractionCreate.Latitude;
-            attraction.Longitude = attractionCreate.Longitude;
-            attraction.Region = region;
-            attraction.ImageURL = ImageURL;
-
-            if (existingAttraction == null)
+            if (isAdd)
             {
                 _dbContext.Attractions.Add(attraction);
             }

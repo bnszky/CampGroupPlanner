@@ -8,7 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using TripPlanner.Server.Messages;
-using TripPlanner.Server.Models;
+using TripPlanner.Server.Models.Auth;
 using TripPlanner.Server.Services.Abstractions;
 
 namespace TripPlanner.Server.Controllers

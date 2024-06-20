@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TripPlanner.Server.Data;
+using TripPlanner.Server.Messages;
 using TripPlanner.Server.Models;
+using TripPlanner.Server.Models.Database;
 using TripPlanner.Server.Services.Abstractions;
 
 namespace TripPlanner.Server.Services.Implementations
@@ -18,35 +20,31 @@ namespace TripPlanner.Server.Services.Implementations
             _imageService = imageService;
         }
 
-        public async Task<ErrorResponse?> ValidateAndSetRegionAsync(ArticleCreate articleCreate, Article article)
+        public async Task<ErrorResponse?> ValidateAndSetRegionAsync(Article article)
         {
-            if (articleCreate.RegionName == null) return null;
+            if (article.RegionName == null) return null;
 
             var region = await _dbContext.Regions
-                .Where(r => r.Name.ToLower().Equals(articleCreate.RegionName.ToLower()))
+                .Where(r => r.Name.ToLower().Equals(article.RegionName.ToLower()))
                 .FirstOrDefaultAsync();
 
             if (region == null)
             {
-                var errorResponse = _errorService.CreateError("Region not found");
-                _errorService.AddNewErrorMessageFor(errorResponse, "RegionName", "Couldn't find region with this name");
+                var errorResponse = _errorService.CreateError(ResponseMessages.RegionNotFound);
+                _errorService.AddNewErrorMessageFor(errorResponse, "RegionName", ResponseMessages.RegionNotFound);
                 return errorResponse;
             }
 
             article.Region = region;
 
-            string regionName = articleCreate.RegionName.ToUpper();
-            regionName = regionName[0] + regionName.Substring(1).ToLower();
-
-            article.RegionName = regionName;
             return null;
         }
 
-        public async Task<ErrorResponse?> HandleImageUploadAsync(ArticleCreate articleCreate, Article article)
+        public async Task<ErrorResponse?> HandleImageUploadAsync(Article article, IFormFile? image)
         {
-            if (articleCreate.ImageFile != null)
+            if (image != null)
             {
-                if (!_imageService.IsJpgOrPng(articleCreate.ImageFile))
+                if (!_imageService.IsJpgOrPng(image))
                 {
                     var errorResponse = _errorService.CreateError("Invalid file extension");
                     _errorService.AddNewErrorMessageFor(errorResponse, "Image", "Incorrect file extension. It must be .jpg or .png");
@@ -55,7 +53,7 @@ namespace TripPlanner.Server.Services.Implementations
 
                 try
                 {
-                    string imageUrl = await _imageService.UploadImage(articleCreate.ImageFile);
+                    string imageUrl = await _imageService.UploadImage(image);
                     article.ImageURL = imageUrl;
                 }
                 catch
@@ -69,9 +67,9 @@ namespace TripPlanner.Server.Services.Implementations
             return null;
         }
 
-        public ErrorResponse? CheckArticleExists(ArticleCreate articleCreate)
+        public ErrorResponse? CheckArticleExists(Article article)
         {
-            if (_dbContext.Articles.Any(a => a.SourceLink == articleCreate.SourceLink))
+            if (_dbContext.Articles.Any(a => a.SourceLink == article.SourceLink))
             {
                 var errorResponse = _errorService.CreateError("Article already exists");
                 _errorService.AddNewErrorMessageFor(errorResponse, "SourceLink", "An article with this source link already exists in the database");
@@ -80,24 +78,8 @@ namespace TripPlanner.Server.Services.Implementations
             return null;
         }
 
-        public int GeneratePositioningRate(Article article)
+        public async Task<Article> CreateOrUpdateArticleAsync(Article article, bool isAdded = true)
         {
-            Random random = new Random();
-            return random.Next(0, 101);
-        }
-        public async Task<Article> CreateOrUpdateArticleAsync(ArticleCreate articleCreate, Article article, bool isAdded = true)
-        {
-            article.Title = articleCreate.Title;
-            article.Description = articleCreate.Description;
-            if (article.CreatedAt == null) { article.CreatedAt = DateTime.Now; }
-            article.EditedAt = DateTime.Now;
-            if (isAdded) { article.SourceLink = articleCreate.SourceLink; }
-            if(articleCreate.PositioningRate == null)
-            {
-                article.PositioningRate = GeneratePositioningRate(article);
-            }
-            article.IsVisible = articleCreate.IsVisible;
-
             if (isAdded)
             {
                 _dbContext.Articles.Add(article);

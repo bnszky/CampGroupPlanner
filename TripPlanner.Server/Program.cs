@@ -6,12 +6,12 @@ using TripPlanner.Server.Services.Implementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using TripPlanner.Server.Models;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
 using TripPlanner.Server.Middlewares;
 using Serilog;
 using Serilog.Events;
+using TripPlanner.Server.Models.Auth;
 
 namespace TripPlanner.Server
 {
@@ -98,6 +98,9 @@ namespace TripPlanner.Server
             })
             .AddEntityFrameworkStores<TripDbContext>()
             .AddDefaultTokenProviders();
+
+            // AutoMapper
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             //Jwt tokens
             var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();

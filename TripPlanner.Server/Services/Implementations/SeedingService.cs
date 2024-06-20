@@ -5,7 +5,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using System;
     using System.Threading.Tasks;
-    using TripPlanner.Server.Models;
+    using TripPlanner.Server.Models.Auth;
     using TripPlanner.Server.Services.Abstractions;
 
     public class SeedingService : ISeedingService

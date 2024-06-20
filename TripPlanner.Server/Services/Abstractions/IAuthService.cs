@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using TripPlanner.Server.Models;
+using TripPlanner.Server.Models.Auth;
 
 namespace TripPlanner.Server.Services.Abstractions
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
 using TripPlanner.Server.Data;
-using TripPlanner.Server.Models;
+using TripPlanner.Server.Models.Database;
 using TripPlanner.Server.Services.Abstractions;
 
 namespace TripPlanner.Server.Services.Implementations

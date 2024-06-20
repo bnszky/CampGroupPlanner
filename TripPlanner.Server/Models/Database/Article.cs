@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TripPlanner.Server.Models
+namespace TripPlanner.Server.Models.Database
 {
     public class Article
     {
@@ -12,8 +12,9 @@ namespace TripPlanner.Server.Models
         [MaxLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
         public string? Description { get; set; }
         public string? ImageURL { get; set; }
-        public DateTime? CreatedAt { get; set; }
-        public DateTime? EditedAt { get; set; } = DateTime.Now;
+        public DateTime? CreatedAt { get; set; } = 
+            DateTime.Now;
+        public DateTime? EditedAt { get; set; }
         [Required(ErrorMessage = "Source link is required")]
         public string SourceLink { get; set; }
         public int? RegionId { get; set; }
