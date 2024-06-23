@@ -4,7 +4,7 @@ import { Grid, Typography } from '@mui/material'
 import { useState, useRef, useMemo, useEffect } from 'react'
 
 function DraggableMarker({attraction, onChangePosition}) {
-    const [position, setPosition] = useState([attraction.longitude, attraction.latitude])
+    const [position, setPosition] = useState([attraction.latitude, attraction.longitude])
     const [markerKey, setMarkerKey] = useState(Math.random())
     const markerRef = useRef(null)
     const eventHandlers = useMemo(
