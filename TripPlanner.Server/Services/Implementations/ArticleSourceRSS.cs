@@ -83,11 +83,17 @@ namespace TripPlanner.Server.Services.Implementations
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, $"Error fetching or parsing RSS feed: {feed}");
+                        return [];
                     }
                 }
             }
 
             return articles;
+        }
+
+        public async Task<List<Article>> GetArticlesByRegionNameAsync(string regionName)
+        {
+            return [];
         }
     }
 }

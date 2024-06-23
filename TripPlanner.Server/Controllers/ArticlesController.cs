@@ -102,6 +102,7 @@ namespace TripPlanner.Server.Controllers
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromForm] ArticleCreateDto articleCreate)
+        
         {
             try
             {
@@ -255,6 +256,38 @@ namespace TripPlanner.Server.Controllers
                 var errorResponse = _errorService.CreateError(ResponseMessages.CouldNotFetchArticles);
                 return BadRequest(errorResponse);
             }
+        }
+
+        [HttpPut("rate-or-assign")]
+        public async Task<ActionResult<List<ArticleGetDto>>> TryToAssignAndRateArticlesAgain()
+        {
+            try
+            {
+                var articles = await _articleFetchService.TryAssignAndRateExistingArticles();
+                var articleDtos = _mapper.Map<IEnumerable<ArticleGetDto>>(articles).ToList();
+                _logger.LogInformation("{Message} ArticlesUpdatedCount: {Count}", "Articles updated", articleDtos.Count);
+                return Ok(articleDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{Message}", "Couldn't update articles");
+                var errorResponse = _errorService.CreateError("Couldn't update articles");
+                return BadRequest(errorResponse);
+            }
+        }
+
+        [HttpDelete("delete-below-rate/{rate}")]
+        public async Task<ActionResult> DeleteArticlesBelowRate(int rate)
+        {
+            var errorResponse = await _articleService.DeleteBelowRate(rate);
+            if(errorResponse == null)
+            {
+                _logger.LogInformation("Successfully deleted articles below rate {Rate}", rate);
+                return Ok($"Successfully deleted articles below rate {rate}");
+            }
+
+            _logger.LogError(errorResponse.Title);
+            return BadRequest(errorResponse);
         }
     }
 }

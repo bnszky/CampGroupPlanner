@@ -96,7 +96,7 @@ namespace TripPlanner.Server.Services.Implementations
 
         public async Task<List<Article>> GetAllAsync()
         {
-            return await _dbContext.Articles.ToListAsync();
+            return await _dbContext.Articles.OrderByDescending(a => a.PositioningRate).ToListAsync();
         }
 
         public async Task<ErrorResponse?> DeleteAsync(int id)
@@ -132,8 +132,30 @@ namespace TripPlanner.Server.Services.Implementations
         public async Task<List<Article>> GetAllByRegionAsync(string regionName)
         {
             return await _dbContext.Articles
-            .Where(a => a.Region.Name.ToLower().Equals(regionName.ToLower()))
+            .Where(a => a.Region.Name.ToLower().Equals(regionName.ToLower())).OrderByDescending(a => a.PositioningRate)
             .ToListAsync();
+        }
+
+        public async Task<ErrorResponse?> DeleteBelowRate(int rate)
+        {
+            try
+            {
+                var articles = _dbContext.Articles.Where(a => a.PositioningRate < rate).ToList();
+
+                foreach (var article in articles)
+                {
+                    if (article.ImageURL != null) await _imageService.DeleteImage(article.ImageURL);
+                }
+
+                _dbContext.Articles.RemoveRange(articles);
+                await _dbContext.SaveChangesAsync();
+                return null;
+            }
+            catch
+            {
+                var errorResponse = _errorService.CreateError("Couldn't delete articles");
+                return errorResponse;
+            }
         }
     }
 

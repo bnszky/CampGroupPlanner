@@ -13,5 +13,6 @@ namespace TripPlanner.Server.Services.Abstractions
         Task<List<Article>> GetAllAsync();
         Task<List<Article>> GetAllByRegionAsync(string regionName);
         Task<ErrorResponse?> DeleteAsync(int id);
+        Task<ErrorResponse?> DeleteBelowRate(int rate);
     }
 }

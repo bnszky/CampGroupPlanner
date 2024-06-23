@@ -13,6 +13,7 @@ namespace TripPlanner.Server.Services.Implementations
         private readonly IImageService _imageService;
         private readonly TripDbContext _context;
         private readonly ILogger<ArticleFetchService> _logger;
+        private readonly int MAX_NUMBER_ARTICLES_PER_REQUEST = 60;
 
         public ArticleFetchService(IEnumerable<IArticleSourceService> articleSourceServices, IArticleRatingService articleRatingService, IImageService imageService, TripDbContext context, ILogger<ArticleFetchService> logger)
         {
@@ -50,11 +51,122 @@ namespace TripPlanner.Server.Services.Implementations
             }
         }
 
+        private List<Article> RemoveExistingArticlesAsync(List<Article> articles)
+        {
+            try
+            {
+                List<Article> verifiedArticles = new List<Article>();
+                foreach (var article in articles)
+                {
+                    if (!_context.Articles.Where(a => a.Title.ToLower().Equals(article.Title.ToLower())).Any())
+                    {
+                        _context.Add(article);
+                        _logger.LogInformation("Successfully verified {ArticleTitle} article in the database", article.Title);
+                        verifiedArticles.Add(article);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Removed {ArticleTitle} because article exists in the database", article.Title);
+                    }
+                }
+
+                _logger.LogInformation("Database Filtring: Removed {RemovedArticlesCount} articles, Not existing articles in db: {VerifiedArticlesCount}", articles.Count - verifiedArticles.Count, verifiedArticles.Count);
+                return verifiedArticles;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Couldn't check database");
+                return [];
+            }
+        }
+
+        private async Task<(List<string>, List<string>, List<string>)> GetAllRegionWithCountryNames()
+        {
+            try
+            {
+                List<string> regionWithCountries = _context.Regions.OrderBy(r => r.Id).Select(r => r.Name + " - " + r.Country).ToList();
+                List<string> regions = _context.Regions.OrderBy(r => r.Id).Select(r => r.Name).ToList();
+                List<string> countries = _context.Regions.OrderBy(r => r.Id).Select(r => r.Country).ToList();
+
+                return (regions, countries, regionWithCountries);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Couldn't fetch region names from database");
+                return ([], [], []);
+            }
+        }
+
+        private async Task<(List<string>, List<string>, List<string>)> GetRegionWithCountryName(string regionName)
+        {
+            try
+            {
+                List<string> regionWithCountries = _context.Regions.Where(r => r.Name.ToLower().Equals(regionName.ToLower())).Select(r => r.Name + " - " + r.Country).ToList();
+                List<string> regions = _context.Regions.Where(r => r.Name.ToLower().Equals(regionName.ToLower())).Select(r => r.Name).ToList();
+                List<string> countries = _context.Regions.Where(r => r.Name.ToLower().Equals(regionName.ToLower())).Select(r => r.Country).ToList();
+
+                return (regions, countries, regionWithCountries);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Couldn't fetch region names from database");
+                return ([], [], []);
+            }
+        }
+
+        private async Task<List<Article>> FilterOnlyWithGivenRegionName(List<Article> articles, string regionName)
+        {
+            List<Article> filteredArticles = [];
+
+            foreach(var article in articles)
+            {
+                if (article.RegionName.ToLower().Equals(regionName.ToLower()))
+                {
+                    filteredArticles.Add(article);
+                }
+            }
+
+            return filteredArticles;
+        } 
+
+        private void ChangeArticleFields(List<Article> articles)
+        {
+            foreach (var article in articles)
+            {
+                if(article.RegionName != null)
+                {
+                    article.Region = _context.Regions.Where(r => r.Name.ToLower().Equals(article.RegionName.ToLower())).FirstOrDefault();
+                }
+                article.IsVisible = article.PositioningRate > 0;
+                article.EditedAt = DateTime.Now;
+            }
+        }
+
+        private List<Article> TakeNRandomArticles(List<Article> articles, int N)
+        {
+            if (articles == null || articles.Count <= N) return articles;
+
+            Random random = new Random();
+
+            return articles.OrderBy(a => random.Next()).Take(N).ToList();
+        }
+
         public async Task<List<Article>> FetchArticles()
         {
             _logger.LogInformation("Starting to fetch articles");
-            var articles = await FetchArticlesFromSources(null, null, null);
+            var articles = await FetchArticlesFromSources(null);
+            articles = RemoveExistingArticlesAsync(articles);
+            var (regions, countries, regionWithCountriesNames) = await GetAllRegionWithCountryNames();
+
+            // take max N articles, rate and assign to regions
+            articles = TakeNRandomArticles(articles, MAX_NUMBER_ARTICLES_PER_REQUEST);
+
+            await _articleRatingService.RateArticlesAsync(articles, regions, countries, regionWithCountriesNames);
+
+            // update articles field for isVisible and Region
+            ChangeArticleFields(articles);
             _logger.LogInformation("Finished fetching articles. Total articles fetched: {ArticleCount}", articles.Count);
+
             await AddArticlesToDatabase(articles);
             return articles;
         }
@@ -62,35 +174,45 @@ namespace TripPlanner.Server.Services.Implementations
         public async Task<List<Article>> FetchArticlesByRegionNameAsync(string regionName)
         {
             _logger.LogInformation("Starting to fetch articles for Region: {RegionName}", regionName);
+            var articles = await FetchArticlesFromSources(regionName);
+            articles = RemoveExistingArticlesAsync(articles);
 
-            Region region = await _context.Regions.Where(r => r.Name.ToLower().Equals(regionName.ToLower())).FirstOrDefaultAsync();
-            if (region == null)
-            {
-                _logger.LogError("Couldn't find region with name {RegionName}", regionName);
-                return new List<Article>();
-            }
+            var (regions, countries, regionWithCountryName) = await GetRegionWithCountryName(regionName);
 
-            regionName = region.Name.ToLower();
-            List<string> citiesNames = region.Cities.Select(c => c.Name.ToLower()).ToList();
-            string countryName = region.Country.ToLower();
+            // take max N articles, rate and assign to regions
+            articles = TakeNRandomArticles(articles, MAX_NUMBER_ARTICLES_PER_REQUEST);
 
-            _logger.LogInformation("Successfully fetched information about region: {RegionName}, Country: {CountryName}, Cities: {CitiesNames}",
-                regionName, countryName, string.Join(", ", citiesNames));
+            await _articleRatingService.RateArticlesAsync(articles, regions, countries, regionWithCountryName);
 
-            var articles = await FetchArticlesFromSources(regionName, countryName, citiesNames);
-            foreach (var article in articles)
-            {
-                article.RegionId = region.Id;
-                article.RegionName = region.Name;
-                article.Region = region;
-            }
+            articles = await FilterOnlyWithGivenRegionName(articles, regionName);
 
+            // update articles field for isVisible and Region
+            ChangeArticleFields(articles);
             _logger.LogInformation("Finished fetching articles. Total articles fetched: {ArticleCount}", articles.Count);
+
             await AddArticlesToDatabase(articles);
             return articles;
         }
 
-        private async Task<List<Article>> FetchArticlesFromSources(string regionName, string countryName, List<string> citiesNames)
+        public async Task<List<Article>> TryAssignAndRateExistingArticles()
+        {
+            _logger.LogInformation("Starting rating and assigning articles from the database");
+            List<Article> articles = _context.Articles.Where(a => a.PositioningRate == 0 || a.Region == null).ToList();
+            articles = TakeNRandomArticles(articles, MAX_NUMBER_ARTICLES_PER_REQUEST);
+
+            var (regions, countries, regionWithCountriesNames) = await GetAllRegionWithCountryNames();
+
+            await _articleRatingService.RateArticlesAsync(articles, regions, countries, regionWithCountriesNames);
+
+            // update articles field for isVisible and Region
+            ChangeArticleFields(articles);
+            _logger.LogInformation("Finished editing articles. Total articles edited: {ArticleCount}", articles.Count);
+
+            await _context.SaveChangesAsync();
+            return articles;
+        }
+
+        private async Task<List<Article>> FetchArticlesFromSources(string regionName)
         {
             var allArticles = new ConcurrentBag<Article>();
 
@@ -98,24 +220,13 @@ namespace TripPlanner.Server.Services.Implementations
             {
                 var fetchTasks = _articleSourceServices.Select(service => Task.Run(async () =>
                 {
-                    var articles = await service.GetArticlesAsync();
+                    List<Article> articles = [];
+                    if (regionName != null) articles = await service.GetArticlesByRegionNameAsync(regionName);
+                    else articles = await service.GetArticlesAsync();
                     foreach (var article in articles)
                     {
-                        int? rate = null;
                         if (await _articleRatingService.IsArticleValidAsync(article))
                         {
-                            if (regionName == null) rate = await _articleRatingService.RateArticleAsync(article, null, null, null);
-                            else rate = await _articleRatingService.RateArticleAsync(article, regionName, countryName, citiesNames);
-                        }
-
-                        if (rate != null)
-                        {
-                            //string imageUrl = await TryUploadImage(article.ImageURL);
-                            //article.ImageURL = imageUrl;
-                            article.PositioningRate = (int)rate;
-                            article.IsVisible = true;
-                            if(article.Title.Length > 100) article.Title = article.Title[..100];
-                            if (article.Description != null && article.Description.Length > 500) { article.Description = article.Description[..500]; }
                             allArticles.Add(article);
                             _logger.LogInformation("Article added: {ArticleTitle} ", article.Title);
                         }

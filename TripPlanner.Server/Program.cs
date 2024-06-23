@@ -83,8 +83,8 @@ namespace TripPlanner.Server
             // Services for fetching articles
             builder.Services.AddTransient<IArticleFetchService, ArticleFetchService>();
 
-            builder.Services.AddTransient<IArticleSourceService, ArticleSourceDemoService>();
             builder.Services.AddTransient<IArticleSourceService, ArticleSourceRSS>();
+            builder.Services.AddTransient<IArticleSourceService, ArticleSourceApiService>();
 
             builder.Services.AddTransient<IArticleRatingService, ArticleRatingService>();
 

@@ -6,5 +6,6 @@ namespace TripPlanner.Server.Services.Abstractions
     {
         Task<List<Article>> FetchArticlesByRegionNameAsync(string regionName);
         Task<List<Article>> FetchArticles();
+        Task<List<Article>> TryAssignAndRateExistingArticles();
     }
 }

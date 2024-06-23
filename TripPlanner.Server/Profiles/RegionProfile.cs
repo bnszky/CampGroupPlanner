@@ -8,7 +8,7 @@ namespace TripPlanner.Server.Profiles
     public class RegionProfile : Profile
     {
         public RegionProfile() {
-            CreateMap<RegionCreateDto, Region>();
+            CreateMap<RegionCreateDto, Region>().ForMember(dest => dest.Cities, opt => opt.Ignore());
 
             CreateMap<Region, RegionMiniGetDto>()
                 .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Attractions.Where(a => a.ImageURL != null).Select(a => a.ImageURL).FirstOrDefault()));

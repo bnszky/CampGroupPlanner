@@ -61,11 +61,6 @@ namespace TripPlanner.Server.Controllers
             {
                 var attractions = await _attractionService.GetAllByRegionAsync(regionName);
                 var attractionDtos = _mapper.Map<IEnumerable<AttractionGetDto>>(attractions).ToList();
-                if (attractionDtos == null || attractionDtos.Count == 0)
-                {
-                    _logger.LogError("{Message} Region: {RegionName}", ResponseMessages.RegionNotFound, regionName);
-                    return NotFound(_errorService.CreateError(ResponseMessages.RegionNotFound, StatusCodes.Status404NotFound));
-                }
                 _logger.LogInformation("{Message} Region: {RegionName} AttractionsCount: {Count}", ResponseMessages.AttractionsFetched, regionName, attractionDtos.Count);
                 return Ok(attractionDtos);
             }

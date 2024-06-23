@@ -113,6 +113,7 @@ namespace TripPlanner.Server.Services.Implementations
                         Longitude = (double)location["longitude"],
                         Description = description,
                         RegionId = city.RegionId,
+                        RegionName = city.Region.Name,
                         FRS_ID = att["fsq_id"].ToString()
                     };
                     attractions.Add(attraction);

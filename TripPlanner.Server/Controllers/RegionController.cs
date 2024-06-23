@@ -45,7 +45,7 @@ namespace TripPlanner.Server.Controllers
         {
             try
             {
-                var desc = await _regionFetchService.GetDescriptionForRegion(region, 1000);
+                var desc = await _regionFetchService.GetDescriptionForRegion(region, 500);
                 _logger.LogInformation("{Message} Region: {Region}, Description: {Description}", ResponseMessages.DescriptionFetchedRegion, region, desc);
                 return Ok(desc);
             }
