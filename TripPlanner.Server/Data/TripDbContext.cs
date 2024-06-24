@@ -13,6 +13,7 @@ namespace TripPlanner.Server.Data
         public DbSet<City> Cities { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Region> Regions { get; set; }
+        public DbSet<Configuration> Configurations { get; set; }
 
         public TripDbContext(DbContextOptions<TripDbContext> options) : base(options) {
             

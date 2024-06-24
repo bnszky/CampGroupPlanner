@@ -86,6 +86,7 @@ export const AuthProvider = ({ children }) => {
       setIsLoggedIn(false);
       setUserDetails({ username: '', email: '', isAdmin: false });
       delete axios.defaults.headers.common['Authorization'];
+      window.location.reload();
       return {"isOk": true, "msg": "Succesfully logout"}
     } catch (error) {
       console.error('Logout failed', error);

@@ -5,6 +5,7 @@ import useDataFeed from "../../hooks/useDataFeed.jsx";
 import { useLocation } from 'react-router-dom';
 import { useAuth } from "../../components/AuthProvider/AuthContext.jsx";
 import useFetchFromApi from "../../hooks/useFetchFromApi.jsx";
+import MinimalPositivitySlider from "../../components/MinimalPositivitySlider/MinimalPositivitySlider.jsx";
 
 export default function ArticlesFeed() {
 
@@ -22,7 +23,11 @@ export default function ArticlesFeed() {
             </Alert>
         )}
         {isAdmin &&
+        <>
             <Button color="primary" variant="contained" sx={{mx: 1, my: 2}} onClick={async () => await fetchData(`/api/articles/fetch`)}>Fetch Articles</Button>
+            <Button color="primary" variant="contained" sx={{mx: 1, my: 2}} onClick={async () => await fetchData(`/api/articles/rate-or-assign`)}>Assign Articles</Button>
+            <MinimalPositivitySlider/>
+        </>
         } 
         {isFetching && <Typography variant="h4">Fetching...</Typography>}
         {isLoading ? (

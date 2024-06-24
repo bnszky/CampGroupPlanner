@@ -37,6 +37,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpPost("register")]
+        [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             if(!ModelState.IsValid)
@@ -81,6 +82,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("resend-confirmation-link")]
+        [AllowAnonymous]
         public async Task<IActionResult> ResendConfirmationLink(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -106,6 +108,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("confirm-email")]
+        [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(string email,  string token)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))
@@ -174,6 +177,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             if (User.Identity.IsAuthenticated)
@@ -231,6 +235,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("recover-password")]
+        [AllowAnonymous]
         public async Task<IActionResult> RecoverPassword(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -258,6 +263,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpPut("reset-password")]
+        [AllowAnonymous]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
         {
             if (!ModelState.IsValid)

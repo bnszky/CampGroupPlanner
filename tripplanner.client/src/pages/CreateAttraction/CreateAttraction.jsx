@@ -57,10 +57,14 @@ function CreateAttraction({initialAttractionData}) {
 
     function handleChangePosition(position){
         console.log(position);
+
+        const longitude = position.lng;
+        const latitude = position.lat;
+
         setAttraction(att => ({
             ...att,
-            'longitude': position.lng,
-            'latitude': position.lat
+            'longitude': longitude,
+            'latitude': latitude
         }))
     }
 

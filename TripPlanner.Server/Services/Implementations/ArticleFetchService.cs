@@ -137,7 +137,7 @@ namespace TripPlanner.Server.Services.Implementations
                 {
                     article.Region = _context.Regions.Where(r => r.Name.ToLower().Equals(article.RegionName.ToLower())).FirstOrDefault();
                 }
-                article.IsVisible = article.PositioningRate > 0;
+                article.IsVisible = true;
                 article.EditedAt = DateTime.Now;
             }
         }

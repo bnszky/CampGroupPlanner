@@ -11,8 +11,12 @@ namespace TripPlanner.Server.Services.Abstractions
         Task<Article> CreateOrUpdateArticleAsync(Article article, bool isAdded);
         Task<Article?> GetAsync(int id);
         Task<List<Article>> GetAllAsync();
+        Task<List<Article>> GetWithMinimalPositivityRateAsync();
         Task<List<Article>> GetAllByRegionAsync(string regionName);
+        Task<List<Article>> GetWithMinimalPositivityRateByRegionAsync(string regionName);
         Task<ErrorResponse?> DeleteAsync(int id);
         Task<ErrorResponse?> DeleteBelowRate(int rate);
+        Task SetMinimalPositivityRate(int rate);
+        Task<int> GetMinimalPositivityRate();
     }
 }

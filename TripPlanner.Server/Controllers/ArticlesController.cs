@@ -10,6 +10,7 @@ using AutoMapper;
 using TripPlanner.Server.Models.DTOs.Incoming;
 using TripPlanner.Server.Models.DTOs.Outgoing;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TripPlanner.Server.Controllers
 {
@@ -38,7 +39,17 @@ namespace TripPlanner.Server.Controllers
         {
             try
             {
-                var articles = await _articleService.GetAllAsync();
+                List<Article> articles;
+
+                if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                {
+                    articles = await _articleService.GetAllAsync();
+                }
+                else
+                {
+                    articles = await _articleService.GetWithMinimalPositivityRateAsync();
+                }
+
                 var articleDtos = _mapper.Map<IEnumerable<ArticleGetDto>>(articles).ToList();
                 _logger.LogInformation("{Message} ArticlesDtosCount: {Count}", ResponseMessages.ArticlesFetched, articleDtos.Count);
                 return Ok(articleDtos);
@@ -57,7 +68,17 @@ namespace TripPlanner.Server.Controllers
         {
             try
             {
-                var articles = await _articleService.GetAllByRegionAsync(regionName);
+                List<Article> articles;
+
+                if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                {
+                    articles = await _articleService.GetAllByRegionAsync(regionName);
+                }
+                else
+                {
+                    articles = await _articleService.GetWithMinimalPositivityRateByRegionAsync(regionName);
+                }
+
                 var articleDtos = _mapper.Map<IEnumerable<ArticleGetDto>>(articles).ToList();
                 if (articleDtos == null || articleDtos.Count == 0)
                 {
@@ -223,6 +244,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("fetch/{regionName}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<ArticleGetDto>>> FetchArticlesForRegion(string regionName)
         {
             try
@@ -241,6 +263,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("fetch")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<ArticleGetDto>>> FetchArticles()
         {
             try
@@ -259,6 +282,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpPut("rate-or-assign")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<ArticleGetDto>>> TryToAssignAndRateArticlesAgain()
         {
             try
@@ -277,6 +301,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpDelete("delete-below-rate/{rate}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteArticlesBelowRate(int rate)
         {
             var errorResponse = await _articleService.DeleteBelowRate(rate);
@@ -288,6 +313,45 @@ namespace TripPlanner.Server.Controllers
 
             _logger.LogError(errorResponse.Title);
             return BadRequest(errorResponse);
+        }
+
+        [HttpPut("set-min-rate/{rate}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> SetMinPositivityRate(int rate)
+        {
+            try
+            {
+                if(rate < 0 || rate > 100)
+                {
+                    _logger.LogError("Rate must be in range of 0-100");
+                    return BadRequest("Rate must be in range of 0-100");
+                }
+                await _articleService.SetMinimalPositivityRate(rate);
+                _logger.LogInformation("Successfully set minimal positivity rate to {Rate}", rate);
+                return Ok($"Successfully set minimal positivity rate to {rate}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Couldn't set minimal positivity rate");
+                return BadRequest("Couldn't set minimal positivity rate");
+            }
+        }
+
+        [HttpGet("get-min-rate")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<int>> GetMinPositivityRate()
+        {
+            try
+            {
+                var rate = await _articleService.GetMinimalPositivityRate();
+                _logger.LogInformation("Successfully get minimal positivity rate, rate = {Rate}", rate);
+                return Ok(rate);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Couldn't get minimal positivity rate");
+                return BadRequest("Couldn't get minimal positivity rate");
+            }
         }
     }
 }

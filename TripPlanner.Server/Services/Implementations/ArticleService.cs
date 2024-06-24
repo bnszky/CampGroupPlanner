@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SendGrid.Helpers.Mail;
 using TripPlanner.Server.Data;
 using TripPlanner.Server.Messages;
 using TripPlanner.Server.Models;
@@ -132,7 +133,7 @@ namespace TripPlanner.Server.Services.Implementations
         public async Task<List<Article>> GetAllByRegionAsync(string regionName)
         {
             return await _dbContext.Articles
-            .Where(a => a.Region.Name.ToLower().Equals(regionName.ToLower())).OrderByDescending(a => a.PositioningRate)
+            .Where(a => a.Region != null && a.Region.Name.ToLower().Equals(regionName.ToLower())).OrderByDescending(a => a.PositioningRate)
             .ToListAsync();
         }
 
@@ -156,6 +157,43 @@ namespace TripPlanner.Server.Services.Implementations
                 var errorResponse = _errorService.CreateError("Couldn't delete articles");
                 return errorResponse;
             }
+        }
+
+        public async Task<List<Article>> GetWithMinimalPositivityRateAsync()
+        {
+            var minRate = await GetMinimalPositivityRate();
+
+            return await _dbContext.Articles.Where(a => a.IsVisible && a.PositioningRate >= minRate)
+                .OrderByDescending(a => a.PositioningRate).ToListAsync();
+        }
+
+        public async Task<List<Article>> GetWithMinimalPositivityRateByRegionAsync(string regionName)
+        {
+            var minRate = await GetMinimalPositivityRate();
+
+            return await _dbContext.Articles.
+                Where(a => a.IsVisible && a.PositioningRate >= minRate && a.RegionName != null && a.RegionName.ToLower().Equals(regionName.ToLower()))
+                .OrderByDescending(a => a.PositioningRate).ToListAsync();
+        }
+
+        public async Task SetMinimalPositivityRate(int rate)
+        {
+            var config = await _dbContext.Configurations.FirstOrDefaultAsync(c => c.Key == "MinPositivityRate");
+            if (config != null)
+            {
+                config.Value = rate.ToString();
+            }
+            else
+            {
+                _dbContext.Configurations.Add(new Configuration { Key = "MinPositivityRate", Value = rate.ToString() });
+            }
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<int> GetMinimalPositivityRate()
+        {
+            var config = await _dbContext.Configurations.FirstOrDefaultAsync(c => c.Key.Equals("MinPositivityRate"));
+            return config != null ? int.Parse(config.Value) : 0;
         }
     }
 

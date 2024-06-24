@@ -17,7 +17,13 @@ const useDataCreate = (initialData, apiEndpoint, redirectPath, entityName, extra
         if (Array.isArray(data[key])) {
           data[key].forEach((item, index) => formData.append(`${key}[${index}]`, item));
         } else {
-          formData.append(key, data[key]);
+          // Check if the data is a number (float or double)
+          if (typeof data[key] === 'number' && !Number.isInteger(data[key])) {
+            const value = data[key].toString().replace('.', ',');
+            formData.append(key, value);
+          } else {
+              formData.append(key, data[key]);
+          }
         }
       }
     }
@@ -40,8 +46,17 @@ const useDataCreate = (initialData, apiEndpoint, redirectPath, entityName, extra
         }
       });
 
-      if (!response.status === 200) {
-        const result = response.data;
+      setErrors({});
+      setErrorMsg('');
+      setCreatedMsg(`${entityName} ${initialData.id ? 'edited' : 'created'} successfully`);
+      navigate(redirectPath, {
+        state: { infoMsg: { type: 'success', msg: `${entityName} ${data.name || data.title} ${initialData.id ? 'edited' : 'created'} successfully` } },
+      });
+    } catch (error) {
+      console.error(error);
+
+      if(error.response && error.response.data){
+        const result = error.response.data;
         if (result.errors) {
           const _errors = {};
           for (const errorKey in result.errors) {
@@ -55,18 +70,10 @@ const useDataCreate = (initialData, apiEndpoint, redirectPath, entityName, extra
         if (result.title) {
           setErrorMsg(result.title);
         }
-        return;
       }
-
-      setErrors({});
-      setErrorMsg('');
-      setCreatedMsg(`${entityName} ${initialData.id ? 'edited' : 'created'} successfully`);
-      navigate(redirectPath, {
-        state: { infoMsg: { type: 'success', msg: `${entityName} ${data.name || data.title} ${initialData.id ? 'edited' : 'created'} successfully` } },
-      });
-    } catch (error) {
-      console.error(error);
-      setErrorMsg('An unexpected error occurred');
+      else{
+        setErrorMsg('An unexpected error occurred');
+      }
     }
   };
 

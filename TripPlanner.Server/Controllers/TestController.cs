@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TripPlanner.Server.Data;
 using TripPlanner.Server.Models.Database;
 using TripPlanner.Server.Services.Abstractions;
@@ -15,6 +16,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("message")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetMessageForAllRegions()
         {
             List<string> regions = _context.Regions.OrderBy(r => r.Id).Select(r => r.Name).ToList();
@@ -28,6 +30,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("message/{regionName}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetMessageForRegion(string regionName)
         {
             List<string> regions = _context.Regions.Where(r => r.Name.ToLower().Equals(regionName.ToLower())).Select(r => r.Name).ToList();

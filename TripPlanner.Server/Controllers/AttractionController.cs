@@ -209,6 +209,7 @@ namespace TripPlanner.Server.Controllers
         }
 
         [HttpGet("fetch/{regionName}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<AttractionGetDto>>> FetchAttractionsByRegionName(string regionName)
         {
             try
