@@ -1,0 +1,36 @@
+[33m0b7c12d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mreact-mui-frontend[m[33m)[m Sorting by edit date and rank for articles
+[33med8ff1d[m Repair some bugs with displaying information about validation
+[33mabd776e[m[33m ([m[1;31morigin/react-mui-frontend[m[33m)[m Added buttons to fetch data, improved authentication and images for region
+[33m184a67c[m Improved Password Recovery
+[33mc23d21a[m Improved map and displaying pins
+[33mbd65b84[m Added ReviewsFeed (user reviews page)
+[33m9e62227[m Added reviews
+[33md6a9da3[m Added Login and Register pages
+[33m8a9625f[m Added ProtectedRoute and adminPages and also set delete and edit buttons only to admins
+[33maba8eab[m Refactor code for hooks to connect with backend
+[33me5fb6ae[m Added beautifully configured and written AuthContext to auth users and display info in the navbar
+[33mc4ac973[m improvements for creating, editing attractions, regions, articles
+[33mafa8eee[m updated for attractions
+[33mf1c5531[m Added CRUD sites for Region
+[33m614bba5[m Improvements for images
+[33m1c64df5[m Added EditArticle
+[33m542fe7e[m Add possibility to delete articles
+[33md12357e[m Added validation and redirect to the articles page
+[33mdfad86d[m Added Create Review page
+[33mb82032a[m Addded Create Region page
+[33m935b656[m Added possibility to extend inputs fields  with error messages
+[33m18b0e62[m Merge branch 'react-mui-frontend' of https://github.com/bnszky/CampGroupPlanner into react-mui-frontend
+[33me23b8de[m Added Attraction Create Page
+[33mb1696e7[m Update README.md
+[33maca30f2[m[33m ([m[1;32mmaster[m[33m)[m Added page for creation and edition of articles
+[33m4ba5da9[m Changed position to the bottom for footer
+[33mfb581bc[m Added Navbar and Footer
+[33mf4fb8d4[m Clickable buttons and possibility to sort reviews and expand lists
+[33mdb37585[m Added reviews
+[33m357f222[m Added ArticleList to the page
+[33m10e9558[m Added map and list of attractions
+[33mb2933fc[m Added RegionInfo component
+[33mfe2206d[m Changed Bootstrap to Material UI
+[33m000b3c0[m Added example data for region page
+[33md3d0304[m Added bootstrap
+[33m277bcbb[m Created project structure and added ArticlesFeed site
