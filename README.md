@@ -51,6 +51,71 @@ communicate through ASP.NET API
 3. Swagger UI
 4. xUnit and Moq for testing services
 
+# Settings
+_appsettings.json_
+```
+{
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Debug",
+      "Override": {
+        "Microsoft": "Error",
+        "System": "Error"
+      }
+    },
+    "Enrich": [ "FromLogContext", "WithMachineName", "WithThreadId" ],
+    "WriteTo": [
+      { "Name": "Console" },
+      {
+        "Name": "File",
+        "Args": {
+          "path": "logs/log-.log",
+          "rollingInterval": "Day"
+        }
+      }
+    ]
+  },
+  "ConnectionStrings": {
+    "TripAppDb": "ConnectionString"
+  },
+  "Jwt": {
+    "Key": "JwtKey",
+    "Issuer": "TripPlanner.com"
+  },
+  "AdminSettings": {
+    "Email": "admin@admin.com",
+    "Password": "Admin123!"
+  },
+  "Foursquare": {
+    "Key": "Foursquare Api Key for fetching attractions"
+  },
+  "RssFeeds": {
+    "Links": [
+      "https://1000daysoftravel.godaddysites.com/f.atom",
+      "https://feeds.feedburner.com/breakingtravelnews",
+      "https://feeds.bbci.co.uk/news/world/rss.xml",
+      "https://feeds.bbci.co.uk/news/world/europe/rss.xml",
+      "https://www.aljazeera.com/xml/rss/all.xml",
+      "http://rss.cnn.com/rss/edition_world.rss"
+      // Add other relevant RSS feed URLs here
+    ]
+  },
+  "Ports": {
+    "Client": "https://localhost:5173",
+    "Server": "https://localhost:7279"
+  },
+  "NewsApi": {
+    "Key": "Key for fetching news from api"
+  },
+  "OpenAI": {
+    "Key": "key for ChatGptApi",
+    "Model": "gpt-4o"
+  },
+  "ProjectPath": "PATH_TO\\repos\\TripPlanner\\TripPlanner.Server",
+  "AllowedHosts": "*"
+}
+```
+
 
 
 
