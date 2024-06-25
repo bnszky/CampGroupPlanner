@@ -25,7 +25,7 @@ export default function ArticlesFeed() {
         {isAdmin &&
         <>
             <Button color="primary" variant="contained" sx={{mx: 1, my: 2}} onClick={async () => await fetchData(`/api/articles/fetch`)}>Fetch Articles</Button>
-            <Button color="primary" variant="contained" sx={{mx: 1, my: 2}} onClick={async () => await fetchData(`/api/articles/rate-or-assign`)}>Assign Articles</Button>
+            <Button color="primary" variant="contained" sx={{mx: 1, my: 2}} onClick={async () => await fetchData(`/api/articles/rate-or-assign`, "put")}>Assign Articles</Button>
             <MinimalPositivitySlider/>
         </>
         } 

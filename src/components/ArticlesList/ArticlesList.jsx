@@ -49,10 +49,11 @@ function ArticlesList({articles, regionName, handleDelete, handleEdit}) {
     }, []);
 
     return <>
-    {regionName != null 
+    {articlesToShow.length > 0 && (regionName != null
     ? <Typography variant='h3' mb={5}>Latest news from {regionName}</Typography> 
-    : <Typography variant='h3' mb={5}>Latest news</Typography> 
+    : <Typography variant='h3' mb={5}>Latest news</Typography>) 
     }
+    {articlesToShow.length <= 0 && <Typography variant="h4">We dont have articles for you :(</Typography>}
     {articles.length > 0 && isAdmin && <Stack direction="row" spacing={2} p={2}>
         <Typography variant="subtitle1">Sort by</Typography>
         <Chip label="Last edited" color="primary" variant={variants[0]} onClick={() => sortArticles(0)} />
@@ -61,7 +62,7 @@ function ArticlesList({articles, regionName, handleDelete, handleEdit}) {
     </Stack>}
     <Grid container alignItems='center' justifyContent='center' spacing={15}>
         {articlesToShow.map(article => (
-            <Grid item xs={12} sm={6} md={4} key={article.id}>
+            <Grid item xs={12} md={6} lg={4} key={article.id}>
                 <ArticleItem key={article.id} article={article} handleDelete={() => handleDelete(article.id)} handleEdit={() => handleEdit(article.id)}/>
             </Grid>
         ))}

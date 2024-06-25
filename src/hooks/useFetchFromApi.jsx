@@ -9,10 +9,16 @@ const useFetchFromApi = () => {
   const token = localStorage.getItem('token');
   axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-  async function fetchData(apiUrl) {
+  async function fetchData(apiUrl, method = "get") {
     setIsFetching(true);
     try {
-      const response = await axios.get(apiUrl);
+      var response;
+      if(method === "get"){
+        response = await axios.get(apiUrl);
+      }
+      else {
+        response = await axios.put(apiUrl);
+      }
       console.log(response);
       navigate("", {
         state: { infoMsg: { type: 'success', msg: `Fetched ${response.data.length} items successfully` } },
@@ -23,9 +29,13 @@ const useFetchFromApi = () => {
       console.error(error.message);
       if(error.response){
         if(error.response.status === 401 || error.response.status === 403){
-            setMessage("Couldn't allow, no access rights")
+            navigate("", {
+              state: { infoMsg: { type: 'error', msg: "Couldn't allow, no access rights" } },
+            });
         } else {
-            setMessage(error.response.data?.title ? error.response.data.title : "Couldn't fetch data");
+            navigate("", {
+              state: { infoMsg: { type: 'error', msg: error.response.data?.title ? error.response.data.title : "Couldn't fetch data" } },
+            });
         }
       }
       navigate("", {
