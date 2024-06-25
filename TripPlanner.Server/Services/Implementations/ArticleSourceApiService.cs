@@ -31,7 +31,7 @@ namespace TripPlanner.Server.Services.Implementations
                         CreatedAt = (DateTime)article["publishedAt"],
                     }) ;
                 }
-                _logger.LogInformation("Successfully fetched {ArticlesCount} from NewsApi", articles.Count);
+                _logger.LogDebug("Successfully fetched {ArticlesCount} from NewsApi", articles.Count);
                 return articles;
             }
             catch (Exception ex) 
@@ -46,6 +46,7 @@ namespace TripPlanner.Server.Services.Implementations
             {
                 try
                 {
+                    client.DefaultRequestHeaders.Add("Accept", "application/json");
                     HttpResponseMessage response = await client.GetAsync(url);
                     response.EnsureSuccessStatusCode();
 

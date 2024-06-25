@@ -54,7 +54,7 @@ namespace TripPlanner.Server.Controllers
             try
             {
                 var desc = await _regionFetchService.GetDescriptionForRegion(region, 500);
-                _logger.LogInformation("{Message} Region: {Region}, Description: {Description}", ResponseMessages.DescriptionFetchedRegion, region, desc);
+                _logger.LogDebug("{Message} Region: {Region}, Description: {Description}", ResponseMessages.DescriptionFetchedRegion, region, desc);
                 return Ok(desc);
             }
             catch (Exception ex)
@@ -77,7 +77,7 @@ namespace TripPlanner.Server.Controllers
             try
             {
                 var cities = await _regionFetchService.FindCitiesByRegion(region, 5);
-                _logger.LogInformation("{Message} Region: {Region}, CitiesCount: {Count}", ResponseMessages.CitiesFetchedRegion, region, cities.Count);
+                _logger.LogDebug("{Message} Region: {Region}, CitiesCount: {Count}", ResponseMessages.CitiesFetchedRegion, region, cities.Count);
                 return Ok(cities);
             }
             catch (Exception ex)
@@ -100,7 +100,7 @@ namespace TripPlanner.Server.Controllers
             try
             {
                 var images = await _regionFetchService.GetImagesForRegion(region, 10);
-                _logger.LogInformation("{Message} Region: {Region}, ImagesCount: {Count}", ResponseMessages.ImagesFetchedRegion, region, images.Count);
+                _logger.LogDebug("{Message} Region: {Region}, ImagesCount: {Count}", ResponseMessages.ImagesFetchedRegion, region, images.Count);
                 return Ok(images);
             }
             catch (Exception ex)
@@ -122,7 +122,7 @@ namespace TripPlanner.Server.Controllers
             try
             {
                 var regionNames = await _regionService.GetAllRegionNamesAsync();
-                _logger.LogInformation("{Message} RegionNamesCount: {Count}", ResponseMessages.RegionNamesFetched, regionNames.Count);
+                _logger.LogDebug("{Message} RegionNamesCount: {Count}", ResponseMessages.RegionNamesFetched, regionNames.Count);
                 return Ok(regionNames);
             }
             catch (Exception ex)
@@ -143,7 +143,7 @@ namespace TripPlanner.Server.Controllers
             try
             {
                 var regions = await _regionService.GetAllRegionMinisAsync();
-                _logger.LogInformation("{Message} RegionsCount: {Count}", ResponseMessages.RegionFetched, regions.Count);
+                _logger.LogDebug("{Message} RegionsCount: {Count}", ResponseMessages.RegionFetched, regions.Count);
                 return Ok(regions);
             }
             catch (Exception ex)
@@ -170,7 +170,7 @@ namespace TripPlanner.Server.Controllers
                     _logger.LogError("{Message} Region: {Region}", ResponseMessages.RegionNotFound, regionName);
                     return BadRequest(_errorService.CreateError(ResponseMessages.RegionNotFound, StatusCodes.Status404NotFound));
                 }
-                _logger.LogInformation("{Message} Region: {Region}", ResponseMessages.RegionFetched, region);
+                _logger.LogDebug("{Message} Region: {Region}", ResponseMessages.RegionFetched, region);
                 return Ok(region);
             }
             catch (Exception ex)
@@ -198,7 +198,7 @@ namespace TripPlanner.Server.Controllers
                     return NotFound(_errorService.CreateError(ResponseMessages.RegionNotFound, StatusCodes.Status404NotFound));
                 }
 
-                _logger.LogInformation("{Message} Region: {Region}", ResponseMessages.RegionFetched, region);
+                _logger.LogDebug("{Message} Region: {Region}", ResponseMessages.RegionFetched, region);
                 return Ok(region);
             }
             catch (Exception ex)
@@ -232,7 +232,7 @@ namespace TripPlanner.Server.Controllers
                     return BadRequest(errorResponse);
                 }
 
-                _logger.LogInformation("{Message} Region: {Region}", ResponseMessages.RegionCreated, regionCreate);
+                _logger.LogDebug("{Message} Region: {Region}", ResponseMessages.RegionCreated, regionCreate);
                 return Ok();
             }
             catch (Exception ex)
@@ -267,7 +267,7 @@ namespace TripPlanner.Server.Controllers
                     return BadRequest(errorResponse);
                 }
 
-                _logger.LogInformation("{Message} Region: {Region}", ResponseMessages.RegionUpdated, regionCreate);
+                _logger.LogDebug("{Message} Region: {Region}", ResponseMessages.RegionUpdated, regionCreate);
                 return Ok();
             }
             catch (Exception ex)
@@ -295,7 +295,7 @@ namespace TripPlanner.Server.Controllers
                     return BadRequest(errorResponse);
                 }
 
-                _logger.LogInformation("{Message} Region: {Region}", ResponseMessages.RegionDeleted, regionName);
+                _logger.LogDebug("{Message} Region: {Region}", ResponseMessages.RegionDeleted, regionName);
                 return Ok();
             }
             catch (Exception ex)

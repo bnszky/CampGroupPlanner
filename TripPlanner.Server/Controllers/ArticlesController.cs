@@ -59,7 +59,7 @@ namespace TripPlanner.Server.Controllers
                 }
 
                 var articleDtos = _mapper.Map<IEnumerable<ArticleGetDto>>(articles).ToList();
-                _logger.LogInformation("{Message} ArticlesDtosCount: {Count}", ResponseMessages.ArticlesFetched, articleDtos.Count);
+                _logger.LogDebug("{Message} ArticlesDtosCount: {Count}", ResponseMessages.ArticlesFetched, articleDtos.Count);
                 return Ok(articleDtos);
             }
             catch (Exception ex)
@@ -95,12 +95,12 @@ namespace TripPlanner.Server.Controllers
                 }
 
                 var articleDtos = _mapper.Map<IEnumerable<ArticleGetDto>>(articles).ToList();
-                if (articleDtos == null || articleDtos.Count == 0)
+                if (articleDtos == null)
                 {
                     _logger.LogError("{Message} Region: {RegionName}", ResponseMessages.RegionNotFound, regionName);
                     return NotFound(_errorService.CreateError(ResponseMessages.RegionNotFound, StatusCodes.Status404NotFound));
                 }
-                _logger.LogInformation("{Message} ArticlesCount: {Count}", ResponseMessages.ArticlesFetched, articleDtos.Count);
+                _logger.LogDebug("{Message} ArticlesCount: {Count}", ResponseMessages.ArticlesFetched, articleDtos.Count);
                 return Ok(articleDtos);
             }
             catch (Exception ex)
@@ -131,7 +131,7 @@ namespace TripPlanner.Server.Controllers
                     _logger.LogError("{Message} Article ID: {ArticleId}", ResponseMessages.ArticleNotFound, id);
                     return NotFound(_errorService.CreateError(ResponseMessages.ArticleNotFound));
                 }
-                _logger.LogInformation("{Message} Article: {Article}", ResponseMessages.ArticlesFetched, articleDto);
+                _logger.LogDebug("{Message} Article: {Article}", ResponseMessages.ArticlesFetched, articleDto);
                 return Ok(articleDto);
             }
             catch (Exception ex)
@@ -185,7 +185,7 @@ namespace TripPlanner.Server.Controllers
 
                 await _articleService.CreateOrUpdateArticleAsync(article, true);
 
-                _logger.LogInformation("{Message} Article: {Article}", ResponseMessages.ArticleCreated, article);
+                _logger.LogDebug("{Message} Article: {Article}", ResponseMessages.ArticleCreated, article);
                 return Ok();
             }
             catch (Exception ex)
@@ -214,7 +214,7 @@ namespace TripPlanner.Server.Controllers
                     return BadRequest(errorMessage);
                 }
 
-                _logger.LogInformation("{Message} Article ID: {ArticleId}", ResponseMessages.ArticleDeleted, id);
+                _logger.LogDebug("{Message} Article ID: {ArticleId}", ResponseMessages.ArticleDeleted, id);
                 return Ok();
             }
             catch (Exception ex)
@@ -268,7 +268,7 @@ namespace TripPlanner.Server.Controllers
                 }
 
                 await _articleService.CreateOrUpdateArticleAsync(article, false);
-                _logger.LogInformation("{Message} Article: {Article}", ResponseMessages.ArticleUpdated, existingArticle);
+                _logger.LogDebug("{Message} Article: {Article}", ResponseMessages.ArticleUpdated, existingArticle);
 
                 return Ok();
             }
@@ -295,7 +295,7 @@ namespace TripPlanner.Server.Controllers
             {
                 var articles = await _articleFetchService.FetchArticlesByRegionNameAsync(regionName);
                 var articleDtos = _mapper.Map<IEnumerable<ArticleGetDto>>(articles).ToList();
-                _logger.LogInformation("{Message} Region: {RegionName} ArticlesCount: {Count}", ResponseMessages.ArticlesFetched, regionName, articleDtos.Count);
+                _logger.LogDebug("{Message} Region: {RegionName} ArticlesCount: {Count}", ResponseMessages.ArticlesFetched, regionName, articleDtos.Count);
                 return Ok(articleDtos);
             }
             catch (Exception ex)
@@ -321,7 +321,7 @@ namespace TripPlanner.Server.Controllers
             {
                 var articles = await _articleFetchService.FetchArticles();
                 var articleDtos = _mapper.Map<IEnumerable<ArticleGetDto>>(articles).ToList();
-                _logger.LogInformation("{Message} ArticlesCount: {Count}", ResponseMessages.ArticlesFetched, articleDtos.Count);
+                _logger.LogDebug("{Message} ArticlesCount: {Count}", ResponseMessages.ArticlesFetched, articleDtos.Count);
                 return Ok(articleDtos);
             }
             catch (Exception ex)
@@ -347,7 +347,7 @@ namespace TripPlanner.Server.Controllers
             {
                 var articles = await _articleFetchService.TryAssignAndRateExistingArticles();
                 var articleDtos = _mapper.Map<IEnumerable<ArticleGetDto>>(articles).ToList();
-                _logger.LogInformation("{Message} ArticlesUpdatedCount: {Count}", "Articles updated", articleDtos.Count);
+                _logger.LogDebug("{Message} ArticlesUpdatedCount: {Count}", "Articles updated", articleDtos.Count);
                 return Ok(articleDtos);
             }
             catch (Exception ex)
@@ -370,7 +370,7 @@ namespace TripPlanner.Server.Controllers
             var errorResponse = await _articleService.DeleteBelowRate(rate);
             if(errorResponse == null)
             {
-                _logger.LogInformation("Successfully deleted articles below rate {Rate}", rate);
+                _logger.LogDebug("Successfully deleted articles below rate {Rate}", rate);
                 return Ok($"Successfully deleted articles below rate {rate}");
             }
 
@@ -396,7 +396,7 @@ namespace TripPlanner.Server.Controllers
                     return BadRequest("Rate must be in range of 0-100");
                 }
                 await _articleService.SetMinimalPositivityRate(rate);
-                _logger.LogInformation("Successfully set minimal positivity rate to {Rate}", rate);
+                _logger.LogDebug("Successfully set minimal positivity rate to {Rate}", rate);
                 return Ok($"Successfully set minimal positivity rate to {rate}");
             }
             catch (Exception ex)
@@ -420,7 +420,7 @@ namespace TripPlanner.Server.Controllers
             try
             {
                 var rate = await _articleService.GetMinimalPositivityRate();
-                _logger.LogInformation("Successfully get minimal positivity rate, rate = {Rate}", rate);
+                _logger.LogDebug("Successfully get minimal positivity rate, rate = {Rate}", rate);
                 return Ok(rate);
             }
             catch (Exception ex)

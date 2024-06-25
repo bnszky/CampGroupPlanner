@@ -12,5 +12,9 @@ namespace TripPlanner.Server.Models.DTOs.Outgoing
         public double Longitude { get; set; }
         public double Latitude { get; set; }
         public string RegionName { get; set; }
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

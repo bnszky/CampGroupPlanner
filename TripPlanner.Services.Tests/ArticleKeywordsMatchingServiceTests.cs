@@ -37,8 +37,8 @@ namespace TripPlanner.Services.Tests
             await _service.RateArticles(articles);
 
             // Assert
-            Assert.Equal(5, articles[0].PositioningRate); // 1 keyword -> (1/20) -> 5
-            Assert.Equal(15, articles[1].PositioningRate); // 3 keywords -> (3/20) -> 15
+            Assert.Equal(10, articles[0].PositioningRate); // 1 keyword -> (1/10) -> 10
+            Assert.Equal(30, articles[1].PositioningRate); // 3 keywords -> (3/10) -> 30
         }
 
         [Fact]
@@ -66,9 +66,9 @@ namespace TripPlanner.Services.Tests
             await _service.RateArticles(articles);
 
             // Assert
-            Assert.Equal(10, articles[0].PositioningRate); // 2 K -> 10
-            Assert.Equal(20, articles[1].PositioningRate); // 4 K -> 20
-            Assert.Equal(15, articles[2].PositioningRate); // 3 K -> 15
+            Assert.Equal(20, articles[0].PositioningRate); // 2 K -> 20
+            Assert.Equal(40, articles[1].PositioningRate); // 4 K -> 40
+            Assert.Equal(30, articles[2].PositioningRate); // 3 K -> 30
             Assert.Equal(100, articles[3].PositioningRate); // >20 K -> 100
             Assert.Equal(0, articles[4].PositioningRate); // 0 K -> 0
         }

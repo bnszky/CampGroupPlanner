@@ -14,7 +14,12 @@ function ArticleItem({article, handleDelete, handleEdit}) {
         <CardHeader
         title={article.title} 
         subheader={<>
-            {humanizeDate(article.createdAt)} {isAdmin && `- rate: ${article.positioningRate}`}
+            {humanizeDate(article.createdAt)}
+            {isAdmin && (
+                <Typography variant="body1" component="span" sx={{ fontWeight: 'bold', fontSize: '1.2em' }}>
+                    - rate: {article.positioningRate}
+                </Typography>
+            )}
         <br />
             {article.regionName && <Link href={`/region/${article.regionName}`} underline="hover" sx={{ color: 'inherit' }}>
               From {article.regionName}

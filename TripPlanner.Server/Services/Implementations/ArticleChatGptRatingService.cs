@@ -131,7 +131,7 @@ namespace TripPlanner.Server.Services.Implementations
                     _logger.LogDebug("Article {ArticleTitle} rated Rate = {Rate}", articles[id].Title, articles[id].PositioningRate);
                 }
 
-                _logger.LogInformation("Successfully rated and assigned articles");
+                _logger.LogDebug("Successfully rated and assigned articles");
                 return true;
             }
             catch(Exception ex)

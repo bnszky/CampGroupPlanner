@@ -36,7 +36,7 @@ namespace TripPlanner.Server.Services.Implementations
                     if(!_context.Articles.Where(a => a.Title.ToLower().Equals(article.Title.ToLower())).Any())
                     {
                         _context.Add(article);
-                        _logger.LogInformation("Successfully added {ArticleTitle} article to the database", article.Title);
+                        _logger.LogDebug("Successfully added {ArticleTitle} article to the database", article.Title);
                         cnt++;
                     }
                     else
@@ -45,7 +45,7 @@ namespace TripPlanner.Server.Services.Implementations
                     }
                 }
                 await _context.SaveChangesAsync();
-                _logger.LogInformation("Successfully added {cnt} articles to the database", cnt);
+                _logger.LogDebug("Successfully added {cnt} articles to the database", cnt);
             }
             catch (Exception ex) 
             {
@@ -63,7 +63,7 @@ namespace TripPlanner.Server.Services.Implementations
                     if (!_context.Articles.Where(a => a.Title.ToLower().Equals(article.Title.ToLower())).Any())
                     {
                         _context.Add(article);
-                        _logger.LogInformation("Successfully verified {ArticleTitle} article in the database", article.Title);
+                        _logger.LogDebug("Successfully verified {ArticleTitle} article in the database", article.Title);
                         verifiedArticles.Add(article);
                     }
                     else
@@ -72,7 +72,7 @@ namespace TripPlanner.Server.Services.Implementations
                     }
                 }
 
-                _logger.LogInformation("Database Filtring: Removed {RemovedArticlesCount} articles, Not existing articles in db: {VerifiedArticlesCount}", articles.Count - verifiedArticles.Count, verifiedArticles.Count);
+                _logger.LogDebug("Database Filtring: Removed {RemovedArticlesCount} articles, Not existing articles in db: {VerifiedArticlesCount}", articles.Count - verifiedArticles.Count, verifiedArticles.Count);
                 return verifiedArticles;
             }
             catch (Exception ex)
@@ -82,37 +82,50 @@ namespace TripPlanner.Server.Services.Implementations
             }
         }
 
-        private async Task<(List<string>, List<string>, List<string>)> GetAllRegionWithCountryNames()
+        private async Task<(List<string>, List<string>, List<string>, List<List<string>>)> GetAllRegionWithCountryNames()
         {
             try
             {
                 List<string> regionWithCountries = _context.Regions.OrderBy(r => r.Id).Select(r => r.Name + " - " + r.Country).ToList();
                 List<string> regions = _context.Regions.OrderBy(r => r.Id).Select(r => r.Name).ToList();
+                List<Region> regionObjects = _context.Regions.Include(r => r.Cities).OrderBy(r => r.Id).ToList();
                 List<string> countries = _context.Regions.OrderBy(r => r.Id).Select(r => r.Country).ToList();
+                List<List<string>> cities = [];
 
-                return (regions, countries, regionWithCountries);
+                foreach(var region in regionObjects)
+                {
+                    cities.Add(region.Cities.Select(c => c.Name).ToList());
+                }
+
+                return (regions, countries, regionWithCountries, cities);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Couldn't fetch region names from database");
-                return ([], [], []);
+                return ([], [], [], []);
             }
         }
 
-        private async Task<(List<string>, List<string>, List<string>)> GetRegionWithCountryName(string regionName)
+        private async Task<(List<string>, List<string>, List<string>, List<List<string>>)> GetRegionWithCountryName(string regionName)
         {
             try
             {
                 List<string> regionWithCountries = _context.Regions.Where(r => r.Name.ToLower().Equals(regionName.ToLower())).Select(r => r.Name + " - " + r.Country).ToList();
                 List<string> regions = _context.Regions.Where(r => r.Name.ToLower().Equals(regionName.ToLower())).Select(r => r.Name).ToList();
                 List<string> countries = _context.Regions.Where(r => r.Name.ToLower().Equals(regionName.ToLower())).Select(r => r.Country).ToList();
+                List <List<string>> cities = [];
+                var region = _context.Regions.Include(r => r.Cities).Where(r => r.Name.ToLower().Equals(regionName.ToLower())).FirstOrDefault();
+                if (region != null)
+                {
+                    cities.Add(region.Cities.Select(c => c.Name).ToList());
+                }
 
-                return (regions, countries, regionWithCountries);
+                return (regions, countries, regionWithCountries, cities);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Couldn't fetch region names from database");
-                return ([], [], []);
+                return ([], [], [], []);
             }
         }
 
@@ -155,10 +168,10 @@ namespace TripPlanner.Server.Services.Implementations
 
         public async Task<List<Article>> FetchArticles()
         {
-            _logger.LogInformation("Starting to fetch articles");
+            _logger.LogDebug("Starting to fetch articles");
             var articles = await FetchArticlesFromSources(null);
             articles = RemoveExistingArticlesAsync(articles);
-            var (regions, countries, regionWithCountriesNames) = await GetAllRegionWithCountryNames();
+            var (regions, countries, regionWithCountriesNames, cities) = await GetAllRegionWithCountryNames();
 
             // take max N articles, rate and assign to regions
             articles = TakeNRandomArticles(articles, MAX_NUMBER_ARTICLES_PER_REQUEST);
@@ -167,12 +180,12 @@ namespace TripPlanner.Server.Services.Implementations
             if (!isSuccess)
             {
                 await _articleKeywordsMatchingService.RateArticles(articles);
-                await _articleKeywordsMatchingService.AssignArticlesByRegionNames(articles, regions, countries);
+                await _articleKeywordsMatchingService.AssignArticlesByRegionNames(articles, regions, countries, cities);
             }
 
             // update articles field for isVisible and Region
             ChangeArticleFields(articles);
-            _logger.LogInformation("Finished fetching articles. Total articles fetched: {ArticleCount}", articles.Count);
+            _logger.LogDebug("Finished fetching articles. Total articles fetched: {ArticleCount}", articles.Count);
 
             await AddArticlesToDatabase(articles);
             return articles;
@@ -180,11 +193,11 @@ namespace TripPlanner.Server.Services.Implementations
 
         public async Task<List<Article>> FetchArticlesByRegionNameAsync(string regionName)
         {
-            _logger.LogInformation("Starting to fetch articles for Region: {RegionName}", regionName);
+            _logger.LogDebug("Starting to fetch articles for Region: {RegionName}", regionName);
             var articles = await FetchArticlesFromSources(regionName);
             articles = RemoveExistingArticlesAsync(articles);
 
-            var (regions, countries, regionWithCountryName) = await GetRegionWithCountryName(regionName);
+            var (regions, countries, regionWithCountryName, cities) = await GetRegionWithCountryName(regionName);
 
             // take max N articles, rate and assign to regions
             articles = TakeNRandomArticles(articles, MAX_NUMBER_ARTICLES_PER_REQUEST);
@@ -193,14 +206,14 @@ namespace TripPlanner.Server.Services.Implementations
             if (!isSuccess)
             {
                 await _articleKeywordsMatchingService.RateArticles(articles);
-                await _articleKeywordsMatchingService.AssignArticlesByRegionNames(articles, regions, countries);
+                await _articleKeywordsMatchingService.AssignArticlesByRegionNames(articles, regions, countries, cities);
             }
 
             articles = await FilterOnlyWithGivenRegionName(articles, regionName);
 
             // update articles field for isVisible and Region
             ChangeArticleFields(articles);
-            _logger.LogInformation("Finished fetching articles. Total articles fetched: {ArticleCount}", articles.Count);
+            _logger.LogDebug("Finished fetching articles. Total articles fetched: {ArticleCount}", articles.Count);
 
             await AddArticlesToDatabase(articles);
             return articles;
@@ -208,22 +221,22 @@ namespace TripPlanner.Server.Services.Implementations
 
         public async Task<List<Article>> TryAssignAndRateExistingArticles()
         {
-            _logger.LogInformation("Starting rating and assigning articles from the database");
+            _logger.LogDebug("Starting rating and assigning articles from the database");
             List<Article> articles = _context.Articles.Where(a => a.PositioningRate == 0 || a.Region == null).ToList();
             articles = TakeNRandomArticles(articles, MAX_NUMBER_ARTICLES_PER_REQUEST);
 
-            var (regions, countries, regionWithCountriesNames) = await GetAllRegionWithCountryNames();
+            var (regions, countries, regionWithCountriesNames, cities) = await GetAllRegionWithCountryNames();
 
             bool isSuccess = await _articleRatingService.RateArticlesAsync(articles, regions, countries, regionWithCountriesNames);
             if (!isSuccess)
             {
                 await _articleKeywordsMatchingService.RateArticles(articles);
-                await _articleKeywordsMatchingService.AssignArticlesByRegionNames(articles, regions, countries);
+                await _articleKeywordsMatchingService.AssignArticlesByRegionNames(articles, regions, countries, cities);
             }
 
             // update articles field for isVisible and Region
             ChangeArticleFields(articles);
-            _logger.LogInformation("Finished editing articles. Total articles edited: {ArticleCount}", articles.Count);
+            _logger.LogDebug("Finished editing articles. Total articles edited: {ArticleCount}", articles.Count);
 
             await _context.SaveChangesAsync();
             return articles;
@@ -245,7 +258,7 @@ namespace TripPlanner.Server.Services.Implementations
                         if (await _articleRatingService.IsArticleValidAsync(article))
                         {
                             allArticles.Add(article);
-                            _logger.LogInformation("Article added: {ArticleTitle} ", article.Title);
+                            _logger.LogDebug("Article added: {ArticleTitle} ", article.Title);
                         }
                         else
                         {

@@ -51,20 +51,26 @@ namespace TripPlanner.Server.Services.Implementations
 
         public int SetRateBasedOnOccurances(int count)
         {
-            if (count >= 20) return 100;
-            return (int)(((float)count / 20) * 100);
+            if (count >= 10) return 100;
+            return (int)(((float)count / 10) * 100);
         }
 
-        public string? AssignArticleByRegion(Article article, string region, string country)
+        public string? AssignArticleByRegion(Article article, string region, string country, List<string> cities)
         {
-            if(CountOccurrences(article.Title.ToLower(), region.ToLower()) > 0 || CountOccurrences(article.Title.ToLower(), country.ToLower()) > 0)
+            List<string> keywords = [country.ToLower(), region.ToLower()];
+            keywords.AddRange(cities.Select(c => c.ToLower()));
+            foreach(string keyword in keywords)
             {
-                return region;
+                if(CountOccurrences(article.Title, keyword) > 0)
+                {
+                    return region;
+                }
             }
+
             return null;
         }
 
-        public async Task AssignArticlesByRegionNames(List<Article> articles, List<string> regionNames, List<string> countries)
+        public async Task AssignArticlesByRegionNames(List<Article> articles, List<string> regionNames, List<string> countries, List<List<string>> cities)
         {
             _logger.LogDebug("Started assigning articles with keywords matching algorithm");
             await Task.Run(() =>
@@ -72,7 +78,7 @@ namespace TripPlanner.Server.Services.Implementations
                 Parallel.ForEach(articles, article =>
                 {
                     for (int i = 0; i < regionNames.Count; i++) {
-                        var regionName = AssignArticleByRegion(article, regionNames[i], countries[i]);
+                        var regionName = AssignArticleByRegion(article, regionNames[i], countries[i], cities[i]);
                         article.RegionName = regionName;
                         if (regionName != null)
                         {

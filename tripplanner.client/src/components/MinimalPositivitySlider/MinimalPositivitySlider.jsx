@@ -58,7 +58,7 @@ export default function MinimalPositivitySlider() {
   return (
     <Box sx={{width: 400}}>
         <Typography gutterBottom>
-            Change minimal positivity rate
+            Change minimal positivity rate: {minPositivityRate}
         </Typography>
         <Slider
             value={minPositivityRate}

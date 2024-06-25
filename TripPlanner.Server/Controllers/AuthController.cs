@@ -57,12 +57,12 @@ namespace TripPlanner.Server.Controllers
 
             if (User.Identity.IsAuthenticated)
             {
-                _logger.LogInformation(ResponseMessages.UserAlreadyLoggedIn);
+                _logger.LogDebug(ResponseMessages.UserAlreadyLoggedIn);
                 return _responseService.Get(ResponseMessages.UserAlreadyLoggedIn, StatusCodes.Status400BadRequest);
             }
             if (!await _emailService.IsEmailValid(model.Email))
             {
-                _logger.LogInformation("Email is not valid: {ModelEmail}", model.Email);
+                _logger.LogDebug("Email is not valid: {ModelEmail}", model.Email);
                 return _responseService.Get(ResponseMessages.InvalidEmail, StatusCodes.Status400BadRequest);
             }
 
@@ -154,7 +154,7 @@ namespace TripPlanner.Server.Controllers
             var result = await _userManager.ConfirmEmailAsync(user, token);
             if (result.Succeeded)
             {
-                _logger.LogInformation("Email {UserEmail} successfully confirmed", user.Email);
+                _logger.LogDebug("Email {UserEmail} successfully confirmed", user.Email);
                 return Ok(ResponseMessages.EmailConfirmed);
             }
 
@@ -204,7 +204,7 @@ namespace TripPlanner.Server.Controllers
 
             if (isValidToken)
             {
-                _logger.LogInformation("Token validation succeeded for {UserEmail}", user.Email);
+                _logger.LogDebug("Token validation succeeded for {UserEmail}", user.Email);
                 return Ok("Token is valid");
             }
 
@@ -223,7 +223,7 @@ namespace TripPlanner.Server.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                _logger.LogInformation(ResponseMessages.UserAlreadyLoggedIn);
+                _logger.LogDebug(ResponseMessages.UserAlreadyLoggedIn);
                 return _responseService.Get(ResponseMessages.UserAlreadyLoggedIn, StatusCodes.Status401Unauthorized);
             }
 
@@ -239,7 +239,7 @@ namespace TripPlanner.Server.Controllers
 
                 var userRoles = await _userManager.GetRolesAsync(user);
                 var token = _authService.GenerateJwtToken(user, userRoles);
-                _logger.LogInformation("User with email: {userEmail} has been successfully logged in", user.Email);
+                _logger.LogDebug("User with email: {userEmail} has been successfully logged in", user.Email);
                 return Ok(new { token });
             }
 
@@ -258,7 +258,7 @@ namespace TripPlanner.Server.Controllers
             await _signInManager.SignOutAsync();
             var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
             await _authService.AddTokenToBlacklistAsync(token);
-            _logger.LogInformation("Successfully logged out");
+            _logger.LogDebug("Successfully logged out");
             _logger.LogDebug("Token: {Token} has been added to the blacklist", token);
             return Ok();
         }
@@ -339,7 +339,7 @@ namespace TripPlanner.Server.Controllers
             var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
             if (result.Succeeded)
             {
-                _logger.LogInformation("Password reset successful for user with email: {ModelEmail}", model.Email);
+                _logger.LogDebug("Password reset successful for user with email: {ModelEmail}", model.Email);
                 return Ok(ResponseMessages.PasswordResetSuccessful);
             }
 

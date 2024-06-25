@@ -15,5 +15,9 @@ namespace TripPlanner.Server.Models.DTOs.Outgoing
         public string? RegionName { get; set; }
         public int PositioningRate { get; set; }
         public bool IsVisible { get; set; }
+        public override string ToString()
+        {
+            return Title;
+        }
     }
 }

@@ -45,7 +45,7 @@ namespace TripPlanner.Server.Services.Implementations
 
                 attraction.ImageURL = json[0]["prefix"].ToString() + "original" + json[0]["suffix"].ToString(); 
 
-                _logger.LogInformation("Added ImageUrl to attraction {AttractionName}", attraction.Name);
+                _logger.LogDebug("Added ImageUrl to attraction {AttractionName}", attraction.Name);
             }
             catch(Exception ex)
             {
@@ -76,7 +76,7 @@ namespace TripPlanner.Server.Services.Implementations
                 attractions = attractions.OrderBy(x => random.Next()).Take(maxNumberOfAttractions).ToList();
             }
 
-            _logger.LogInformation("Filtered {AttractionsCount} attractions", attractions.Count);
+            _logger.LogDebug("Filtered {AttractionsCount} attractions", attractions.Count);
 
             foreach(var attraction in attractions)
             {
@@ -85,7 +85,7 @@ namespace TripPlanner.Server.Services.Implementations
 
             _context.AddRange(attractions);
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Added {AttractionsCount} articles to the database", attractions.Count);
+            _logger.LogDebug("Added {AttractionsCount} articles to the database", attractions.Count);
 
             return attractions;
         }
@@ -118,10 +118,10 @@ namespace TripPlanner.Server.Services.Implementations
                     };
                     attractions.Add(attraction);
 
-                    _logger.LogInformation("Added attraction {AttractionName} for city {CityName}", attraction.Name, city.Name);
+                    _logger.LogDebug("Added attraction {AttractionName} for city {CityName}", attraction.Name, city.Name);
                 }
 
-                _logger.LogInformation("Successfully addded {AttractionsCount} attractions for city {CityName}", attractions.Count, city.Name);
+                _logger.LogDebug("Successfully addded {AttractionsCount} attractions for city {CityName}", attractions.Count, city.Name);
                 return attractions;
             }
             catch (Exception ex)

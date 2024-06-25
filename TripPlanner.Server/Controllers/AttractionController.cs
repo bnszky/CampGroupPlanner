@@ -50,7 +50,7 @@ namespace TripPlanner.Server.Controllers
             {
                 var attractions = await _attractionService.GetAllAsync();
                 var attractionDtos = _mapper.Map<IEnumerable<AttractionGetDto>>(attractions).ToList();
-                _logger.LogInformation("{Message} AttractionsCount: {Count}", ResponseMessages.AttractionsFetched, attractionDtos.Count);
+                _logger.LogDebug("{Message} AttractionsCount: {Count}", ResponseMessages.AttractionsFetched, attractionDtos.Count);
                 return Ok(attractionDtos);
             }
             catch (Exception ex)
@@ -76,7 +76,7 @@ namespace TripPlanner.Server.Controllers
             {
                 var attractions = await _attractionService.GetAllByRegionAsync(regionName);
                 var attractionDtos = _mapper.Map<IEnumerable<AttractionGetDto>>(attractions).ToList();
-                _logger.LogInformation("{Message} Region: {RegionName} AttractionsCount: {Count}", ResponseMessages.AttractionsFetched, regionName, attractionDtos.Count);
+                _logger.LogDebug("{Message} Region: {RegionName} AttractionsCount: {Count}", ResponseMessages.AttractionsFetched, regionName, attractionDtos.Count);
                 return Ok(attractionDtos);
             }
             catch (Exception ex)
@@ -107,7 +107,7 @@ namespace TripPlanner.Server.Controllers
                     _logger.LogError("{Message} Attraction ID: {AttractionId}", ResponseMessages.AttractionNotFound, id);
                     return NotFound(_errorService.CreateError(ResponseMessages.AttractionNotFound, StatusCodes.Status404NotFound));
                 }
-                _logger.LogInformation("{Message} Attraction: {Attraction}", ResponseMessages.AttractionsFetched, attractionDto);
+                _logger.LogDebug("{Message} Attraction: {Attraction}", ResponseMessages.AttractionsFetched, attractionDto);
                 return Ok(attractionDto);
             }
             catch (Exception ex)
@@ -152,7 +152,7 @@ namespace TripPlanner.Server.Controllers
                 }
 
                 await _attractionService.CreateOrUpdateAttractionAsync(attraction, true);
-                _logger.LogInformation("{Message} Attraction: {Attraction}", ResponseMessages.AttractionCreated, attraction);
+                _logger.LogDebug("{Message} Attraction: {Attraction}", ResponseMessages.AttractionCreated, attraction);
                 return Ok();
             }
             catch (Exception ex)
@@ -206,7 +206,7 @@ namespace TripPlanner.Server.Controllers
                 }
 
                 await _attractionService.CreateOrUpdateAttractionAsync(attraction, false);
-                _logger.LogInformation("{Message} Attraction: {Attraction}", ResponseMessages.AttractionUpdated, existingAttraction);
+                _logger.LogDebug("{Message} Attraction: {Attraction}", ResponseMessages.AttractionUpdated, existingAttraction);
                 return Ok();
             }
             catch (Exception ex)
@@ -234,7 +234,7 @@ namespace TripPlanner.Server.Controllers
                     _logger.LogError("{Message} Error: {DeleteError}", ResponseMessages.AttractionDeleteError, errorMessage);
                     return BadRequest(errorMessage);
                 }
-                _logger.LogInformation("{Message} Attraction ID: {AttractionId}", ResponseMessages.AttractionDeleted, id);
+                _logger.LogDebug("{Message} Attraction ID: {AttractionId}", ResponseMessages.AttractionDeleted, id);
                 return Ok();
             }
             catch (Exception ex)
@@ -261,7 +261,7 @@ namespace TripPlanner.Server.Controllers
                 var cities = await _regionService.GetCitiesByRegionName(regionName);
                 var attractions = await _attractionFetchService.FetchAttractionsForGivenCities(cities, 10);
                 var attractionDtos = _mapper.Map<IEnumerable<AttractionGetDto>>(attractions).ToList();
-                _logger.LogInformation("{Message} Region: {RegionName} AttractionsCount: {Count}", ResponseMessages.AttractionsFetched, regionName, attractionDtos.Count);
+                _logger.LogDebug("{Message} Region: {RegionName} AttractionsCount: {Count}", ResponseMessages.AttractionsFetched, regionName, attractionDtos.Count);
                 return Ok(attractionDtos);
             }
             catch (Exception ex)

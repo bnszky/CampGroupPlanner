@@ -42,7 +42,7 @@ const useDataFeed = (apiUrl, editPath, deleteApiUrl, listPath) => {
       navigate(listPath, {
         state: { infoMsg: { type: 'error', msg: `Item ${identifier} couldn't be deleted` } },
       });
-      //window.location.reload();
+      window.location.reload();
     }
   };
 

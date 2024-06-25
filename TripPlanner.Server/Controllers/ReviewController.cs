@@ -52,7 +52,7 @@ namespace TripPlanner.Server.Controllers
             {
                 var reviews = _context.Reviews.Where(r => r.RegionId == regionId).Include(r => r.Author).ToList();
                 var reviewDtos = _mapper.Map<IEnumerable<ReviewGetDto>>(reviews).ToList();
-                _logger.LogInformation("{Message} RegionId: {RegionId}, ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, regionId, reviewDtos.Count);
+                _logger.LogDebug("{Message} RegionId: {RegionId}, ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, regionId, reviewDtos.Count);
                 return Ok(reviewDtos);
             }
             catch (Exception ex)
@@ -85,7 +85,7 @@ namespace TripPlanner.Server.Controllers
 
                 var reviews = _context.Reviews.Where(r => r.RegionId == region.Id).Include(r => r.Author).ToList();
                 var reviewDtos = _mapper.Map<IEnumerable<ReviewGetDto>>(reviews).ToList();
-                _logger.LogInformation("{Message} RegionName: {RegionName}, ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, regionName, reviewDtos.Count);
+                _logger.LogDebug("{Message} RegionName: {RegionName}, ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, regionName, reviewDtos.Count);
                 return Ok(reviewDtos);
             }
             catch (Exception ex)
@@ -108,7 +108,7 @@ namespace TripPlanner.Server.Controllers
             {
                 var reviews = _context.Reviews.Include(r => r.Author).ToList();
                 var reviewDtos = _mapper.Map<IEnumerable<ReviewGetDto>>(reviews).ToList();
-                _logger.LogInformation("{Message} ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, reviewDtos.Count);
+                _logger.LogDebug("{Message} ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, reviewDtos.Count);
                 return Ok(reviewDtos);
             }
             catch (Exception ex)
@@ -132,7 +132,7 @@ namespace TripPlanner.Server.Controllers
             {
                 var reviews = _context.Reviews.Where(r => r.AuthorId == userId).Include(r => r.Author).ToList();
                 var reviewDtos = _mapper.Map<IEnumerable<ReviewGetDto>>(reviews).ToList();
-                _logger.LogInformation("{Message} UserId: {UserId}, ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, userId, reviewDtos.Count);
+                _logger.LogDebug("{Message} UserId: {UserId}, ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, userId, reviewDtos.Count);
                 return Ok(reviewDtos);
             }
             catch (Exception ex)
@@ -159,7 +159,7 @@ namespace TripPlanner.Server.Controllers
 
                 var reviews = _context.Reviews.Where(r => r.AuthorId == user.Id).Include(r => r.Author).ToList();
                 var reviewDtos = _mapper.Map<IEnumerable<ReviewGetDto>>(reviews).ToList();
-                _logger.LogInformation("{Message} Username: {UserUsername}, ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, user.UserName, reviewDtos.Count);
+                _logger.LogDebug("{Message} Username: {UserUsername}, ReviewsCount: {Count}", ResponseMessages.ReviewsFetched, user.UserName, reviewDtos.Count);
                 return Ok(reviewDtos);
             }
             catch (Exception ex)
@@ -204,7 +204,7 @@ namespace TripPlanner.Server.Controllers
                 _context.Reviews.Add(review);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("{Message} Review: {Review}, Username: {UserUserName}", ResponseMessages.ReviewCreated, review, user.UserName);
+                _logger.LogDebug("{Message} Review: {Review}, Username: {UserUserName}", ResponseMessages.ReviewCreated, review, user.UserName);
                 return Ok(review);
             }
             catch (Exception ex)
@@ -237,7 +237,7 @@ namespace TripPlanner.Server.Controllers
                 _context.Reviews.Remove(review);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("{Message} ReviewId: {ReviewId}", ResponseMessages.ReviewDeleted, id);
+                _logger.LogDebug("{Message} ReviewId: {ReviewId}", ResponseMessages.ReviewDeleted, id);
                 return Ok();
             }
             catch (Exception ex)

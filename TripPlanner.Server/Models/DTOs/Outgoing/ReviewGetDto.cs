@@ -12,5 +12,9 @@ namespace TripPlanner.Server.Models.DTOs.Outgoing
         public double Rate { get; set; }
         public DateTime CreatedAt { get; set; }
         public string AuthorUsername { get; set; }
+        public override string ToString()
+        {
+            return AuthorUsername + " - " + Title;
+        }
     }
 }

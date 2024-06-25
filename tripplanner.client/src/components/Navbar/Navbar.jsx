@@ -47,7 +47,7 @@ function Navbar() {
 
             {/* Burger menu dropdown */}
 
-            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+            <Box sx={{ flexGrow: 1, display: { md: 'flex', lg: 'none' } }}>
             <IconButton
               size="large"
               aria-label="account of current user"
@@ -73,7 +73,7 @@ function Navbar() {
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
               sx={{
-                display: { xs: 'block', md: 'none' },
+                display: { md: 'block', lg: 'none' },
               }}
             >
               {pages.map((page) => (
@@ -88,7 +88,7 @@ function Navbar() {
               ))}
               {isAdmin && adminPages.map((page) => (
                 <MenuItem key={page.name}>
-                  <Button textAlign="center" color='error' onClick={handleCloseNavMenu} href={page.link}>{page.name}</Button>
+                  <Button textAlign="center" color='inherit' onClick={handleCloseNavMenu} href={page.link}>{page.name}</Button>
                 </MenuItem>
               ))}
             </Menu>
@@ -96,7 +96,7 @@ function Navbar() {
             
             {/* Menu for larger screens */}
 
-            <Box ml={5} sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex'}}}>
+            <Box ml={5} sx={{ flexGrow: 1, display: { xs: 'none', lg: 'flex'}}}>
                 {pages.map(page => (
                     <Button key={page.name} color="inherit" href={page.link}>{page.name}</Button>
                 ))}
@@ -104,7 +104,7 @@ function Navbar() {
                     <Button key={page.name} color="inherit" href={page.link}>{page.name}</Button>
                 ))}
                 {isAdmin && adminPages.map(page => (
-                    <Button key={page.name} color="error" href={page.link}>{page.name}</Button>
+                    <Button key={page.name} color="inherit" href={page.link}>{page.name}</Button>
                 ))}
             </Box>
 
@@ -120,9 +120,6 @@ function Navbar() {
                     />
                   </IconButton>
                 </Tooltip>
-                <Typography variant="body1" sx={{ marginLeft: 1, color: isAdmin ? 'red' : 'black' }}>
-                  {username}
-                </Typography>
               </Box>
             )}
 

@@ -357,7 +357,7 @@ healthchecksdb
 MigrationBackup/
 
 # JsonAppSettings
-/TripPlanner.Server/appsettings.json
+TripPlanner.Server/appsettings.json
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/

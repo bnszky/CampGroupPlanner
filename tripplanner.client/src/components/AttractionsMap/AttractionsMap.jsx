@@ -22,11 +22,21 @@ function AttractionsMap({attractions}) {
         if(att.latitude > maxLat) maxLat = att.latitude;
        }
      
-       let latLen = maxLat+minLat
-       let longLen = maxLong+minLong
-       position = [latLen/2, longLen/2]
+       let latLen = Math.abs(maxLat-minLat)
+       let longLen = Math.abs(maxLong-minLong)
+       position = [(maxLat+minLat)/2, (maxLong+minLong)/2]
 
-       zoom = Math.max(latLen, longLen) * 0.08;
+       let leng = Math.max(latLen, longLen)
+       if(leng > 20){
+        zoom = leng * 0.05;
+       } else if (leng > 5){
+        zoom = leng * 0.4;
+       } else if (leng > 2){
+        zoom = leng * 3;
+       } else {
+        zoom = leng * 5;
+       }
+       
     }
 
     return <MapContainer center={position} zoom={zoom} scrollWheelZoom={false} style={{height: "100%", width: "100%", borderRadius: 50}}>
