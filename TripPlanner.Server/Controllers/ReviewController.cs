@@ -38,6 +38,12 @@ namespace TripPlanner.Server.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Retrieves reviews for a specific region by its ID.
+        /// </summary>
+        /// <param name="regionId">The ID of the region.</param>
+        /// <response code="200">Returns the list of reviews for the specified region.</response>
+        /// <response code="400">If there was an error fetching reviews.</response>
         [HttpGet("region/{regionId}")]
         [AllowAnonymous]
         public ActionResult<List<ReviewGetDto>> GetReviewsByRegion(int regionId)
@@ -56,6 +62,13 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves reviews for a specific region by its name.
+        /// </summary>
+        /// <param name="regionName">The name of the region.</param>
+        /// <response code="200">Returns the list of reviews for the specified region.</response>
+        /// <response code="404">If the region is not found.</response>
+        /// <response code="400">If there was an error fetching reviews.</response>
         [HttpGet("region/name/{regionName}")]
         [AllowAnonymous]
         public ActionResult<List<ReviewGetDto>> GetReviewsByRegionName(string regionName)
@@ -82,6 +95,11 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves all reviews.
+        /// </summary>
+        /// <response code="200">Returns the list of all reviews.</response>
+        /// <response code="400">If there was an error fetching reviews.</response>
         [HttpGet("all")]
         [Authorize(Roles = "Admin")]
         public ActionResult<List<ReviewGetDto>> GetAllReviews()
@@ -100,6 +118,12 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves reviews by a specific user.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <response code="200">Returns the list of reviews by the specified user.</response>
+        /// <response code="400">If there was an error fetching reviews.</response>
         [HttpGet("user/{userId}")]
         [Authorize(Roles = "Admin")]
         public ActionResult<List<ReviewGetDto>> GetReviewsByUser(string userId)
@@ -118,6 +142,12 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves reviews by the currently authenticated user.
+        /// </summary>
+        /// <response code="200">Returns the list of reviews by the authenticated user.</response>
+        /// <response code="401">If the user is not authenticated.</response>
+        /// <response code="400">If there was an error fetching reviews.</response>
         [HttpGet("user")]
         [Authorize]
         public async Task<ActionResult<List<ReviewGetDto>>> GetUserReviews()
@@ -139,6 +169,13 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Creates a new review.
+        /// </summary>
+        /// <param name="model">The review creation details.</param>
+        /// <response code="200">If the review was created successfully.</response>
+        /// <response code="400">If there was an error creating the review.</response>
+        /// <response code="401">If the user is not authenticated.</response>
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> CreateReview([FromForm] ReviewCreateDto model)
@@ -177,6 +214,13 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes a review by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the review to delete.</param>
+        /// <response code="200">If the review was deleted successfully.</response>
+        /// <response code="404">If the review is not found.</response>
+        /// <response code="400">If there was an error deleting the review.</response>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteReview(int id)

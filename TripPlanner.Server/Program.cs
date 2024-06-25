@@ -12,6 +12,7 @@ using TripPlanner.Server.Middlewares;
 using Serilog;
 using Serilog.Events;
 using TripPlanner.Server.Models.Auth;
+using System.Reflection;
 
 namespace TripPlanner.Server
 {
@@ -22,10 +23,11 @@ namespace TripPlanner.Server
             // Configure Serilog
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
+                .MinimumLevel.Override("System", LogEventLevel.Error)
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
-                .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+                .WriteTo.File("logs/log-.log", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
             var builder = WebApplication.CreateBuilder(args);
@@ -62,6 +64,10 @@ namespace TripPlanner.Server
                         new string[]{}
                     }
                 });
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                opt.IncludeXmlComments(xmlPath);
             });
 
             builder.Services.AddHttpClient();
@@ -86,7 +92,8 @@ namespace TripPlanner.Server
             builder.Services.AddTransient<IArticleSourceService, ArticleSourceRSS>();
             builder.Services.AddTransient<IArticleSourceService, ArticleSourceApiService>();
 
-            builder.Services.AddTransient<IArticleRatingService, ArticleRatingService>();
+            builder.Services.AddTransient<IArticleRatingService, ArticleChatGptRatingService>();
+            builder.Services.AddSingleton<IArticleKeywordsMatchingService, ArticleKeywordsMatchingSevice>();
 
             // Services for fetching attractions
             builder.Services.AddTransient<IAttractionFetchService, AttractionFetchService>();

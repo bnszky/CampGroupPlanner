@@ -10,6 +10,7 @@ using TripPlanner.Server.Models.Database;
 using AutoMapper;
 using TripPlanner.Server.Models.DTOs.Outgoing;
 using TripPlanner.Server.Models.DTOs.Incoming;
+using TripPlanner.Server.Models;
 
 namespace TripPlanner.Server.Controllers
 {
@@ -24,7 +25,7 @@ namespace TripPlanner.Server.Controllers
         private readonly ILogger<AttractionController> _logger;
         private readonly IMapper _mapper;
 
-        public AttractionController( IAttractionService attractionService, IErrorService errorService, IRegionService regionService, IAttractionFetchService attractionFetchService, ILogger<AttractionController> logger, IMapper mapper)
+        public AttractionController(IAttractionService attractionService, IErrorService errorService, IRegionService regionService, IAttractionFetchService attractionFetchService, ILogger<AttractionController> logger, IMapper mapper)
         {
             _errorService = errorService;
             _attractionService = attractionService;
@@ -34,8 +35,15 @@ namespace TripPlanner.Server.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Return all attractions
+        /// </summary>
+        /// <response code="200">Returns list of attractions</response>
+        /// <response code="400">Error object</response>
         [HttpGet]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(List<AttractionGetDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<AttractionGetDto>>> GetAll()
         {
             try
@@ -53,8 +61,15 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Return all attractions for given region
+        /// </summary>
+        /// <response code="200">Returns list of attractions for given region</response>
+        /// <response code="400">Error object</response>
         [HttpGet("region/{regionName}")]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(List<AttractionGetDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<AttractionGetDto>>> GetByRegion(string regionName)
         {
             try
@@ -72,8 +87,15 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Get attraction with specific id
+        /// </summary>
+        /// <response code="200">Return attraction</response>
+        /// <response code="400">Error object</response>
         [HttpGet("{id}")]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(AttractionGetDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<AttractionGetDto>> Get(int id)
         {
             try
@@ -96,8 +118,13 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Create attraction
+        /// </summary>
+        /// <response code="400">Error object</response>
         [HttpPost]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Create([FromForm] AttractionCreateDto attractionCreate)
         {
             try
@@ -136,8 +163,13 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Edit attraction
+        /// </summary>
+        /// <response code="400">Error object</response>
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Edit([FromForm] AttractionCreateDto attractionEdited, int id)
         {
             try
@@ -185,8 +217,13 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Delete attraction
+        /// </summary>
+        /// <response code="400">Error object</response>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Delete(int id)
         {
             try
@@ -208,8 +245,15 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Fetch attractions from api and store in db
+        /// </summary>
+        /// <response code="500">Error object</response>
+        /// <response code="200">Return List of Fetched Attractions</response>
         [HttpGet("fetch/{regionName}")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(List<AttractionGetDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<AttractionGetDto>>> FetchAttractionsByRegionName(string regionName)
         {
             try
@@ -224,7 +268,7 @@ namespace TripPlanner.Server.Controllers
             {
                 _logger.LogError(ex, "{Message}", ResponseMessages.CouldNotFetchAttractions);
                 var errorResponse = _errorService.CreateError(ResponseMessages.CouldNotFetchAttractions);
-                return BadRequest(errorResponse);
+                return StatusCode(500, errorResponse);
             }
         }
     }

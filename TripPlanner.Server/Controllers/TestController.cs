@@ -15,6 +15,9 @@ namespace TripPlanner.Server.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// For testing ChatGpt queries only
+        /// </summary>
         [HttpGet("message")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetMessageForAllRegions()
@@ -29,6 +32,9 @@ namespace TripPlanner.Server.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// For testing ChatGpt queries only
+        /// </summary>
         [HttpGet("message/{regionName}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetMessageForRegion(string regionName)

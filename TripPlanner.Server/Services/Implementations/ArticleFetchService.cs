@@ -10,18 +10,20 @@ namespace TripPlanner.Server.Services.Implementations
     {
         private readonly IEnumerable<IArticleSourceService> _articleSourceServices;
         private readonly IArticleRatingService _articleRatingService;
+        private readonly IArticleKeywordsMatchingService _articleKeywordsMatchingService;
         private readonly IImageService _imageService;
         private readonly TripDbContext _context;
         private readonly ILogger<ArticleFetchService> _logger;
         private readonly int MAX_NUMBER_ARTICLES_PER_REQUEST = 60;
 
-        public ArticleFetchService(IEnumerable<IArticleSourceService> articleSourceServices, IArticleRatingService articleRatingService, IImageService imageService, TripDbContext context, ILogger<ArticleFetchService> logger)
+        public ArticleFetchService(IEnumerable<IArticleSourceService> articleSourceServices, IArticleRatingService articleRatingService, IImageService imageService, TripDbContext context, ILogger<ArticleFetchService> logger, IArticleKeywordsMatchingService articleKeywordsMatchingService)
         {
             _articleSourceServices = articleSourceServices;
             _articleRatingService = articleRatingService;
             _context = context;
             _logger = logger;
             _imageService = imageService;
+            _articleKeywordsMatchingService = articleKeywordsMatchingService;
         }
 
         private async Task AddArticlesToDatabase(List<Article> articles)
@@ -161,7 +163,12 @@ namespace TripPlanner.Server.Services.Implementations
             // take max N articles, rate and assign to regions
             articles = TakeNRandomArticles(articles, MAX_NUMBER_ARTICLES_PER_REQUEST);
 
-            await _articleRatingService.RateArticlesAsync(articles, regions, countries, regionWithCountriesNames);
+            bool isSuccess = await _articleRatingService.RateArticlesAsync(articles, regions, countries, regionWithCountriesNames);
+            if (!isSuccess)
+            {
+                await _articleKeywordsMatchingService.RateArticles(articles);
+                await _articleKeywordsMatchingService.AssignArticlesByRegionNames(articles, regions, countries);
+            }
 
             // update articles field for isVisible and Region
             ChangeArticleFields(articles);
@@ -182,7 +189,12 @@ namespace TripPlanner.Server.Services.Implementations
             // take max N articles, rate and assign to regions
             articles = TakeNRandomArticles(articles, MAX_NUMBER_ARTICLES_PER_REQUEST);
 
-            await _articleRatingService.RateArticlesAsync(articles, regions, countries, regionWithCountryName);
+            bool isSuccess = await _articleRatingService.RateArticlesAsync(articles, regions, countries, regionWithCountryName);
+            if (!isSuccess)
+            {
+                await _articleKeywordsMatchingService.RateArticles(articles);
+                await _articleKeywordsMatchingService.AssignArticlesByRegionNames(articles, regions, countries);
+            }
 
             articles = await FilterOnlyWithGivenRegionName(articles, regionName);
 
@@ -202,7 +214,12 @@ namespace TripPlanner.Server.Services.Implementations
 
             var (regions, countries, regionWithCountriesNames) = await GetAllRegionWithCountryNames();
 
-            await _articleRatingService.RateArticlesAsync(articles, regions, countries, regionWithCountriesNames);
+            bool isSuccess = await _articleRatingService.RateArticlesAsync(articles, regions, countries, regionWithCountriesNames);
+            if (!isSuccess)
+            {
+                await _articleKeywordsMatchingService.RateArticles(articles);
+                await _articleKeywordsMatchingService.AssignArticlesByRegionNames(articles, regions, countries);
+            }
 
             // update articles field for isVisible and Region
             ChangeArticleFields(articles);

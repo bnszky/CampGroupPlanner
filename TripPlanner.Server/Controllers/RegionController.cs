@@ -6,6 +6,9 @@ using TripPlanner.Server.Messages;
 using Microsoft.Extensions.Logging;
 using TripPlanner.Server.Models.DTOs.Outgoing;
 using TripPlanner.Server.Models.DTOs.Incoming;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace TripPlanner.Server.Controllers
 {
@@ -24,14 +27,14 @@ namespace TripPlanner.Server.Controllers
         public RegionController(
             TripDbContext dbContext,
             IRegionFetchService regionFetchService,
-            ICityService citiesService,
+            ICityService cityService,
             IImageService imageService,
             IErrorService errorService,
             IRegionService regionService,
             ILogger<RegionController> logger)
         {
             _regionFetchService = regionFetchService;
-            _cityService = citiesService;
+            _cityService = cityService;
             _dbContext = dbContext;
             _imageService = imageService;
             _errorService = errorService;
@@ -39,6 +42,11 @@ namespace TripPlanner.Server.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Fetches a description for a given region.
+        /// </summary>
+        /// <param name="region">The name of the region.</param>
+        /// <returns>The description of the region.</returns>
         [HttpGet("description/{region}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<string>> FetchDescription(string region)
@@ -57,6 +65,11 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Fetches a list of cities for a given region.
+        /// </summary>
+        /// <param name="region">The name of the region.</param>
+        /// <returns>A list of cities in the region.</returns>
         [HttpGet("cities/{region}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<string>>> FetchCities(string region)
@@ -75,6 +88,11 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Fetches a list of images for a given region.
+        /// </summary>
+        /// <param name="region">The name of the region.</param>
+        /// <returns>A list of images in the region.</returns>
         [HttpGet("images/{region}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<string>>> FetchImages(string region)
@@ -93,6 +111,10 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets all region names.
+        /// </summary>
+        /// <returns>A list of all region names.</returns>
         [HttpGet("names")]
         [AllowAnonymous]
         public async Task<ActionResult<List<string>>> GetAllNames()
@@ -110,6 +132,10 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets all regions with minimal details.
+        /// </summary>
+        /// <returns>A list of regions with minimal details.</returns>
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<List<RegionMiniGetDto>>> GetAllMini()
@@ -127,6 +153,11 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets minimal details of a specific region by name.
+        /// </summary>
+        /// <param name="regionName">The name of the region.</param>
+        /// <returns>The minimal details of the region.</returns>
         [HttpGet("{regionName}/mini")]
         [AllowAnonymous]
         public async Task<ActionResult<RegionMiniGetDto>> GetMini(string regionName)
@@ -149,6 +180,11 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets details of a specific region by name.
+        /// </summary>
+        /// <param name="regionName">The name of the region.</param>
+        /// <returns>The details of the region.</returns>
         [HttpGet("{regionName}")]
         [AllowAnonymous]
         public async Task<ActionResult<RegionGetDto>> Get(string regionName)
@@ -172,6 +208,11 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Creates a new region.
+        /// </summary>
+        /// <param name="regionCreate">The region creation details.</param>
+        /// <returns>Status of the creation operation.</returns>
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromForm] RegionCreateDto regionCreate)
@@ -201,6 +242,12 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Edits an existing region.
+        /// </summary>
+        /// <param name="regionName">The name of the region to be edited.</param>
+        /// <param name="regionCreate">The region edit details.</param>
+        /// <returns>Status of the edit operation.</returns>
         [HttpPut("{regionName}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(string regionName, [FromForm] RegionCreateDto regionCreate)
@@ -230,6 +277,11 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes an existing region.
+        /// </summary>
+        /// <param name="regionName">The name of the region to be deleted.</param>
+        /// <returns>Status of the delete operation.</returns>
         [HttpDelete("{regionName}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(string regionName)

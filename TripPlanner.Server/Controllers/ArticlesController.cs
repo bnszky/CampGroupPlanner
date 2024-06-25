@@ -11,6 +11,7 @@ using TripPlanner.Server.Models.DTOs.Incoming;
 using TripPlanner.Server.Models.DTOs.Outgoing;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using TripPlanner.Server.Models;
 
 namespace TripPlanner.Server.Controllers
 {
@@ -33,8 +34,15 @@ namespace TripPlanner.Server.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Return all articles (for Admin), articles with MinPositivityRate (for others)
+        /// </summary>
+        /// <response code="200">Returns list of articles</response>
+        /// <response code="400">Error object</response>
         [HttpGet]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(List<ArticleGetDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<ArticleGetDto>>> Index()
         {
             try
@@ -62,8 +70,15 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Return all articles for given region (for Admin), articles with MinPositivityRate (for others)
+        /// </summary>
+        /// <response code="200">Returns list of articles for given region</response>
+        /// <response code="400">Error object</response>
         [HttpGet("region/{regionName}")]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(List<ArticleGetDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<ArticleGetDto>>> GetByRegion(string regionName)
         {
             try
@@ -96,8 +111,15 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Get article with specific id
+        /// </summary>
+        /// <response code="200">Return article</response>
+        /// <response code="400">Error object</response>
         [HttpGet("{id}")]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(ArticleGetDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ArticleGetDto>> Get(int id)
         {
             try
@@ -120,8 +142,13 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Create Article
+        /// </summary>
+        /// <response code="400">Error object</response>
         [HttpPost]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create([FromForm] ArticleCreateDto articleCreate)
         
         {
@@ -169,8 +196,13 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Delete Article
+        /// </summary>
+        /// <response code="400">Error object</response>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Delete(int id)
         {
             try
@@ -193,8 +225,13 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Edit Article
+        /// </summary>
+        /// <response code="400">Error object</response>
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Edit(int id, [FromForm] ArticleCreateDto editedArticle)
         {
             try
@@ -243,8 +280,15 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Fetch articles from different sources for given region 
+        /// </summary>
+        /// <response code="200">Fetched articles</response>
+        /// <response code="400">Error object</response>
         [HttpGet("fetch/{regionName}")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(List<ArticleGetDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<ArticleGetDto>>> FetchArticlesForRegion(string regionName)
         {
             try
@@ -262,8 +306,15 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Fetch articles from different sources
+        /// </summary>
+        /// <response code="200">Fetched articles</response>
+        /// <response code="400">Error object</response>
         [HttpGet("fetch")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(List<ArticleGetDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<ArticleGetDto>>> FetchArticles()
         {
             try
@@ -277,12 +328,19 @@ namespace TripPlanner.Server.Controllers
             {
                 _logger.LogError(ex, "{Message}", ResponseMessages.CouldNotFetchArticles);
                 var errorResponse = _errorService.CreateError(ResponseMessages.CouldNotFetchArticles);
-                return BadRequest(errorResponse);
+                return StatusCode(500, errorResponse);
             }
         }
 
+        /// <summary>
+        /// Try to rate and assign articles that has not been assigned or rated yet
+        /// </summary>
+        /// <response code="200">Rated and assigned articles</response>
+        /// <response code="400">Error object</response>
         [HttpPut("rate-or-assign")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(List<ArticleGetDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<ArticleGetDto>>> TryToAssignAndRateArticlesAgain()
         {
             try
@@ -300,6 +358,11 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Delete all articles below given rate (0-100)
+        /// </summary>
+        /// <response code="200">Deleted articles information</response>
+        /// <response code="400">Error object</response>
         [HttpDelete("delete-below-rate/{rate}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteArticlesBelowRate(int rate)
@@ -315,6 +378,12 @@ namespace TripPlanner.Server.Controllers
             return BadRequest(errorResponse);
         }
 
+        /// <summary>
+        /// Set minimal positivity rate of articles visible for users
+        /// </summary>
+        /// <response code="200">Successfully set minimal positivity rate</response>
+        /// <response code="500">Server exception info</response>
+        /// <response code="400">Inappropriate rate</response>
         [HttpPut("set-min-rate/{rate}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> SetMinPositivityRate(int rate)
@@ -333,12 +402,19 @@ namespace TripPlanner.Server.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Couldn't set minimal positivity rate");
-                return BadRequest("Couldn't set minimal positivity rate");
+                return StatusCode(500, "Couldn't set minimal positivity rate");
             }
         }
 
+        /// <summary>
+        /// Get minimal positivity rate of articles visible for users
+        /// </summary>
+        /// <response code="200">Successfully get minimal positivity rate (integer)</response>
+        /// <response code="500">Server exception info</response>
         [HttpGet("get-min-rate")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<int>> GetMinPositivityRate()
         {
             try
@@ -350,7 +426,7 @@ namespace TripPlanner.Server.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Couldn't get minimal positivity rate");
-                return BadRequest("Couldn't get minimal positivity rate");
+                return StatusCode(500, "Couldn't get minimal positivity rate");
             }
         }
     }

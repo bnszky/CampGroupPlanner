@@ -36,11 +36,20 @@ namespace TripPlanner.Server.Controllers
             _responseService = responseService;
         }
 
+        /// <summary>
+        /// Register a new user
+        /// </summary>
+        /// <response code="200">Registration successful, confirmation link sent</response>
+        /// <response code="400">Invalid registration request</response>
+        /// <response code="500">Internal server error</response>
         [HttpPost("register")]
         [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 _logger.LogError(ModelState.ToString(), "Registration errors");
                 return BadRequest(ModelState);
@@ -51,7 +60,7 @@ namespace TripPlanner.Server.Controllers
                 _logger.LogInformation(ResponseMessages.UserAlreadyLoggedIn);
                 return _responseService.Get(ResponseMessages.UserAlreadyLoggedIn, StatusCodes.Status400BadRequest);
             }
-            if(!await _emailService.IsEmailValid(model.Email))
+            if (!await _emailService.IsEmailValid(model.Email))
             {
                 _logger.LogInformation("Email is not valid: {ModelEmail}", model.Email);
                 return _responseService.Get(ResponseMessages.InvalidEmail, StatusCodes.Status400BadRequest);
@@ -66,8 +75,8 @@ namespace TripPlanner.Server.Controllers
                 {
                     var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var confirmationLink = $"{_configuration["Ports:Client"]}/confirm-email?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(confirmationToken)}";
-                    await _emailService.SendMessageByEmailAsync(user.Email, "Confirm your email by follow this link", confirmationLink);
-                    _logger.LogDebug("Succesffully confirmation link has been sent: {ConfirmationLink} to the user with email: {ModelEmail}", confirmationLink, user.Email);
+                    await _emailService.SendMessageByEmailAsync(user.Email, "Confirm your email by following this link", confirmationLink);
+                    _logger.LogDebug("Successfully confirmation link has been sent: {ConfirmationLink} to the user with email: {ModelEmail}", confirmationLink, user.Email);
                     return Ok("Confirmation link has been sent to your email.");
                 }
                 catch (Exception ex)
@@ -81,8 +90,17 @@ namespace TripPlanner.Server.Controllers
             return _responseService.Get(ResponseMessages.UnexpectedError, StatusCodes.Status500InternalServerError);
         }
 
+        /// <summary>
+        /// Resend confirmation link to user email
+        /// </summary>
+        /// <response code="200">Confirmation link resent</response>
+        /// <response code="404">User not found</response>
+        /// <response code="500">Internal server error</response>
         [HttpGet("resend-confirmation-link")]
         [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ResendConfirmationLink(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -96,8 +114,8 @@ namespace TripPlanner.Server.Controllers
             {
                 var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 var confirmationLink = $"{_configuration["Ports:Client"]}/confirm-email?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(confirmationToken)}";
-                await _emailService.SendMessageByEmailAsync(user.Email, "Confirm your email by follow this link", confirmationLink);
-                _logger.LogDebug("Succesffully confirmation link has been sent: {ConfirmationLink} to the user with email: {ModelEmail}", confirmationLink, user.Email);
+                await _emailService.SendMessageByEmailAsync(user.Email, "Confirm your email by following this link", confirmationLink);
+                _logger.LogDebug("Successfully confirmation link has been sent: {ConfirmationLink} to the user with email: {ModelEmail}", confirmationLink, user.Email);
                 return Ok(ResponseMessages.EmailSendSuccessful);
             }
             catch (Exception ex)
@@ -107,9 +125,18 @@ namespace TripPlanner.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// Confirm user email
+        /// </summary>
+        /// <response code="200">Email confirmed</response>
+        /// <response code="400">Invalid request</response>
+        /// <response code="404">User not found</response>
         [HttpGet("confirm-email")]
         [AllowAnonymous]
-        public async Task<IActionResult> ConfirmEmail(string email,  string token)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ConfirmEmail(string email, string token)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))
             {
@@ -118,7 +145,7 @@ namespace TripPlanner.Server.Controllers
             }
 
             var user = await _userManager.FindByEmailAsync(email);
-            if(user == null)
+            if (user == null)
             {
                 _logger.LogError(ResponseMessages.UserNotFound);
                 return _responseService.Get(ResponseMessages.UserNotFound, StatusCodes.Status404NotFound);
@@ -135,8 +162,17 @@ namespace TripPlanner.Server.Controllers
             return _responseService.Get(ResponseMessages.EmailConfirmationFailed, StatusCodes.Status400BadRequest);
         }
 
+        /// <summary>
+        /// Validate a token for a specific purpose
+        /// </summary>
+        /// <response code="200">Token is valid</response>
+        /// <response code="400">Invalid token validation request</response>
+        /// <response code="404">User not found</response>
         [HttpGet("validate-token")]
         [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ValidateToken(string email, string token, string purpose)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token) || string.IsNullOrEmpty(purpose))
@@ -176,6 +212,11 @@ namespace TripPlanner.Server.Controllers
             return _responseService.Get("Invalid token", StatusCodes.Status400BadRequest);
         }
 
+        /// <summary>
+        /// User login.
+        /// </summary>
+        /// <param name="model">Login model containing username and password.</param>
+        /// <returns>JWT token if login is successful.</returns>
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
@@ -187,7 +228,7 @@ namespace TripPlanner.Server.Controllers
             }
 
             var user = await _userManager.FindByNameAsync(model.Username);
-            if(user == null) { user = await _userManager.FindByEmailAsync(model.Username); }
+            if (user == null) { user = await _userManager.FindByEmailAsync(model.Username); }
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {
                 if (!await _userManager.IsEmailConfirmedAsync(user))
@@ -206,6 +247,10 @@ namespace TripPlanner.Server.Controllers
             return _responseService.Get(ResponseMessages.InvalidLogin, StatusCodes.Status401Unauthorized);
         }
 
+        /// <summary>
+        /// User logout.
+        /// </summary>
+        /// <returns>Status of the logout operation.</returns>
         [HttpPost("logout")]
         [Authorize]
         public async Task<IActionResult> Logout()
@@ -218,6 +263,10 @@ namespace TripPlanner.Server.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Get user info.
+        /// </summary>
+        /// <returns>Information about the current user.</returns>
         [HttpGet("info")]
         [Authorize]
         public async Task<IActionResult> GetUserInfo()
@@ -234,12 +283,17 @@ namespace TripPlanner.Server.Controllers
             return Ok(new { username = user.UserName, isAdmin });
         }
 
+        /// <summary>
+        /// Recover password.
+        /// </summary>
+        /// <param name="email">User's email address.</param>
+        /// <returns>Status of the password recovery operation.</returns>
         [HttpGet("recover-password")]
         [AllowAnonymous]
         public async Task<IActionResult> RecoverPassword(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
-            if(user == null)
+            if (user == null)
             {
                 _logger.LogError(ResponseMessages.UserNotFound);
                 return _responseService.Get(ResponseMessages.UserNotFound, StatusCodes.Status404NotFound);
@@ -248,10 +302,9 @@ namespace TripPlanner.Server.Controllers
             try
             {
                 var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-
                 var resetPasswordLink = $"{_configuration["Ports:Client"]}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(resetToken)}";
                 await _emailService.SendMessageByEmailAsync(user.Email, "Reset your password by following this link", resetPasswordLink);
-                _logger.LogDebug("Succesffully reset password link has been sent: {ResetPasswordLink} to the user with email: {ModelEmail}", resetPasswordLink, email);
+                _logger.LogDebug("Successfully reset password link has been sent: {ResetPasswordLink} to the user with email: {ModelEmail}", resetPasswordLink, email);
                 return Ok(ResponseMessages.EmailSendSuccessful);
             }
             catch (Exception ex)
@@ -259,9 +312,13 @@ namespace TripPlanner.Server.Controllers
                 _logger.LogError(ex, "Couldn't send reset password link to this email");
                 return _responseService.Get(ResponseMessages.EmailSendFailed, StatusCodes.Status500InternalServerError);
             }
-
         }
 
+        /// <summary>
+        /// Reset password.
+        /// </summary>
+        /// <param name="model">Reset password model containing email, token, and new password.</param>
+        /// <returns>Status of the password reset operation.</returns>
         [HttpPut("reset-password")]
         [AllowAnonymous]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
