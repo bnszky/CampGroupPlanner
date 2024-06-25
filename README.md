@@ -24,7 +24,7 @@ Admin can perform all CRUD operations with Attraction, Article, and Region and d
 Articles are fetched with the use of NewsApi and/or from the list of RSS configured in appsettings.json (it is skipped for regionName).
 2. Check if doesn't exist in the DB and take 60 (MAX_NUMBER) random articles
 3. Rate articles with ChatGptApi (model=gpt-4o)
-4. If something goes wrong with ChatGptApi, try to assign articles by keywords matching
+4. If something goes wrong with ChatGptApi, try to assign and rate articles by keywords matching algorithm
 5. If no errors try to store selected articles in the DB
 
 # Attraction fetching process
@@ -49,6 +49,7 @@ communicate through ASP.NET API
 1. Serilog to display important information in a console and in a Log folder
 2. AutoMapper and DtoClasses for more flexible integration with the DB and nice-looking API models
 3. Swagger UI
+4. xUnit and Moq for testing services
 
 
 
